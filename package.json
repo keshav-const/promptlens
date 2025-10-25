@@ -1,0 +1,34 @@
+{
+  "name": "monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo for browser extension, backend API, and web dashboard",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@10.19.0",
+  "scripts": {
+    "install:all": "pnpm install",
+    "clean": "pnpm -r exec rm -rf node_modules dist build out .turbo && rm -rf node_modules",
+    "dev:extension": "pnpm --filter extension dev",
+    "dev:backend": "pnpm --filter backend dev",
+    "dev:web": "pnpm --filter web dev",
+    "build:extension": "pnpm --filter extension build",
+    "build:backend": "pnpm --filter backend build",
+    "build:web": "pnpm --filter web build",
+    "build:all": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "format": "pnpm -r format",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "keywords": [
+    "monorepo",
+    "pnpm",
+    "workspaces"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {}
+}
