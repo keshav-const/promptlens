@@ -1,0 +1,39 @@
+{
+  "name": "monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo for browser extension, backend API, and web dashboard",
+  "workspaces": [
+    "extension",
+    "backend",
+    "web"
+  ],
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=9.0.0"
+  },
+  "scripts": {
+    "install:all": "npm install",
+    "clean": "npm run clean:workspaces && rm -rf node_modules",
+    "clean:workspaces": "npm run --workspaces --if-present clean",
+    "dev:extension": "npm run dev --workspace=extension",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:web": "npm run dev --workspace=web",
+    "build:extension": "npm run build --workspace=extension",
+    "build:backend": "npm run build --workspace=backend",
+    "build:web": "npm run build --workspace=web",
+    "build:all": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "format": "npm run format --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "keywords": [
+    "monorepo",
+    "npm",
+    "workspaces"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {}
+}

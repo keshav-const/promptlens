@@ -1,0 +1,26 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend API service",
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'Backend dev server not yet implemented'",
+    "build": "echo 'Backend build not yet implemented'",
+    "start": "echo 'Backend start not yet implemented'",
+    "clean": "rm -rf node_modules dist build out .turbo",
+    "lint": "echo 'Backend lint not yet implemented'",
+    "format": "echo 'Backend format not yet implemented'",
+    "test": "echo 'Backend test not yet implemented'",
+    "typecheck": "echo 'Backend typecheck not yet implemented'"
+  },
+  "keywords": [
+    "api",
+    "backend",
+    "express"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}

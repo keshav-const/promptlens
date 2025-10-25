@@ -1,0 +1,26 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Web dashboard application",
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'Web dev server not yet implemented'",
+    "build": "echo 'Web build not yet implemented'",
+    "start": "echo 'Web start not yet implemented'",
+    "clean": "rm -rf node_modules dist build out .turbo .next",
+    "lint": "echo 'Web lint not yet implemented'",
+    "format": "echo 'Web format not yet implemented'",
+    "test": "echo 'Web test not yet implemented'",
+    "typecheck": "echo 'Web typecheck not yet implemented'"
+  },
+  "keywords": [
+    "dashboard",
+    "web",
+    "nextjs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}
