@@ -5,7 +5,7 @@ Get up and running with this monorepo in just a few steps!
 ## Prerequisites
 
 - Node.js >= 20.0.0 ([Download](https://nodejs.org/))
-- pnpm >= 8.0.0 (Install: `npm install -g pnpm`)
+- npm >= 9.0.0 (comes with Node.js)
 
 ## Installation
 
@@ -15,7 +15,7 @@ git clone <repository-url>
 cd <repository-name>
 
 # Install dependencies
-pnpm install
+npm install
 ```
 
 ## Environment Setup
@@ -56,25 +56,25 @@ Run each service in a separate terminal:
 
 ```bash
 # Terminal 1 - Backend API (runs on port 3000)
-pnpm dev:backend
+npm run dev:backend
 
 # Terminal 2 - Web Dashboard (runs on port 3001)
-pnpm dev:web
+npm run dev:web
 
 # Terminal 3 - Browser Extension
-pnpm dev:extension
+npm run dev:extension
 ```
 
 ### Building for Production
 
 ```bash
 # Build all packages
-pnpm build:all
+npm run build:all
 
 # Or build individually
-pnpm build:backend
-pnpm build:web
-pnpm build:extension
+npm run build:backend
+npm run build:web
+npm run build:extension
 ```
 
 ## Common Tasks
@@ -83,42 +83,43 @@ pnpm build:extension
 
 ```bash
 # Add to specific package
-pnpm --filter backend add express
-pnpm --filter web add next
-pnpm --filter extension add -D vite
+npm install express --workspace=backend
+npm install next --workspace=web
+npm install vite -D --workspace=extension
 
-# Add to all packages
-pnpm -r add lodash
+# Add to root
+npm install lodash
 ```
 
 ### Running Scripts
 
 ```bash
 # Run across all packages
-pnpm lint
-pnpm test
-pnpm typecheck
+npm run lint
+npm run test
+npm run typecheck
 
 # Run in specific package
-pnpm --filter backend test
-pnpm --filter web lint
+npm run test --workspace=backend
+npm run lint --workspace=web
 ```
 
 ### Cleaning
 
 ```bash
 # Remove all node_modules and build artifacts
-pnpm clean
+npm run clean
 
 # Then reinstall
-pnpm install
+npm install
 ```
 
 ## Troubleshooting
 
-### pnpm command not found
+### npm version too old
 ```bash
-npm install -g pnpm
+# Update npm
+npm install -g npm@latest
 ```
 
 ### Port already in use
@@ -133,8 +134,8 @@ npm install -g pnpm
 ### Module not found errors
 ```bash
 # Try cleaning and reinstalling
-pnpm clean
-pnpm install
+npm run clean
+npm install
 ```
 
 ## Next Steps

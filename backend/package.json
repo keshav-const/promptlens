@@ -8,6 +8,7 @@
     "dev": "echo 'Backend dev server not yet implemented'",
     "build": "echo 'Backend build not yet implemented'",
     "start": "echo 'Backend start not yet implemented'",
+    "clean": "rm -rf node_modules dist build out .turbo",
     "lint": "echo 'Backend lint not yet implemented'",
     "format": "echo 'Backend format not yet implemented'",
     "test": "echo 'Backend test not yet implemented'",

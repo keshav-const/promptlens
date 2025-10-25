@@ -6,7 +6,7 @@ Thank you for considering contributing to this project! This document provides g
 
 1. Fork the repository
 2. Clone your fork locally
-3. Install dependencies: `pnpm install`
+3. Install dependencies: `npm install`
 4. Create a new branch: `git checkout -b feature/your-feature-name`
 
 ## Development Workflow
@@ -15,42 +15,42 @@ Thank you for considering contributing to this project! This document provides g
 
 ```bash
 # Install all dependencies across all workspaces
-pnpm install
+npm install
 ```
 
 ### Running Development Servers
 
 ```bash
 # Run individual services
-pnpm dev:extension
-pnpm dev:backend
-pnpm dev:web
+npm run dev:extension
+npm run dev:backend
+npm run dev:web
 ```
 
 ### Building
 
 ```bash
 # Build individual packages
-pnpm build:extension
-pnpm build:backend
-pnpm build:web
+npm run build:extension
+npm run build:backend
+npm run build:web
 
 # Or build all at once
-pnpm build:all
+npm run build:all
 ```
 
 ### Code Quality
 
 Before submitting a pull request, ensure:
 
-1. Your code passes linting: `pnpm lint`
-2. Your code is properly formatted: `pnpm format`
-3. All tests pass: `pnpm test`
-4. Type checking passes: `pnpm typecheck`
+1. Your code passes linting: `npm run lint`
+2. Your code is properly formatted: `npm run format`
+3. All tests pass: `npm run test`
+4. Type checking passes: `npm run typecheck`
 
 ## Project Structure
 
-This is a monorepo managed with pnpm workspaces:
+This is a monorepo managed with npm workspaces:
 
 - `extension/` - Browser extension package
 - `backend/` - Backend API service
@@ -100,19 +100,19 @@ To add a dependency to a specific workspace:
 
 ```bash
 # Add to extension
-pnpm --filter extension add <package-name>
+npm install <package-name> --workspace=extension
 
 # Add to backend
-pnpm --filter backend add <package-name>
+npm install <package-name> --workspace=backend
 
 # Add to web
-pnpm --filter web add <package-name>
+npm install <package-name> --workspace=web
 ```
 
 For development dependencies, use the `-D` flag:
 
 ```bash
-pnpm --filter backend add -D <package-name>
+npm install <package-name> -D --workspace=backend
 ```
 
 ## Questions?

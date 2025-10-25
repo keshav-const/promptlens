@@ -15,8 +15,7 @@ This document provides a visual overview of the monorepo structure.
 ├── LICENSE                   # MIT License
 ├── README.md                 # Main documentation
 ├── package.json              # Root package.json with workspace scripts
-├── pnpm-lock.yaml            # pnpm lockfile
-├── pnpm-workspace.yaml       # pnpm workspace configuration
+├── package-lock.json         # npm lockfile
 │
 ├── extension/                # Browser Extension Package
 │   ├── .env.example         # Extension environment variables
@@ -34,12 +33,12 @@ This document provides a visual overview of the monorepo structure.
 │       └── index.ts         # Entry point (placeholder)
 │
 └── web/                      # Web Dashboard Package
-├── .env.example         # Web environment variables
-├── README.md            # Web documentation
-├── package.json         # Web package configuration
-├── public/              # Static assets
-└── src/                 # Web source code
-└── index.ts         # Entry point (placeholder)
+    ├── .env.example         # Web environment variables
+    ├── README.md            # Web documentation
+    ├── package.json         # Web package configuration
+    ├── public/              # Static assets
+    └── src/                 # Web source code
+        └── index.ts         # Entry point (placeholder)
 ```
 
 ## Package Overview
@@ -69,13 +68,16 @@ Web dashboard application for user interface.
 
 ## Workspace Configuration
 
-The monorepo uses pnpm workspaces defined in `pnpm-workspace.yaml`:
+The monorepo uses npm workspaces defined in the root `package.json`:
 
-```yaml
-packages:
-- 'extension'
-- 'backend'
-- 'web'
+```json
+{
+  "workspaces": [
+    "extension",
+    "backend",
+    "web"
+  ]
+}
 ```
 
 This allows:

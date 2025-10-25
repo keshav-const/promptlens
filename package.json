@@ -3,29 +3,34 @@
   "version": "1.0.0",
   "private": true,
   "description": "Monorepo for browser extension, backend API, and web dashboard",
+  "workspaces": [
+    "extension",
+    "backend",
+    "web"
+  ],
   "engines": {
     "node": ">=20.0.0",
-    "pnpm": ">=8.0.0"
+    "npm": ">=9.0.0"
   },
-  "packageManager": "pnpm@10.19.0",
   "scripts": {
-    "install:all": "pnpm install",
-    "clean": "pnpm -r exec rm -rf node_modules dist build out .turbo && rm -rf node_modules",
-    "dev:extension": "pnpm --filter extension dev",
-    "dev:backend": "pnpm --filter backend dev",
-    "dev:web": "pnpm --filter web dev",
-    "build:extension": "pnpm --filter extension build",
-    "build:backend": "pnpm --filter backend build",
-    "build:web": "pnpm --filter web build",
-    "build:all": "pnpm -r build",
-    "lint": "pnpm -r lint",
-    "format": "pnpm -r format",
-    "test": "pnpm -r test",
-    "typecheck": "pnpm -r typecheck"
+    "install:all": "npm install",
+    "clean": "npm run clean:workspaces && rm -rf node_modules",
+    "clean:workspaces": "npm run --workspaces --if-present clean",
+    "dev:extension": "npm run dev --workspace=extension",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:web": "npm run dev --workspace=web",
+    "build:extension": "npm run build --workspace=extension",
+    "build:backend": "npm run build --workspace=backend",
+    "build:web": "npm run build --workspace=web",
+    "build:all": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "format": "npm run format --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "keywords": [
     "monorepo",
-    "pnpm",
+    "npm",
     "workspaces"
   ],
   "author": "",

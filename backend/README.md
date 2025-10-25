@@ -5,19 +5,19 @@ This package contains the backend API service for the project.
 ## Development
 
 ```bash
-pnpm dev
+npm run dev
 ```
 
 ## Build
 
 ```bash
-pnpm build
+npm run build
 ```
 
 ## Production
 
 ```bash
-pnpm start
+npm run start
 ```
 
 ## Structure

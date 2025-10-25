@@ -18,13 +18,13 @@ A monorepo containing a browser extension, backend API, and web dashboard applic
 Before you begin, ensure you have the following installed:
 
 - **Node.js**: >= 20.0.0 (we recommend using [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm))
-- **pnpm**: >= 8.0.0 (install with `npm install -g pnpm`)
+- **npm**: >= 9.0.0 (comes with Node.js)
 
 ### Check Your Versions
 
 ```bash
 node --version  # Should be >= 20.0.0
-pnpm --version  # Should be >= 8.0.0
+npm --version   # Should be >= 9.0.0
 ```
 
 ## 📁 Project Structure
@@ -46,7 +46,6 @@ pnpm --version  # Should be >= 8.0.0
 │   ├── package.json
 │   └── .env.example
 ├── package.json      # Root package.json with workspace scripts
-├── pnpm-workspace.yaml
 ├── .gitignore
 ├── .editorconfig
 ├── .env.example
@@ -64,10 +63,10 @@ cd <repository-name>
 
 ### 2. Install Dependencies
 
-This monorepo uses pnpm workspaces. Install all dependencies across all packages with a single command:
+This monorepo uses npm workspaces. Install all dependencies across all packages with a single command:
 
 ```bash
-pnpm install
+npm install
 ```
 
 This will install dependencies for the root and all workspace packages (extension, backend, web).
@@ -153,13 +152,13 @@ Each service can be run independently in development mode:
 
 ```bash
 # Run extension in development mode
-pnpm dev:extension
+npm run dev:extension
 
 # Run backend API in development mode
-pnpm dev:backend
+npm run dev:backend
 
 # Run web dashboard in development mode
-pnpm dev:web
+npm run dev:web
 ```
 
 **Note:** Currently, the dev scripts are placeholders. They will be implemented in future phases.
@@ -176,24 +175,24 @@ pnpm dev:web
 
 ```bash
 # Build extension
-pnpm build:extension
+npm run build:extension
 
 # Build backend
-pnpm build:backend
+npm run build:backend
 
 # Build web dashboard
-pnpm build:web
+npm run build:web
 ```
 
 ### Build All Packages
 
 ```bash
-pnpm build:all
+npm run build:all
 ```
 
 ## 📦 Workspaces
 
-This monorepo uses pnpm workspaces to manage multiple packages. The workspace configuration is defined in `pnpm-workspace.yaml`.
+This monorepo uses npm workspaces to manage multiple packages. The workspace configuration is defined in the root `package.json`.
 
 ### Adding Dependencies
 
@@ -201,13 +200,13 @@ To add a dependency to a specific workspace:
 
 ```bash
 # Add dependency to extension
-pnpm --filter extension add <package-name>
+npm install <package-name> --workspace=extension
 
 # Add dev dependency to backend
-pnpm --filter backend add -D <package-name>
+npm install <package-name> -D --workspace=backend
 
 # Add dependency to web
-pnpm --filter web add <package-name>
+npm install <package-name> --workspace=web
 ```
 
 ### Workspace Linking
@@ -217,7 +216,7 @@ Workspaces can depend on each other. To link a workspace as a dependency:
 ```json
 {
   "dependencies": {
-    "extension": "workspace:*"
+    "extension": "*"
   }
 }
 ```
@@ -228,19 +227,19 @@ Workspaces can depend on each other. To link a workspace as a dependency:
 
 | Script | Description |
 |--------|-------------|
-| `pnpm install:all` | Install all dependencies |
-| `pnpm clean` | Remove all node_modules and build artifacts |
-| `pnpm dev:extension` | Run extension in development mode |
-| `pnpm dev:backend` | Run backend in development mode |
-| `pnpm dev:web` | Run web dashboard in development mode |
-| `pnpm build:extension` | Build extension for production |
-| `pnpm build:backend` | Build backend for production |
-| `pnpm build:web` | Build web dashboard for production |
-| `pnpm build:all` | Build all packages |
-| `pnpm lint` | Run linting across all packages |
-| `pnpm format` | Run formatting across all packages |
-| `pnpm test` | Run tests across all packages |
-| `pnpm typecheck` | Run type checking across all packages |
+| `npm run install:all` | Install all dependencies |
+| `npm run clean` | Remove all node_modules and build artifacts |
+| `npm run dev:extension` | Run extension in development mode |
+| `npm run dev:backend` | Run backend in development mode |
+| `npm run dev:web` | Run web dashboard in development mode |
+| `npm run build:extension` | Build extension for production |
+| `npm run build:backend` | Build backend for production |
+| `npm run build:web` | Build web dashboard for production |
+| `npm run build:all` | Build all packages |
+| `npm run lint` | Run linting across all packages |
+| `npm run format` | Run formatting across all packages |
+| `npm run test` | Run tests across all packages |
+| `npm run typecheck` | Run type checking across all packages |
 
 ## 🛠️ Technology Stack (Planned)
 
@@ -264,7 +263,7 @@ Workspaces can depend on each other. To link a workspace as a dependency:
 
 ## 📝 Additional Notes
 
-- This monorepo uses pnpm workspaces for efficient dependency management and workspace linking
+- This monorepo uses npm workspaces for efficient dependency management and workspace linking
 - All packages are private and not intended for publication to npm
 - The `.editorconfig` file ensures consistent coding styles across different editors
 - Git hooks can be added using husky for pre-commit linting and formatting
@@ -273,7 +272,7 @@ Workspaces can depend on each other. To link a workspace as a dependency:
 
 1. Create a new branch for your feature/fix
 2. Make your changes
-3. Run linting and tests: `pnpm lint && pnpm test`
+3. Run linting and tests: `npm run lint && npm run test`
 4. Commit your changes
 5. Push to your branch and create a pull request
 

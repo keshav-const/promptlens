@@ -5,13 +5,13 @@ This package contains the browser extension for the project.
 ## Development
 
 ```bash
-pnpm dev
+npm run dev
 ```
 
 ## Build
 
 ```bash
-pnpm build
+npm run build
 ```
 
 ## Structure

@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "echo 'Extension dev server not yet implemented'",
     "build": "echo 'Extension build not yet implemented'",
+    "clean": "rm -rf node_modules dist build out .turbo",
     "lint": "echo 'Extension lint not yet implemented'",
     "format": "echo 'Extension format not yet implemented'",
     "test": "echo 'Extension test not yet implemented'",
