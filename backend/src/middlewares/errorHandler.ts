@@ -53,7 +53,7 @@ export const errorHandler = (
     error: {
       message,
       code,
-      details: config.NODE_ENV === 'development' ? details : undefined,
+      details: details || (config.NODE_ENV === 'development' ? err.stack : undefined),
     },
     timestamp: new Date().toISOString(),
   };
