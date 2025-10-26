@@ -3,16 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "description": "Web dashboard application",
-  "type": "module",
   "scripts": {
-    "dev": "echo 'Web dev server not yet implemented'",
-    "build": "echo 'Web build not yet implemented'",
-    "start": "echo 'Web start not yet implemented'",
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
     "clean": "rm -rf node_modules dist build out .turbo .next",
-    "lint": "echo 'Web lint not yet implemented'",
-    "format": "echo 'Web format not yet implemented'",
-    "test": "echo 'Web test not yet implemented'",
-    "typecheck": "echo 'Web typecheck not yet implemented'"
+    "lint": "next lint",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "dashboard",
@@ -21,6 +22,39 @@
   ],
   "author": "",
   "license": "MIT",
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "@alloc/quick-lru": "^5.2.0",
+    "@babel/runtime": "^7.28.4",
+    "@eslint/config-array": "^0.21.1",
+    "@eslint/plugin-kit": "^0.4.0",
+    "@humanwhocodes/retry": "^0.4.3",
+    "dlv": "^1.1.3",
+    "micromatch": "^4.0.8",
+    "next": "^14.2.23",
+    "next-auth": "^4.24.11",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "styled-jsx": "^5.1.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@typescript-eslint/eslint-plugin": "^8.18.2",
+    "@typescript-eslint/parser": "^8.18.2",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.23",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "postcss": "^8.4.49",
+    "prettier": "^3.4.2",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2"
+  },
+  "overrides": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
 }
