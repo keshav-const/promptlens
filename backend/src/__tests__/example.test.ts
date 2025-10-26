@@ -1,8 +1,14 @@
 import request from 'supertest';
 import { createApp } from '../app.js';
+import { createMockToken } from './utils/testHelpers.js';
 
 describe('Example Routes', () => {
   const app = createApp();
+  let token: string;
+
+  beforeAll(async () => {
+    token = await createMockToken('example@example.com');
+  });
 
   describe('GET /api/example/public', () => {
     it('should return 200 and public message', async () => {
@@ -26,7 +32,7 @@ describe('Example Routes', () => {
     it('should return 200 with authorization header', async () => {
       const response = await request(app)
         .get('/api/example/protected')
-        .set('Authorization', 'Bearer test-token');
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);

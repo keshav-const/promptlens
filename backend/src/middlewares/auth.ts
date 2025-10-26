@@ -1,6 +1,8 @@
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../types/index.js';
 import { AppError } from './errorHandler.js';
+import { authService } from '../services/auth.service.js';
+import { userService } from '../services/user.service.js';
 
 export const requireAuth = async (
   req: AuthRequest,
@@ -20,10 +22,21 @@ export const requireAuth = async (
       throw new AppError('No token provided', 401, 'UNAUTHORIZED');
     }
 
-    req.userId = 'TODO_USER_ID';
+    const decoded = await authService.verifyToken(token);
+
+    if (!decoded.email) {
+      throw new AppError('Invalid token payload', 401, 'INVALID_TOKEN');
+    }
+
+    const user = await userService.findOrCreateUser({
+      email: decoded.email,
+      displayName: decoded.name,
+    });
+
+    req.userId = user._id.toString();
     req.user = {
-      id: 'TODO_USER_ID',
-      email: 'TODO_USER_EMAIL',
+      id: user._id.toString(),
+      email: user.email,
     };
 
     next();
@@ -44,11 +57,24 @@ export const optionalAuth = async (
       const token = authHeader.split(' ')[1];
 
       if (token) {
-        req.userId = 'TODO_USER_ID';
-        req.user = {
-          id: 'TODO_USER_ID',
-          email: 'TODO_USER_EMAIL',
-        };
+        try {
+          const decoded = await authService.verifyToken(token);
+
+          if (decoded.email) {
+            const user = await userService.findOrCreateUser({
+              email: decoded.email,
+              displayName: decoded.name,
+            });
+
+            req.userId = user._id.toString();
+            req.user = {
+              id: user._id.toString(),
+              email: user.email,
+            };
+          }
+        } catch (error) {
+          console.error('Optional auth failed:', error);
+        }
       }
     }
 
