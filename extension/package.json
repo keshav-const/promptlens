@@ -5,13 +5,16 @@
   "description": "Browser extension package",
   "type": "module",
   "scripts": {
-    "dev": "echo 'Extension dev server not yet implemented'",
-    "build": "echo 'Extension build not yet implemented'",
-    "clean": "rm -rf node_modules dist build out .turbo",
-    "lint": "echo 'Extension lint not yet implemented'",
-    "format": "echo 'Extension format not yet implemented'",
+    "dev": "vite build --watch --mode development",
+    "build": "tsc && vite build",
+    "zip": "npm run build && tsx scripts/zip.ts",
+    "clean": "rm -rf node_modules dist build out .turbo extension.zip",
+    "lint": "eslint src --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
     "test": "echo 'Extension test not yet implemented'",
-    "typecheck": "echo 'Extension typecheck not yet implemented'"
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "browser-extension",
@@ -19,6 +22,32 @@
   ],
   "author": "",
   "license": "MIT",
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/archiver": "^6.0.4",
+    "@types/chrome": "^0.1.24",
+    "@types/node": "^20.19.23",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "@vitejs/plugin-react": "^5.1.0",
+    "archiver": "^7.0.1",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "postcss": "^8.5.6",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4.1.16",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.12",
+    "vite-plugin-static-copy": "^3.1.4"
+  }
 }
