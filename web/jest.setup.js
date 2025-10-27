@@ -5,10 +5,7 @@ global.fetch = jest.fn();
 const originalConsoleError = console.error;
 beforeAll(() => {
   console.error = (...args) => {
-    if (
-      typeof args[0] === 'string' &&
-      args[0].includes('Not implemented: navigation')
-    ) {
+    if (typeof args[0] === 'string' && args[0].includes('Not implemented: navigation')) {
       return;
     }
     originalConsoleError(...args);

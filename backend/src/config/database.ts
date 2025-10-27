@@ -21,7 +21,9 @@ export const connectDatabase = async (retryCount = 0): Promise<void> => {
 
     if (retryCount < MAX_RETRIES) {
       const delay = RETRY_DELAY_MS * Math.pow(2, retryCount);
-      console.warn(`🔄 Retrying connection in ${delay / 1000} seconds... (Attempt ${retryCount + 1}/${MAX_RETRIES})`);
+      console.warn(
+        `🔄 Retrying connection in ${delay / 1000} seconds... (Attempt ${retryCount + 1}/${MAX_RETRIES})`
+      );
       await new Promise((resolve) => setTimeout(resolve, delay));
       return connectDatabase(retryCount + 1);
     } else {

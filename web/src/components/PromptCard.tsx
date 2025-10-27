@@ -72,9 +72,7 @@ export default function PromptCard({ prompt, onFavoriteToggle, onDelete }: Promp
             <h3 className="text-lg font-semibold text-gray-900">Optimized Prompt</h3>
             {prompt.isFavorite && <span className="text-yellow-500">★</span>}
           </div>
-          <p className="text-xs text-gray-500">
-            {new Date(prompt.createdAt).toLocaleString()}
-          </p>
+          <p className="text-xs text-gray-500">{new Date(prompt.createdAt).toLocaleString()}</p>
         </div>
 
         <div className="flex gap-2">

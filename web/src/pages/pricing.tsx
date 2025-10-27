@@ -288,9 +288,7 @@ export default function Pricing() {
           </div>
 
           <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h3 className="mb-2 font-semibold text-gray-900">
-              Do you offer refunds?
-            </h3>
+            <h3 className="mb-2 font-semibold text-gray-900">Do you offer refunds?</h3>
             <p className="text-sm text-gray-600">
               We offer a 7-day money-back guarantee. If you're not satisfied with Pro within the
               first 7 days, contact us for a full refund.
@@ -298,9 +296,7 @@ export default function Pricing() {
           </div>
 
           <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h3 className="mb-2 font-semibold text-gray-900">
-              How do I manage my billing?
-            </h3>
+            <h3 className="mb-2 font-semibold text-gray-900">How do I manage my billing?</h3>
             <p className="text-sm text-gray-600">
               You can manage your subscription, update payment methods, and view billing history
               from your Settings page. We use Stripe for secure payment processing.
@@ -312,7 +308,10 @@ export default function Pricing() {
       <div className="mt-16 text-center">
         <p className="text-gray-600">
           Have more questions?{' '}
-          <a href="mailto:support@example.com" className="font-medium text-primary-600 hover:text-primary-700">
+          <a
+            href="mailto:support@example.com"
+            className="font-medium text-primary-600 hover:text-primary-700"
+          >
             Contact support
           </a>
         </p>

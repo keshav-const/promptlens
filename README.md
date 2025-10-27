@@ -1,5 +1,7 @@
 # Monorepo Project
 
+[![CI Pipeline](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/phase1-ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/phase1-ci.yml)
+
 A monorepo containing a browser extension, backend API, and web dashboard application.
 
 ## 📋 Table of Contents
@@ -10,8 +12,11 @@ A monorepo containing a browser extension, backend API, and web dashboard applic
 - [Environment Variables](#environment-variables)
 - [Development](#development)
 - [Building](#building)
+- [Testing](#testing)
+- [CI/CD Pipeline](#cicd-pipeline)
 - [Workspaces](#workspaces)
 - [Scripts](#scripts)
+- [Documentation](#documentation)
 
 ## 🔧 Prerequisites
 
@@ -229,6 +234,125 @@ npm run build:web
 npm run build:all
 ```
 
+## 🧪 Testing
+
+Each package includes comprehensive test suites to ensure code quality and functionality.
+
+### Run Tests for All Packages
+
+```bash
+npm run test
+```
+
+### Run Tests for Individual Packages
+
+```bash
+# Backend unit tests (with MongoDB memory server)
+npm run test --workspace=backend
+
+# Extension unit tests
+npm run test --workspace=extension
+
+# Web unit tests
+npm run test --workspace=web
+
+# Web E2E tests with Playwright
+npm run test:e2e --workspace=web
+```
+
+### Test Coverage
+
+- **Backend**: Jest unit tests with MongoDB Memory Server for database operations
+- **Extension**: Jest unit tests with jsdom for React components and utilities
+- **Web**: Jest unit tests for components and services, Playwright for E2E testing
+
+### Running Tests in Watch Mode
+
+```bash
+# Backend
+npm run test:watch --workspace=backend
+
+# Web
+npm run test:watch --workspace=web
+```
+
+## 🔄 CI/CD Pipeline
+
+This repository uses GitHub Actions to automate testing and quality checks on every pull request.
+
+### CI Workflow Overview
+
+The Phase 1 CI pipeline (`.github/workflows/phase1-ci.yml`) runs automatically on:
+- Pull requests to the `main` branch
+- Manual workflow dispatch via GitHub Actions UI
+
+### Pipeline Jobs
+
+The CI pipeline consists of separate jobs for each package to isolate failures:
+
+1. **Backend Job**
+   - Linting with ESLint
+   - Type checking with TypeScript
+   - Unit tests with Jest and MongoDB Memory Server
+   - Environment: `MONGODB_MEMORY_SERVER_VERSION=7.0.0`
+
+2. **Extension Job**
+   - Linting with ESLint
+   - Type checking with TypeScript
+   - Unit tests with Jest
+
+3. **Web Job**
+   - Linting with Next.js ESLint config
+   - Type checking with TypeScript
+   - Unit tests with Jest
+
+4. **Playwright E2E Job**
+   - End-to-end tests for the web dashboard
+   - Automated browser testing with Chromium
+   - Uploads test reports as artifacts
+
+5. **Postman/Newman Job** (optional)
+   - Validates API request definitions from Postman collection
+   - Runs only non-Stripe requests to avoid live API calls
+   - Uploads Newman HTML reports as artifacts
+
+6. **CI Summary Job**
+   - Aggregates all job results
+   - Provides actionable feedback for failures
+   - Blocks merging if any required checks fail
+
+### Viewing CI Results
+
+- **Status Checks**: View PR checks in the "Checks" tab of your pull request
+- **Artifacts**: Download test reports from the Actions tab (Playwright reports, Newman reports)
+- **Summaries**: Check the job summary for quick debugging tips on failures
+
+### Required Status Checks
+
+Before merging a pull request, the following checks must pass:
+- ✅ Backend lint, typecheck, and tests
+- ✅ Extension lint, typecheck, and tests
+- ✅ Web lint, typecheck, and tests
+- ✅ Playwright E2E tests
+
+### Local CI Validation
+
+Before pushing, run these commands to catch issues early:
+
+```bash
+# Run all linting
+npm run lint
+
+# Run all type checks
+npm run typecheck
+
+# Run all tests
+npm run test
+
+# Run E2E tests
+npm run test:e2e --workspace=web
+```
+
 ## 📦 Workspaces
 
 This monorepo uses npm workspaces to manage multiple packages. The workspace configuration is defined in the root `package.json`.
@@ -307,13 +431,81 @@ Workspaces can depend on each other. To link a workspace as a dependency:
 - The `.editorconfig` file ensures consistent coding styles across different editors
 - Git hooks can be added using husky for pre-commit linting and formatting
 
+## 📚 Documentation
+
+Comprehensive documentation is available to guide development, testing, and deployment:
+
+### Core Documentation
+
+- **[README.md](./README.md)** - Main repository documentation (this file)
+- **[STRUCTURE.md](./STRUCTURE.md)** - Detailed project structure and architecture
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Contribution guidelines and workflow
+- **[QUICKSTART.md](./QUICKSTART.md)** - Quick start guide for new developers
+
+### Package Documentation
+
+- **[backend/README.md](./backend/README.md)** - Backend API documentation
+- **[extension/README.md](./extension/README.md)** - Browser extension documentation
+- **[web/README.md](./web/README.md)** - Web dashboard documentation
+
+### Operational Documentation
+
+When available, refer to these Phase 1 operational guides:
+
+- **docs/phase1-testing-plan.md** - Comprehensive testing strategy and test coverage
+- **docs/phase1-deployment-guide.md** - Step-by-step deployment instructions for production
+- **docs/phase1-validation-runbook.md** - Validation procedures and troubleshooting
+
+### API Documentation
+
+- **[backend/API.md](./backend/API.md)** - REST API endpoints and request/response formats
+- **tests/postman/** - Postman collection for API testing and validation
+
 ## 🤝 Contributing
 
-1. Create a new branch for your feature/fix
-2. Make your changes
-3. Run linting and tests: `npm run lint && npm run test`
-4. Commit your changes
-5. Push to your branch and create a pull request
+Contributors should follow these steps to ensure their changes meet quality standards:
+
+1. **Create a Feature Branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+2. **Make Your Changes**
+   - Follow existing code conventions and patterns
+   - Add tests for new functionality
+   - Update documentation as needed
+
+3. **Validate Locally**
+   ```bash
+   # Run all quality checks
+   npm run lint
+   npm run typecheck
+   npm run test
+   ```
+
+4. **Commit and Push**
+   ```bash
+   git add .
+   git commit -m "feat: your feature description"
+   git push origin feature/your-feature-name
+   ```
+
+5. **Create a Pull Request**
+   - Provide a clear description of changes
+   - Link to related issues
+   - Ensure all CI checks pass before requesting review
+   - Address review feedback promptly
+
+### CI Pipeline Expectations
+
+All pull requests must pass the automated CI pipeline before merging:
+- ✅ Linting checks for all packages
+- ✅ TypeScript type checking for all packages
+- ✅ Unit tests for backend, extension, and web
+- ✅ E2E tests with Playwright
+- ✅ API validation with Postman/Newman (when applicable)
+
+If CI checks fail, review the job logs and summary for debugging guidance. The pipeline provides specific feedback for common issues in each package.
 
 ## 📄 License
 

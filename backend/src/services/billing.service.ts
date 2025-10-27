@@ -123,9 +123,10 @@ export class BillingService {
 
   private async handlePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
     const invoiceData = invoice as { subscription?: string | { id: string } };
-    const subscriptionId = typeof invoiceData.subscription === 'string' 
-      ? invoiceData.subscription 
-      : invoiceData.subscription?.id;
+    const subscriptionId =
+      typeof invoiceData.subscription === 'string'
+        ? invoiceData.subscription
+        : invoiceData.subscription?.id;
 
     if (!subscriptionId) {
       console.error('No subscription ID in invoice');
@@ -140,11 +141,7 @@ export class BillingService {
       throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
     }
 
-    return this.stripe.webhooks.constructEvent(
-      payload,
-      signature,
-      STRIPE_CONFIG.WEBHOOK_SECRET
-    );
+    return this.stripe.webhooks.constructEvent(payload, signature, STRIPE_CONFIG.WEBHOOK_SECRET);
   }
 }
 

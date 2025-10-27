@@ -55,12 +55,10 @@ describe('UpgradeModal', () => {
   });
 
   it('should call createCheckoutSession when upgrade button is clicked', async () => {
-    const mockCreateCheckoutSession = jest
-      .spyOn(api, 'createCheckoutSession')
-      .mockResolvedValue({
-        url: 'https://checkout.stripe.com/test',
-        sessionId: 'test-session-id',
-      });
+    const mockCreateCheckoutSession = jest.spyOn(api, 'createCheckoutSession').mockResolvedValue({
+      url: 'https://checkout.stripe.com/test',
+      sessionId: 'test-session-id',
+    });
 
     const originalLocation = window.location;
     delete (window as any).location;
@@ -92,9 +90,9 @@ describe('UpgradeModal', () => {
                 url: 'https://checkout.stripe.com/test',
                 sessionId: 'test-session-id',
               }),
-            100,
+            100
           );
-        }),
+        })
     );
 
     render(<UpgradeModal isOpen={true} onClose={mockOnClose} />);

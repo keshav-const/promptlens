@@ -66,7 +66,7 @@ describe('UsageTracker', () => {
     render(<UsageTracker usage={atLimitUsage} />);
 
     expect(
-      screen.getByText('Daily limit reached. Upgrade to Pro for unlimited prompts!'),
+      screen.getByText('Daily limit reached. Upgrade to Pro for unlimited prompts!')
     ).toBeInTheDocument();
   });
 
