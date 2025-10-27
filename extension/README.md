@@ -128,6 +128,28 @@ extension/
 
 ## 🎯 Features
 
+### PromptLens Optimization (Phase 1)
+
+The extension now includes PromptLens functionality for ChatGPT and Gemini:
+
+- **Textarea Detection**: Automatically detects input areas on ChatGPT and Gemini
+- **Optimize Button**: Floating "✨ Optimize with PromptLens" button appears near active textareas
+- **Optimization Modal**: Shows original prompt, optimized version, and explanation
+- **Actions**: Replace textarea content, copy to clipboard, or save to backend
+- **Auth Integration**: Uses stored auth token from dashboard login
+- **Error Handling**: User-friendly messages for auth errors, rate limits, and network issues
+
+#### Usage
+
+1. Navigate to ChatGPT or Gemini
+2. Click on the textarea to focus it
+3. The optimize button will appear
+4. Type your prompt and click "✨ Optimize with PromptLens"
+5. Review the optimized version in the modal
+6. Use Replace, Copy, or Save actions as needed
+
+See `TESTING.md` for the complete manual testing checklist.
+
 ### Messaging System
 
 The extension includes a robust messaging system for communication between components:

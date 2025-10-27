@@ -5,7 +5,12 @@ export enum MessageType {
   SET_CONFIG = 'SET_CONFIG',
   API_REQUEST = 'API_REQUEST',
   API_RESPONSE = 'API_RESPONSE',
-  ERROR = 'ERROR'
+  ERROR = 'ERROR',
+  GET_AUTH_TOKEN = 'GET_AUTH_TOKEN',
+  SET_AUTH_TOKEN = 'SET_AUTH_TOKEN',
+  CLEAR_AUTH_TOKEN = 'CLEAR_AUTH_TOKEN',
+  OPTIMIZE_PROMPT = 'OPTIMIZE_PROMPT',
+  SAVE_PROMPT = 'SAVE_PROMPT'
 }
 
 export interface Message<T = unknown> {
@@ -18,6 +23,7 @@ export interface MessageResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
+  status?: number;
 }
 
 export const sendMessageToBackground = <T = unknown>(
