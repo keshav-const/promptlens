@@ -8,6 +8,9 @@ if (!global.crypto) {
 
 process.env.NODE_ENV = 'test';
 process.env.GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'test-gemini-key';
+process.env.STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || 'sk_test_fake';
+process.env.STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_test_fake';
+process.env.STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID || 'price_test_fake';
 
 let mongoServer: MongoMemoryServer;
 

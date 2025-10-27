@@ -30,6 +30,7 @@
     "helmet": "^7.1.0",
     "mongoose": "^8.0.3",
     "morgan": "^1.10.0",
+    "stripe": "^19.1.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -38,6 +39,7 @@
     "@types/jest": "^29.5.11",
     "@types/morgan": "^1.9.9",
     "@types/node": "^20.10.6",
+    "@types/stripe": "^8.0.416",
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^6.17.0",
     "@typescript-eslint/parser": "^6.17.0",

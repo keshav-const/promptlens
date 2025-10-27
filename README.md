@@ -116,9 +116,10 @@ See the [Environment Variables](#environment-variables) section for detailed inf
 - `GEMINI_API_KEY` - Google Gemini API key for AI features
 
 **Stripe (Payment Processing):**
-- `STRIPE_SECRET_KEY` - Stripe secret key
+- `STRIPE_SECRET_KEY` - Stripe secret key (get from Stripe Dashboard)
 - `STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
-- `STRIPE_WEBHOOK_SECRET` - Stripe webhook secret
+- `STRIPE_WEBHOOK_SECRET` - Stripe webhook secret (get from webhook configuration)
+- `STRIPE_PRICE_ID` - Stripe price ID for Pro subscription (e.g., price_1234)
 
 **Authentication:**
 - `NEXTAUTH_URL` - NextAuth URL (web dashboard URL)
@@ -144,6 +145,43 @@ See the [Environment Variables](#environment-variables) section for detailed inf
 - `GITHUB_CLIENT_ID` - GitHub OAuth client ID (if using)
 - `GITHUB_CLIENT_SECRET` - GitHub OAuth client secret (if using)
 
+## 💳 Stripe Setup
+
+The application uses Stripe for subscription billing. Follow these steps to set up Stripe for development:
+
+### 1. Create Stripe Account
+1. Sign up at https://stripe.com
+2. Get your test API keys from Developers > API keys
+3. Add keys to `backend/.env` and `web/.env.local`
+
+### 2. Create Subscription Product
+1. Go to Stripe Dashboard > Products
+2. Create a new product (e.g., "Pro Plan")
+3. Add a recurring price (e.g., $9.99/month)
+4. Copy the Price ID (starts with `price_`) to `STRIPE_PRICE_ID` in `backend/.env`
+
+### 3. Setup Webhook (Local Development)
+```bash
+# Install Stripe CLI
+brew install stripe/stripe-cli/stripe  # macOS
+# Or download from https://stripe.com/docs/stripe-cli
+
+# Login to Stripe
+stripe login
+
+# Forward webhooks to local backend
+stripe listen --forward-to http://localhost:3000/api/upgrade
+```
+
+Copy the webhook signing secret (starts with `whsec_`) to `STRIPE_WEBHOOK_SECRET` in `backend/.env`.
+
+### 4. Test the Integration
+- Use test card: `4242 4242 4242 4242`
+- Any future expiry date, CVC, and postal code
+- See full test cards list: https://stripe.com/docs/testing
+
+For detailed setup instructions, see [backend/README.md](./backend/README.md).
+
 ## 💻 Development
 
 ### Run All Services
@@ -168,6 +206,7 @@ npm run dev:web
 1. Start the backend API (usually runs on `http://localhost:3000`)
 2. Start the web dashboard (usually runs on `http://localhost:3001`)
 3. Load the extension in your browser in development mode
+4. (Optional) Start Stripe webhook forwarding with `stripe listen --forward-to http://localhost:3000/api/upgrade`
 
 ## 🏗️ Building
 

@@ -58,6 +58,42 @@ export class UserService {
   getUsageLimit(plan: string): number {
     return plan === 'pro' ? 20 : 4;
   }
+
+  async updateStripeCustomerId(
+    userId: string | mongoose.Types.ObjectId,
+    stripeCustomerId: string
+  ): Promise<IUser | null> {
+    return User.findByIdAndUpdate(
+      userId,
+      { stripeCustomerId },
+      { new: true }
+    );
+  }
+
+  async updateSubscription(
+    userId: string | mongoose.Types.ObjectId,
+    subscriptionId: string,
+    plan: 'free' | 'pro'
+  ): Promise<IUser | null> {
+    const updateData: { stripeSubscriptionId: string; plan: 'free' | 'pro'; usageCount?: number } = {
+      stripeSubscriptionId: subscriptionId,
+      plan,
+    };
+
+    if (plan === 'pro') {
+      updateData.usageCount = 0;
+    }
+
+    return User.findByIdAndUpdate(
+      userId,
+      updateData,
+      { new: true }
+    );
+  }
+
+  async findByStripeCustomerId(stripeCustomerId: string): Promise<IUser | null> {
+    return User.findOne({ stripeCustomerId });
+  }
 }
 
 export const userService = new UserService();

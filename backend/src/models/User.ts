@@ -10,6 +10,7 @@ export interface IUser extends Document {
   usageCount: number;
   lastResetAt: Date;
   stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -42,6 +43,10 @@ const userSchema = new Schema<IUser>(
       default: Date.now,
     },
     stripeCustomerId: {
+      type: String,
+      sparse: true,
+    },
+    stripeSubscriptionId: {
       type: String,
       sparse: true,
     },

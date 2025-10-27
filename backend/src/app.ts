@@ -37,7 +37,15 @@ export const createApp = (): Express => {
     })
   );
 
-  app.use(express.json());
+  app.use(
+    express.json({
+      verify: (req, _res, buf) => {
+        if (req.url?.startsWith('/api/upgrade')) {
+          (req as { rawBody?: Buffer }).rawBody = buf;
+        }
+      },
+    })
+  );
   app.use(express.urlencoded({ extended: true }));
 
   if (config.NODE_ENV !== 'test') {
