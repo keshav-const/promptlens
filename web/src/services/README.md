@@ -5,6 +5,7 @@ This directory contains client-side API integration services for the dashboard a
 ## Overview
 
 The API service layer provides typed, centralized access to backend endpoints with:
+
 - Automatic JWT token handling
 - Standardized error handling
 - Type-safe request/response interfaces
@@ -100,6 +101,7 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:3000/api
 ## Authentication
 
 The service automatically:
+
 1. Retrieves JWT token from `TokenStorage`
 2. Includes token in `Authorization` header
 3. Works seamlessly with NextAuth session management
@@ -123,6 +125,7 @@ npm test
 ```
 
 Tests cover:
+
 - Successful API calls
 - Error handling
 - Query parameter serialization
@@ -131,14 +134,14 @@ Tests cover:
 
 ## API Endpoints
 
-| Function | Endpoint | Method | Auth |
-|----------|----------|--------|------|
-| `fetchPromptHistory` | `/history` | GET | Yes |
-| `fetchUsageData` | `/usage` | GET | Yes |
-| `createCheckoutSession` | `/billing/checkout` | POST | Yes |
-| `createBillingPortalSession` | `/billing/portal` | POST | Yes |
-| `updatePromptFavorite` | `/history/:id` | PATCH | Yes |
-| `deletePrompt` | `/history/:id` | DELETE | Yes |
+| Function                     | Endpoint            | Method | Auth |
+| ---------------------------- | ------------------- | ------ | ---- |
+| `fetchPromptHistory`         | `/history`          | GET    | Yes  |
+| `fetchUsageData`             | `/usage`            | GET    | Yes  |
+| `createCheckoutSession`      | `/billing/checkout` | POST   | Yes  |
+| `createBillingPortalSession` | `/billing/portal`   | POST   | Yes  |
+| `updatePromptFavorite`       | `/history/:id`      | PATCH  | Yes  |
+| `deletePrompt`               | `/history/:id`      | DELETE | Yes  |
 
 ## Examples
 

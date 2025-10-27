@@ -67,9 +67,7 @@ export default function Dashboard() {
 
   const handleFavoriteToggle = async (promptId: string, isFavorite: boolean) => {
     await updatePromptFavorite(promptId, isFavorite);
-    setPrompts((prev) =>
-      prev.map((p) => (p.id === promptId ? { ...p, isFavorite } : p)),
-    );
+    setPrompts((prev) => prev.map((p) => (p.id === promptId ? { ...p, isFavorite } : p)));
   };
 
   const handleDelete = async (promptId: string) => {
@@ -190,9 +188,7 @@ export default function Dashboard() {
 
           {usage?.plan === 'free' && (
             <div className="rounded-lg border border-primary-200 bg-primary-50 p-6">
-              <h3 className="mb-2 text-lg font-semibold text-primary-900">
-                Upgrade to Pro
-              </h3>
+              <h3 className="mb-2 text-lg font-semibold text-primary-900">Upgrade to Pro</h3>
               <p className="mb-4 text-sm text-primary-800">
                 Get unlimited prompts, advanced optimization, and priority support.
               </p>

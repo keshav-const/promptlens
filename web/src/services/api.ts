@@ -7,7 +7,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public code: string,
-    public details?: any,
+    public details?: any
   ) {
     super(message);
     this.name = 'ApiError';
@@ -38,7 +38,7 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
       throw new ApiError(
         data.error?.message || 'An error occurred',
         data.error?.code || 'UNKNOWN_ERROR',
-        data.error?.details,
+        data.error?.details
       );
     }
 
@@ -46,7 +46,7 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
       throw new ApiError(
         data.error?.message || 'Request failed',
         data.error?.code || 'REQUEST_FAILED',
-        data.error?.details,
+        data.error?.details
       );
     }
 
@@ -101,10 +101,7 @@ export async function createBillingPortalSession(): Promise<{ url: string }> {
   });
 }
 
-export async function updatePromptFavorite(
-  promptId: string,
-  isFavorite: boolean,
-): Promise<Prompt> {
+export async function updatePromptFavorite(promptId: string, isFavorite: boolean): Promise<Prompt> {
   return fetchWithAuth<Prompt>(`/history/${promptId}`, {
     method: 'PATCH',
     body: JSON.stringify({ isFavorite }),

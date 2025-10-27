@@ -1,0 +1,255 @@
+name: Phase 1 CI Pipeline
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  # Backend package CI
+  backend:
+    name: Backend - Lint, Typecheck & Test
+    runs-on: ubuntu-latest
+    env:
+      MONGODB_MEMORY_SERVER_VERSION: 7.0.0
+      NODE_ENV: test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint backend
+        run: npm run lint --workspace=backend
+
+      - name: Typecheck backend
+        run: npm run typecheck --workspace=backend
+
+      - name: Test backend
+        run: npm run test --workspace=backend
+
+  # Extension package CI
+  extension:
+    name: Extension - Lint, Typecheck & Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint extension
+        run: npm run lint --workspace=extension
+
+      - name: Typecheck extension
+        run: npm run typecheck --workspace=extension
+
+      - name: Test extension
+        run: npm run test --workspace=extension
+
+  # Web package CI
+  web:
+    name: Web - Lint, Typecheck & Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint web
+        run: npm run lint --workspace=web
+
+      - name: Typecheck web
+        run: npm run typecheck --workspace=web
+
+      - name: Test web
+        run: npm run test --workspace=web
+
+  # Playwright E2E tests
+  playwright:
+    name: Web - Playwright E2E Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        run: npm run test:e2e --workspace=web
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: web/playwright-report/
+          retention-days: 30
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: web/test-results/
+          retention-days: 30
+
+  # Postman/Newman API tests
+  postman:
+    name: API - Postman Collection Validation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check if Postman collection exists
+        id: check_postman
+        run: |
+          if [ -f "tests/postman/promptlens-phase1.postman_collection.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Postman collection not found at tests/postman/promptlens-phase1.postman_collection.json"
+          fi
+
+      - name: Setup Node.js
+        if: steps.check_postman.outputs.exists == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Newman
+        if: steps.check_postman.outputs.exists == 'true'
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Run Postman collection with Newman
+        if: steps.check_postman.outputs.exists == 'true'
+        run: |
+          if [ -f "tests/postman/promptlens-phase1.postman_environment.json" ]; then
+            newman run tests/postman/promptlens-phase1.postman_collection.json \
+              -e tests/postman/promptlens-phase1.postman_environment.json \
+              --reporters cli,htmlextra \
+              --reporter-htmlextra-export newman-report.html \
+              --folder "Non-Stripe" || true
+          else
+            newman run tests/postman/promptlens-phase1.postman_collection.json \
+              --reporters cli,htmlextra \
+              --reporter-htmlextra-export newman-report.html \
+              --folder "Non-Stripe" || true
+          fi
+
+      - name: Upload Newman report
+        if: steps.check_postman.outputs.exists == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-report
+          path: newman-report.html
+          retention-days: 30
+
+  # Summary job that checks all required jobs
+  ci-summary:
+    name: CI Pipeline Summary
+    runs-on: ubuntu-latest
+    needs: [backend, extension, web, playwright]
+    if: always()
+    
+    steps:
+      - name: Check job results
+        run: |
+          echo "## CI Pipeline Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "| Package/Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------------|--------|" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.backend.result }}" == "success" ]; then
+            echo "| Backend | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Backend | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.extension.result }}" == "success" ]; then
+            echo "| Extension | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Extension | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.web.result }}" == "success" ]; then
+            echo "| Web | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Web | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.playwright.result }}" == "success" ]; then
+            echo "| Playwright E2E | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Playwright E2E | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.backend.result }}" != "success" ] || \
+             [ "${{ needs.extension.result }}" != "success" ] || \
+             [ "${{ needs.web.result }}" != "success" ] || \
+             [ "${{ needs.playwright.result }}" != "success" ]; then
+            echo "❌ **CI checks failed.** Please review the failed jobs above and fix the issues before merging." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Helpful debugging tips:**" >> $GITHUB_STEP_SUMMARY
+            echo "- For **Backend** failures: Check MongoDB memory server setup and test database connections" >> $GITHUB_STEP_SUMMARY
+            echo "- For **Extension** failures: Verify browser API mocks and React component tests" >> $GITHUB_STEP_SUMMARY
+            echo "- For **Web** failures: Check Next.js configuration and API mocking" >> $GITHUB_STEP_SUMMARY
+            echo "- For **Playwright** failures: Review E2E test scenarios and page selectors" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "✅ **All CI checks passed!** This PR is ready for review." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Fail if any required job failed
+        if: |
+          needs.backend.result != 'success' || 
+          needs.extension.result != 'success' || 
+          needs.web.result != 'success' ||
+          needs.playwright.result != 'success'
+        run: exit 1

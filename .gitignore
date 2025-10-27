@@ -6,6 +6,9 @@ node_modules/
 # Testing
 coverage/
 *.lcov
+test-results/
+playwright-report/
+newman-report.html
 
 # Production builds
 dist/

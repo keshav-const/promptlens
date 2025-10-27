@@ -32,11 +32,7 @@ export class UserService {
   }
 
   async incrementUsage(userId: string | mongoose.Types.ObjectId): Promise<IUser | null> {
-    return User.findByIdAndUpdate(
-      userId,
-      { $inc: { usageCount: 1 } },
-      { new: true }
-    );
+    return User.findByIdAndUpdate(userId, { $inc: { usageCount: 1 } }, { new: true });
   }
 
   async resetUsageIfNeeded(userId: string | mongoose.Types.ObjectId): Promise<IUser | null> {
@@ -63,11 +59,7 @@ export class UserService {
     userId: string | mongoose.Types.ObjectId,
     stripeCustomerId: string
   ): Promise<IUser | null> {
-    return User.findByIdAndUpdate(
-      userId,
-      { stripeCustomerId },
-      { new: true }
-    );
+    return User.findByIdAndUpdate(userId, { stripeCustomerId }, { new: true });
   }
 
   async updateSubscription(
@@ -75,20 +67,17 @@ export class UserService {
     subscriptionId: string,
     plan: 'free' | 'pro'
   ): Promise<IUser | null> {
-    const updateData: { stripeSubscriptionId: string; plan: 'free' | 'pro'; usageCount?: number } = {
-      stripeSubscriptionId: subscriptionId,
-      plan,
-    };
+    const updateData: { stripeSubscriptionId: string; plan: 'free' | 'pro'; usageCount?: number } =
+      {
+        stripeSubscriptionId: subscriptionId,
+        plan,
+      };
 
     if (plan === 'pro') {
       updateData.usageCount = 0;
     }
 
-    return User.findByIdAndUpdate(
-      userId,
-      updateData,
-      { new: true }
-    );
+    return User.findByIdAndUpdate(userId, updateData, { new: true });
   }
 
   async findByStripeCustomerId(stripeCustomerId: string): Promise<IUser | null> {

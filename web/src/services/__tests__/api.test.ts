@@ -68,7 +68,7 @@ describe('API Service', () => {
           headers: expect.objectContaining({
             Authorization: 'Bearer test-token',
           }),
-        }),
+        })
       );
     });
 
@@ -94,15 +94,15 @@ describe('API Service', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('search=test'),
-        expect.any(Object),
+        expect.any(Object)
       );
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('tags=tag1%2Ctag2'),
-        expect.any(Object),
+        expect.any(Object)
       );
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('favorites=true'),
-        expect.any(Object),
+        expect.any(Object)
       );
     });
 
@@ -122,12 +122,12 @@ describe('API Service', () => {
       });
 
       await expect(fetchPromptHistory()).rejects.toThrow(ApiError);
-      
+
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: false,
         json: jest.fn().mockResolvedValue(mockResponse),
       });
-      
+
       await expect(fetchPromptHistory()).rejects.toThrow('Unauthorized');
     });
   });
@@ -158,7 +158,7 @@ describe('API Service', () => {
       expect(result).toEqual(mockResponse.data);
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/usage'),
-        expect.any(Object),
+        expect.any(Object)
       );
     });
   });
@@ -186,7 +186,7 @@ describe('API Service', () => {
         expect.stringContaining('/billing/checkout'),
         expect.objectContaining({
           method: 'POST',
-        }),
+        })
       );
     });
   });
@@ -213,7 +213,7 @@ describe('API Service', () => {
         expect.stringContaining('/billing/portal'),
         expect.objectContaining({
           method: 'POST',
-        }),
+        })
       );
     });
   });
@@ -248,7 +248,7 @@ describe('API Service', () => {
         expect.objectContaining({
           method: 'PATCH',
           body: JSON.stringify({ isFavorite: true }),
-        }),
+        })
       );
     });
   });
@@ -272,7 +272,7 @@ describe('API Service', () => {
         expect.stringContaining('/history/1'),
         expect.objectContaining({
           method: 'DELETE',
-        }),
+        })
       );
     });
   });
@@ -339,7 +339,7 @@ describe('API Service', () => {
           headers: expect.not.objectContaining({
             Authorization: expect.any(String),
           }),
-        }),
+        })
       );
     });
   });
