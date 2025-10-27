@@ -37,6 +37,8 @@ export const checkQuota = async (
       );
     }
 
+    req.userDoc = user;
+
     next();
   } catch (error) {
     next(error);

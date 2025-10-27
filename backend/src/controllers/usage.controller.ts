@@ -14,7 +14,13 @@ export const getUsage = async (
       throw new AppError('User not authenticated', 401, 'UNAUTHORIZED');
     }
 
-    const user = await userService.resetUsageIfNeeded(req.userId);
+    const freshUser = await userService.findById(req.userId);
+
+    if (!freshUser) {
+      throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+    }
+
+    const user = await userService.resetUsageIfNeeded(freshUser._id);
 
     if (!user) {
       throw new AppError('User not found', 404, 'USER_NOT_FOUND');
