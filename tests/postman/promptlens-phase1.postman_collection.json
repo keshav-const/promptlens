@@ -1,0 +1,880 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+		"name": "PromptLens Phase 1 API",
+		"description": "Comprehensive API testing collection for PromptLens Phase 1, covering all endpoints including authentication, optimization, history, usage, billing, and Stripe webhooks.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Health Check - Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has success field\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('success');",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Response has data with status\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"    pm.expect(jsonData.data).to.have.property('status');",
+									"    pm.expect(jsonData.data.status).to.equal('ok');",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 500ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "health"]
+						},
+						"description": "Check if the API is running and database is connected."
+					},
+					"response": []
+				}
+			],
+			"description": "Health check endpoints to verify API availability."
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Protected Endpoint - Missing Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"pm.test(\"Response has error message\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('success');",
+									"    pm.expect(jsonData.success).to.be.false;",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"    pm.expect(jsonData.error).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/usage",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "usage"]
+						},
+						"description": "Test that protected endpoints reject requests without auth token."
+					},
+					"response": []
+				},
+				{
+					"name": "Protected Endpoint - Malformed Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"pm.test(\"Response indicates invalid token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.false;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer invalid-token-format",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/usage",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "usage"]
+						},
+						"description": "Test that malformed JWT tokens are rejected."
+					},
+					"response": []
+				},
+				{
+					"name": "Protected Endpoint - Valid Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is successful\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/usage",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "usage"]
+						},
+						"description": "Test that valid auth tokens are accepted."
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication and authorization testing scenarios."
+		},
+		{
+			"name": "Optimize API",
+			"item": [
+				{
+					"name": "Optimize - Valid Prompt",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has optimized prompt\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.data).to.have.property('original');",
+									"    pm.expect(jsonData.data).to.have.property('optimized');",
+									"    pm.expect(jsonData.data).to.have.property('explanation');",
+									"});",
+									"",
+									"pm.test(\"Optimized prompt is not empty\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.optimized).to.have.length.above(0);",
+									"});",
+									"",
+									"pm.test(\"Response time is acceptable\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"prompt\": \"Write a blog post about artificial intelligence\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/optimize",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "optimize"]
+						},
+						"description": "Optimize a valid prompt and verify response structure."
+					},
+					"response": []
+				},
+				{
+					"name": "Optimize - Empty Prompt",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Response indicates error\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.false;",
+									"    pm.expect(jsonData.error).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"prompt\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/optimize",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "optimize"]
+						},
+						"description": "Test that empty prompts are rejected."
+					},
+					"response": []
+				},
+				{
+					"name": "Optimize - Missing Prompt Field",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Response indicates missing field\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.false;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/optimize",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "optimize"]
+						},
+						"description": "Test that missing prompt field is rejected."
+					},
+					"response": []
+				},
+				{
+					"name": "Optimize - No Auth Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"prompt\": \"Write a story\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/optimize",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "optimize"]
+						},
+						"description": "Test that optimization requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Optimize - Special Characters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Special characters preserved\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.data.original).to.include('🚀');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"prompt\": \"Write a story about space exploration 🚀 and include <tags> & special 'quotes'\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/optimize",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "optimize"]
+						},
+						"description": "Test that special characters and emojis are handled correctly."
+					},
+					"response": []
+				}
+			],
+			"description": "Prompt optimization endpoint testing."
+		},
+		{
+			"name": "Usage API",
+			"item": [
+				{
+					"name": "Get Usage - Valid Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has usage data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.data).to.have.property('plan');",
+									"    pm.expect(jsonData.data).to.have.property('usageCount');",
+									"    pm.expect(jsonData.data).to.have.property('limit');",
+									"    pm.expect(jsonData.data).to.have.property('remaining');",
+									"});",
+									"",
+									"pm.test(\"Plan is valid\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(['free', 'pro']).to.include(jsonData.data.plan);",
+									"});",
+									"",
+									"pm.test(\"Usage count is non-negative\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.usageCount).to.be.at.least(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/usage",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "usage"]
+						},
+						"description": "Get current user's usage statistics."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Usage - No Auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/usage",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "usage"]
+						},
+						"description": "Test that usage endpoint requires authentication."
+					},
+					"response": []
+				}
+			],
+			"description": "Usage tracking and quota management endpoints."
+		},
+		{
+			"name": "History API",
+			"item": [
+				{
+					"name": "Get History - Valid Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has prompts array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.data).to.have.property('prompts');",
+									"    pm.expect(jsonData.data.prompts).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Response has total count\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('total');",
+									"    pm.expect(jsonData.data.total).to.be.a('number');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/history",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "history"]
+						},
+						"description": "Get user's prompt history."
+					},
+					"response": []
+				},
+				{
+					"name": "Get History - No Auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/history",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "history"]
+						},
+						"description": "Test that history endpoint requires authentication."
+					},
+					"response": []
+				}
+			],
+			"description": "Prompt history retrieval endpoints."
+		},
+		{
+			"name": "Billing API",
+			"item": [
+				{
+					"name": "Create Checkout Session - Free User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has checkout URL\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.data).to.have.property('url');",
+									"    pm.expect(jsonData.data).to.have.property('sessionId');",
+									"});",
+									"",
+									"pm.test(\"Checkout URL is valid\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.url).to.include('checkout.stripe.com');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/billing/checkout",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "billing", "checkout"]
+						},
+						"description": "Create a Stripe checkout session for Pro upgrade."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Checkout - No Auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/billing/checkout",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "billing", "checkout"]
+						},
+						"description": "Test that checkout requires authentication."
+					},
+					"response": []
+				}
+			],
+			"description": "Stripe billing and checkout endpoints."
+		},
+		{
+			"name": "Stripe Webhooks",
+			"item": [
+				{
+					"name": "Webhook - Missing Signature",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400 or 401\", function () {",
+									"    pm.expect([400, 401]).to.include(pm.response.code);",
+									"});",
+									"",
+									"pm.test(\"Response indicates error\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.false;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\": \"checkout.session.completed\",\n    \"data\": {\n        \"object\": {\n            \"id\": \"cs_test_123\"\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/upgrade",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "upgrade"]
+						},
+						"description": "Test that webhook rejects requests without Stripe signature."
+					},
+					"response": []
+				},
+				{
+					"name": "Webhook - Invalid Signature",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400 or 401\", function () {",
+									"    pm.expect([400, 401]).to.include(pm.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "stripe-signature",
+								"value": "invalid_signature",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\": \"checkout.session.completed\",\n    \"data\": {\n        \"object\": {\n            \"id\": \"cs_test_123\"\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/upgrade",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "upgrade"]
+						},
+						"description": "Test that webhook rejects requests with invalid signature."
+					},
+					"response": []
+				}
+			],
+			"description": "Stripe webhook endpoint testing. Note: Valid webhook events should be tested using Stripe CLI triggers, not directly via Postman."
+		},
+		{
+			"name": "Rate Limiting",
+			"item": [
+				{
+					"name": "Rate Limit Test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// This test just verifies the endpoint responds",
+									"// To test rate limiting, run this request 100+ times rapidly",
+									"pm.test(\"Request completed\", function () {",
+									"    pm.expect([200, 429]).to.include(pm.response.code);",
+									"});",
+									"",
+									"if (pm.response.code === 429) {",
+									"    pm.test(\"Rate limit response is correct\", function () {",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData.success).to.be.false;",
+									"        pm.expect(jsonData.error.message).to.include('rate');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "health"]
+						},
+						"description": "Test rate limiting by running this request repeatedly. Expected: 429 after limit exceeded."
+					},
+					"response": []
+				}
+			],
+			"description": "Rate limiting verification. Run requests repeatedly to trigger limits."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global pre-request script",
+					"// Add any setup logic here if needed"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test script",
+					"pm.test(\"Response has timestamp\", function () {",
+					"    var jsonData = pm.response.json();",
+					"    if (jsonData.timestamp) {",
+					"        pm.expect(jsonData.timestamp).to.be.a('string');",
+					"    }",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	]
+}

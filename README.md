@@ -238,6 +238,8 @@ npm run build:all
 
 Each package includes comprehensive test suites to ensure code quality and functionality.
 
+For a complete testing strategy covering automated and manual testing, see the **[Phase 1 Testing Plan](./docs/phase1-testing-plan.md)**.
+
 ### Run Tests for All Packages
 
 ```bash
@@ -275,6 +277,27 @@ npm run test:watch --workspace=backend
 # Web
 npm run test:watch --workspace=web
 ```
+
+### API Testing with Postman
+
+Test API endpoints using the provided Postman collection:
+
+```bash
+# Install Newman (Postman CLI)
+npm install -g newman
+
+# Run API tests
+newman run tests/postman/promptlens-phase1.postman_collection.json \
+  -e tests/postman/promptlens-phase1.postman_environment.json
+```
+
+See **[tests/postman/README.md](./tests/postman/README.md)** for detailed instructions.
+
+### Manual Testing
+
+For comprehensive manual testing checklists:
+- **Extension**: [extension/TESTING.md](./extension/TESTING.md)
+- **Dashboard**: [web/MANUAL_QA.md](./web/MANUAL_QA.md)
 
 ## 🔄 CI/CD Pipeline
 
@@ -452,14 +475,21 @@ Comprehensive documentation is available to guide development, testing, and depl
 
 When available, refer to these Phase 1 operational guides:
 
-- **docs/phase1-testing-plan.md** - Comprehensive testing strategy and test coverage
+- **[docs/phase1-testing-plan.md](./docs/phase1-testing-plan.md)** - Comprehensive testing strategy and test coverage
 - **docs/phase1-deployment-guide.md** - Step-by-step deployment instructions for production
-- **docs/phase1-validation-runbook.md** - Validation procedures and troubleshooting
+- **[docs/phase1-validation-runbook.md](./docs/phase1-validation-runbook.md)** - Validation procedures and troubleshooting
+
+### Testing Resources
+
+- **[tests/README.md](./tests/README.md)** - Test resources overview and automated suite documentation
+- **[tests/postman/README.md](./tests/postman/README.md)** - Postman collection guide and API testing instructions
+- **[extension/TESTING.md](./extension/TESTING.md)** - Extension manual testing checklist
+- **[web/MANUAL_QA.md](./web/MANUAL_QA.md)** - Dashboard manual QA test plan
 
 ### API Documentation
 
 - **[backend/API.md](./backend/API.md)** - REST API endpoints and request/response formats
-- **tests/postman/** - Postman collection for API testing and validation
+- **tests/postman/promptlens-phase1.postman_collection.json** - Importable Postman collection for API validation
 
 ## 🤝 Contributing
 
