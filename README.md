@@ -238,6 +238,11 @@ npm run build:all
 
 Each package includes comprehensive test suites to ensure code quality and functionality.
 
+<<<<<<< HEAD
+For a complete testing strategy covering automated and manual testing, see the **[Phase 1 Testing Plan](./docs/phase1-testing-plan.md)**.
+
+=======
+>>>>>>> origin/main
 ### Run Tests for All Packages
 
 ```bash
@@ -276,6 +281,30 @@ npm run test:watch --workspace=backend
 npm run test:watch --workspace=web
 ```
 
+<<<<<<< HEAD
+### API Testing with Postman
+
+Test API endpoints using the provided Postman collection:
+
+```bash
+# Install Newman (Postman CLI)
+npm install -g newman
+
+# Run API tests
+newman run tests/postman/promptlens-phase1.postman_collection.json \
+  -e tests/postman/promptlens-phase1.postman_environment.json
+```
+
+See **[tests/postman/README.md](./tests/postman/README.md)** for detailed instructions.
+
+### Manual Testing
+
+For comprehensive manual testing checklists:
+- **Extension**: [extension/TESTING.md](./extension/TESTING.md)
+- **Dashboard**: [web/MANUAL_QA.md](./web/MANUAL_QA.md)
+
+=======
+>>>>>>> origin/main
 ## 🔄 CI/CD Pipeline
 
 This repository uses GitHub Actions to automate testing and quality checks on every pull request.
@@ -452,8 +481,16 @@ Comprehensive documentation is available to guide development, testing, and depl
 
 Phase 1 operational guides for testing, deployment, and validation:
 
+- **[docs/phase1-testing-plan.md](./docs/phase1-testing-plan.md)** - Comprehensive testing strategy and test coverage
 - **[docs/phase1-deployment-guide.md](./docs/phase1-deployment-guide.md)** - Complete deployment strategy for Phase 1
 - **[docs/phase1-validation-runbook.md](./docs/phase1-validation-runbook.md)** - Validation procedures and troubleshooting
+
+### Testing Resources
+
+- **[tests/README.md](./tests/README.md)** - Test resources overview and automated suite documentation
+- **[tests/postman/README.md](./tests/postman/README.md)** - Postman collection guide and API testing instructions
+- **[extension/TESTING.md](./extension/TESTING.md)** - Extension manual testing checklist
+- **[web/MANUAL_QA.md](./web/MANUAL_QA.md)** - Dashboard manual QA test plan
 
 ### Deployment Guides
 
@@ -470,7 +507,7 @@ Component-specific deployment documentation with step-by-step instructions:
 ### API Documentation
 
 - **[backend/API.md](./backend/API.md)** - REST API endpoints and request/response formats
-- **tests/postman/** - Postman collection for API testing and validation
+- **tests/postman/promptlens-phase1.postman_collection.json** - Importable Postman collection for API validation
 
 ## 🤝 Contributing
 

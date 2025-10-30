@@ -23,6 +23,7 @@ This document provides a visual overview of the monorepo structure.
 │       └── phase1-ci.yml    # Phase 1 CI pipeline
 │
 ├── docs/                     # Operational documentation
+│   ├── phase1-testing-plan.md      # Testing strategy
 │   ├── phase1-deployment-guide.md   # Phase 1 deployment strategy
 │   └── phase1-validation-runbook.md # Validation runbook
 │
