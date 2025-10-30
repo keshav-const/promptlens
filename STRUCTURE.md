@@ -22,10 +22,18 @@ This document provides a visual overview of the monorepo structure.
 │   └── workflows/           # GitHub Actions CI/CD workflows
 │       └── phase1-ci.yml    # Phase 1 CI pipeline
 │
-├── docs/                     # Operational documentation (when available)
-│   ├── phase1-testing-plan.md      # Testing strategy
-│   ├── phase1-deployment-guide.md   # Deployment procedures
+├── docs/                     # Operational documentation
+│   ├── phase1-deployment-guide.md   # Phase 1 deployment strategy
 │   └── phase1-validation-runbook.md # Validation runbook
+│
+├── deployment/               # Deployment guides
+│   ├── README.md            # Deployment overview
+│   ├── database.md          # MongoDB Atlas setup
+│   ├── google-oauth.md      # OAuth configuration
+│   ├── backend.md           # Backend API deployment
+│   ├── stripe.md            # Stripe configuration
+│   ├── dashboard.md         # Web dashboard deployment
+│   └── extension.md         # Extension publication
 │
 ├── tests/                    # Shared test resources
 │   └── postman/             # Postman collections for API testing

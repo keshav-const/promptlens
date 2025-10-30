@@ -450,11 +450,22 @@ Comprehensive documentation is available to guide development, testing, and depl
 
 ### Operational Documentation
 
-When available, refer to these Phase 1 operational guides:
+Phase 1 operational guides for testing, deployment, and validation:
 
-- **docs/phase1-testing-plan.md** - Comprehensive testing strategy and test coverage
-- **docs/phase1-deployment-guide.md** - Step-by-step deployment instructions for production
-- **docs/phase1-validation-runbook.md** - Validation procedures and troubleshooting
+- **[docs/phase1-deployment-guide.md](./docs/phase1-deployment-guide.md)** - Complete deployment strategy for Phase 1
+- **[docs/phase1-validation-runbook.md](./docs/phase1-validation-runbook.md)** - Validation procedures and troubleshooting
+
+### Deployment Guides
+
+Component-specific deployment documentation with step-by-step instructions:
+
+- **[deployment/README.md](./deployment/README.md)** - Deployment overview and index
+- **[deployment/database.md](./deployment/database.md)** - MongoDB Atlas production setup
+- **[deployment/google-oauth.md](./deployment/google-oauth.md)** - Google OAuth configuration
+- **[deployment/backend.md](./deployment/backend.md)** - Backend API deployment (Railway/Render)
+- **[deployment/stripe.md](./deployment/stripe.md)** - Stripe live payment setup
+- **[deployment/dashboard.md](./deployment/dashboard.md)** - Web dashboard deployment (Vercel)
+- **[deployment/extension.md](./deployment/extension.md)** - Chrome Web Store publication
 
 ### API Documentation
 
