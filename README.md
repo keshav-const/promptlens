@@ -238,8 +238,11 @@ npm run build:all
 
 Each package includes comprehensive test suites to ensure code quality and functionality.
 
+<<<<<<< HEAD
 For a complete testing strategy covering automated and manual testing, see the **[Phase 1 Testing Plan](./docs/phase1-testing-plan.md)**.
 
+=======
+>>>>>>> origin/main
 ### Run Tests for All Packages
 
 ```bash
@@ -278,6 +281,7 @@ npm run test:watch --workspace=backend
 npm run test:watch --workspace=web
 ```
 
+<<<<<<< HEAD
 ### API Testing with Postman
 
 Test API endpoints using the provided Postman collection:
@@ -299,6 +303,8 @@ For comprehensive manual testing checklists:
 - **Extension**: [extension/TESTING.md](./extension/TESTING.md)
 - **Dashboard**: [web/MANUAL_QA.md](./web/MANUAL_QA.md)
 
+=======
+>>>>>>> origin/main
 ## 🔄 CI/CD Pipeline
 
 This repository uses GitHub Actions to automate testing and quality checks on every pull request.
@@ -473,10 +479,10 @@ Comprehensive documentation is available to guide development, testing, and depl
 
 ### Operational Documentation
 
-When available, refer to these Phase 1 operational guides:
+Phase 1 operational guides for testing, deployment, and validation:
 
 - **[docs/phase1-testing-plan.md](./docs/phase1-testing-plan.md)** - Comprehensive testing strategy and test coverage
-- **docs/phase1-deployment-guide.md** - Step-by-step deployment instructions for production
+- **[docs/phase1-deployment-guide.md](./docs/phase1-deployment-guide.md)** - Complete deployment strategy for Phase 1
 - **[docs/phase1-validation-runbook.md](./docs/phase1-validation-runbook.md)** - Validation procedures and troubleshooting
 
 ### Testing Resources
@@ -485,6 +491,18 @@ When available, refer to these Phase 1 operational guides:
 - **[tests/postman/README.md](./tests/postman/README.md)** - Postman collection guide and API testing instructions
 - **[extension/TESTING.md](./extension/TESTING.md)** - Extension manual testing checklist
 - **[web/MANUAL_QA.md](./web/MANUAL_QA.md)** - Dashboard manual QA test plan
+
+### Deployment Guides
+
+Component-specific deployment documentation with step-by-step instructions:
+
+- **[deployment/README.md](./deployment/README.md)** - Deployment overview and index
+- **[deployment/database.md](./deployment/database.md)** - MongoDB Atlas production setup
+- **[deployment/google-oauth.md](./deployment/google-oauth.md)** - Google OAuth configuration
+- **[deployment/backend.md](./deployment/backend.md)** - Backend API deployment (Railway/Render)
+- **[deployment/stripe.md](./deployment/stripe.md)** - Stripe live payment setup
+- **[deployment/dashboard.md](./deployment/dashboard.md)** - Web dashboard deployment (Vercel)
+- **[deployment/extension.md](./deployment/extension.md)** - Chrome Web Store publication
 
 ### API Documentation
 
