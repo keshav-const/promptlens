@@ -1,3 +1,8 @@
-export { User, IUser, UserPlan } from './User.js';
-export { Prompt, IPrompt, IPromptMetadata } from './Prompt.js';
-export { WebhookEvent, IWebhookEvent } from './WebhookEvent.js';
+export { User } from './User.js';
+export type { IUser, UserPlan } from './User.js';
+
+export { Prompt } from './Prompt.js';
+export type { IPrompt, IPromptMetadata } from './Prompt.js';
+
+export { WebhookEvent } from './WebhookEvent.js';
+export type { IWebhookEvent } from './WebhookEvent.js';
