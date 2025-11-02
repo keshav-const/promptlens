@@ -20,6 +20,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Create a backend-compatible JWT using JWT_SECRET
+    const expiresIn = 7 * 24 * 60 * 60; // 7 days in seconds
+    const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
+
     const backendToken = jwt.sign(
       {
         sub: session.user.email,
@@ -39,6 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({
       accessToken: backendToken,
       user: session.user,
+      expiresAt,
     });
   } catch (error) {
     console.error('❌ Token creation error:', error);

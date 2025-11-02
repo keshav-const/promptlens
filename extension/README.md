@@ -109,13 +109,16 @@ extension/
 │   ├── background/
 │   │   └── background.ts  # Service worker
 │   ├── content/
-│   │   └── contentScript.ts # Content script
+│   │   ├── contentScriptNew.tsx # Main content script for ChatGPT/Gemini
+│   │   ├── dashboardSync.ts     # Dashboard auth token sync script
+│   │   └── components/          # React components for content UI
 │   ├── popup/
 │   │   ├── index.html     # Popup HTML
 │   │   ├── main.tsx       # Popup entry point
 │   │   ├── Popup.tsx      # Main popup component
 │   │   └── styles.css     # Popup styles
 │   ├── utils/
+│   │   ├── auth.ts        # Authentication utilities
 │   │   ├── config.ts      # Configuration utilities
 │   │   └── messaging.ts   # Messaging utilities
 │   └── vite-env.d.ts      # TypeScript env declarations
@@ -139,14 +142,41 @@ The extension now includes PromptLens functionality for ChatGPT and Gemini:
 - **Auth Integration**: Uses stored auth token from dashboard login
 - **Error Handling**: User-friendly messages for auth errors, rate limits, and network issues
 
+#### Authentication Sync
+
+The extension automatically syncs authentication tokens from the PromptLens dashboard:
+
+1. **Sign in to Dashboard**: Log in at the PromptLens dashboard (default: http://localhost:3000)
+2. **Automatic Token Sync**: A content script on the dashboard domain detects your login and syncs the auth token to the extension's storage
+3. **Seamless Extension Use**: The extension can now make authenticated API requests without requiring separate login
+4. **Token Persistence**: Tokens persist across browser sessions and are automatically cleared on logout
+
+**How It Works:**
+- Dashboard stores tokens in localStorage after successful login
+- Dashboard sync content script (`src/content/dashboardSync.ts`) monitors token changes
+- Tokens are copied to `chrome.storage.local` for extension access
+- Background service worker uses stored tokens for API authentication
+- Extension shows helpful error messages with dashboard link if authentication is missing
+
 #### Usage
 
-1. Navigate to ChatGPT or Gemini
-2. Click on the textarea to focus it
-3. The optimize button will appear
-4. Type your prompt and click "✨ Optimize with PromptLens"
-5. Review the optimized version in the modal
-6. Use Replace, Copy, or Save actions as needed
+1. **First-time Setup**:
+   - Sign in to the PromptLens dashboard
+   - Wait a few seconds for token sync
+   - Navigate to ChatGPT or Gemini
+   
+2. **Using the Extension**:
+   - Click on the textarea to focus it
+   - The optimize button will appear
+   - Type your prompt and click "✨ Optimize with PromptLens"
+   - Review the optimized version in the modal
+   - Use Replace, Copy, or Save actions as needed
+
+3. **If Authentication Fails**:
+   - The error message will include the dashboard URL
+   - Sign in to the dashboard in a new tab
+   - Reload the ChatGPT/Gemini page
+   - Try again
 
 See `TESTING.md` for the complete manual testing checklist.
 

@@ -11,7 +11,9 @@
   "host_permissions": [
     "https://chat.openai.com/*",
     "https://chatgpt.com/*",
-    "https://gemini.google.com/*"
+    "https://gemini.google.com/*",
+    "http://localhost:3000/*",
+    "https://*.vercel.app/*"
   ],
   "background": {
     "service_worker": "src/background/background.ts"
@@ -40,6 +42,14 @@
       ],
       "js": ["src/content/contentScriptNew.tsx"],
       "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "http://localhost:3000/*",
+        "https://*.vercel.app/*"
+      ],
+      "js": ["src/content/dashboardSync.ts"],
+      "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [

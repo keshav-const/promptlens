@@ -158,7 +158,10 @@ async function handleOptimizePrompt(payload: unknown): Promise<unknown> {
   const { prompt } = payload as OptimizePromptPayload;
 
   if (!token) {
-    const error: ApiError = new Error('Authentication required. Please sign in via the dashboard.');
+    const dashboardUrl = config.apiBaseUrl.replace('/api', '').replace(':5000', ':3000');
+    const error: ApiError = new Error(
+      `Authentication required. Please sign in at ${dashboardUrl} and reload this page.`
+    );
     error.status = 401;
     throw error;
   }
@@ -176,7 +179,10 @@ async function handleOptimizePrompt(payload: unknown): Promise<unknown> {
 
   if (response.status === 401) {
     await clearAuthToken();
-    const error: ApiError = new Error('Session expired. Please sign in again via the dashboard.');
+    const dashboardUrl = config.apiBaseUrl.replace('/api', '').replace(':5000', ':3000');
+    const error: ApiError = new Error(
+      `Session expired. Please sign in again at ${dashboardUrl} and reload this page.`
+    );
     error.status = 401;
     throw error;
   }
@@ -217,7 +223,10 @@ async function handleSavePrompt(payload: unknown): Promise<unknown> {
   const { originalPrompt, optimizedPrompt, explanation } = payload as SavePromptPayload;
 
   if (!token) {
-    const error: ApiError = new Error('Authentication required. Please sign in via the dashboard.');
+    const dashboardUrl = config.apiBaseUrl.replace('/api', '').replace(':5000', ':3000');
+    const error: ApiError = new Error(
+      `Authentication required. Please sign in at ${dashboardUrl} and reload this page.`
+    );
     error.status = 401;
     throw error;
   }
@@ -235,7 +244,10 @@ async function handleSavePrompt(payload: unknown): Promise<unknown> {
 
   if (response.status === 401) {
     await clearAuthToken();
-    const error: ApiError = new Error('Session expired. Please sign in again via the dashboard.');
+    const dashboardUrl = config.apiBaseUrl.replace('/api', '').replace(':5000', ':3000');
+    const error: ApiError = new Error(
+      `Session expired. Please sign in again at ${dashboardUrl} and reload this page.`
+    );
     error.status = 401;
     throw error;
   }
