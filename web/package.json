@@ -4,7 +4,7 @@
   "private": true,
   "description": "Web dashboard application",
   "scripts": {
-    "dev": "next dev -p 3001",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start -p 3001",
     "clean": "rm -rf node_modules dist build out .turbo .next",
