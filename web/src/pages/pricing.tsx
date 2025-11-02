@@ -332,9 +332,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
+  const cleanSession = JSON.parse(
+    JSON.stringify(session, (key, value) => (value === undefined ? null : value))
+  );
+
   return {
     props: {
-      session,
+      session: cleanSession,
     },
   };
 };
