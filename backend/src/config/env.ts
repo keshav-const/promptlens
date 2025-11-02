@@ -18,8 +18,8 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default('7d'),
   ALLOWED_ORIGINS: z
     .string()
-    .default('http://localhost:3001,chrome-extension://*')
-    .transform((val) => val.split(',')),
+    .default('http://localhost:3000,http://localhost:3001,chrome-extension://*')
+    .transform((val) => val.split(',').map(origin => origin.trim())),
   RATE_LIMIT_WINDOW_MS: z.string().transform(Number).default('900000'),
   RATE_LIMIT_MAX_REQUESTS: z.string().transform(Number).default('100'),
 });
