@@ -8,18 +8,27 @@ export interface CreateUserData {
 
 export class UserService {
   async findOrCreateUser(data: CreateUserData): Promise<IUser> {
-    let user = await User.findOne({ email: data.email });
+    // Use findOneAndUpdate with upsert to atomically find or create user
+    // This prevents race conditions and E11000 duplicate key errors
+    const user = await User.findOneAndUpdate(
+      { email: data.email },
+      {
+        $setOnInsert: {
+          email: data.email,
+          displayName: data.displayName || data.email.split('@')[0],
+          plan: 'free',
+          usageCount: 0,
+          lastResetAt: new Date(),
+        },
+      },
+      {
+        upsert: true,
+        new: true,
+        setDefaultsOnInsert: true,
+      }
+    );
 
-    if (!user) {
-      user = await User.create({
-        email: data.email,
-        displayName: data.displayName,
-        plan: 'free',
-        usageCount: 0,
-        lastResetAt: new Date(),
-      });
-    }
-
+    console.log('✅ User found/created:', user.email);
     return user;
   }
 

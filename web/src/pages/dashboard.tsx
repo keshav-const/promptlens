@@ -29,19 +29,30 @@ export default function Dashboard() {
 
   const loadData = async () => {
     try {
+      setError(null);
+
+      // Fetch data with individual error handling to prevent total failure
       const [promptsData, usageData] = await Promise.all([
         fetchPromptHistory({
           search: searchTerm || undefined,
           favorites: showFavoritesOnly || undefined,
+        }).catch((err) => {
+          console.error('Failed to fetch prompts:', err);
+          return { prompts: [], total: 0 }; // Return default on error
         }),
-        fetchUsageData(),
+        fetchUsageData().catch((err) => {
+          console.error('Failed to fetch usage:', err);
+          return null; // Return null on error
+        }),
       ]);
 
-      setPrompts(promptsData.prompts);
+      setPrompts(promptsData?.prompts || []);
       setUsage(usageData);
-      setError(null);
     } catch (err) {
+      console.error('Dashboard load error:', err);
       setError(handleApiError(err));
+      // Ensure prompts is always an array even on error
+      setPrompts([]);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
