@@ -8,10 +8,10 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && !router.query.error) {
       router.push('/dashboard');
     }
-  }, [status, router]);
+  }, [status, router, router.query.error]);
 
   useEffect(() => {
     if (router.query.success === 'true') {
