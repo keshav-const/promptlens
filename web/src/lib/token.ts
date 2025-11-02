@@ -19,6 +19,10 @@ export class TokenStorage {
     try {
       localStorage.setItem(this.TOKEN_KEY, JSON.stringify(tokenData));
       sessionStorage.setItem(this.TOKEN_KEY, JSON.stringify(tokenData));
+
+      // Dispatch custom event to notify extension content script
+      // This is needed because storage events don't fire in the same tab
+      window.dispatchEvent(new CustomEvent('promptlens-token-updated'));
     } catch (error) {
       console.error('Failed to save token:', error);
     }
@@ -42,6 +46,9 @@ export class TokenStorage {
     try {
       localStorage.removeItem(this.TOKEN_KEY);
       sessionStorage.removeItem(this.TOKEN_KEY);
+
+      // Dispatch custom event to notify extension content script
+      window.dispatchEvent(new CustomEvent('promptlens-token-updated'));
     } catch (error) {
       console.error('Failed to clear token:', error);
     }
