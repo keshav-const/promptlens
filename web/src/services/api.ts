@@ -1,7 +1,7 @@
 import { TokenStorage } from '@/lib/token';
 import type { Prompt, UsageData, CheckoutSession, ApiResponse } from '@/types/api';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:5000/api';
 
 export class ApiError extends Error {
   constructor(
@@ -17,10 +17,13 @@ export class ApiError extends Error {
 async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const tokenData = TokenStorage.getToken();
 
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...options.headers,
   };
+
+  if (options.headers) {
+    Object.assign(headers, options.headers);
+  }
 
   if (tokenData?.accessToken) {
     headers['Authorization'] = `Bearer ${tokenData.accessToken}`;
