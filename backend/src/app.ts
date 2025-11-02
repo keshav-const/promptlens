@@ -15,6 +15,7 @@ export const createApp = (): Express => {
   app.use(
     cors({
       origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, Postman)
         if (!origin) return callback(null, true);
 
         const isAllowed = config.ALLOWED_ORIGINS.some((allowedOrigin) => {
@@ -28,6 +29,8 @@ export const createApp = (): Express => {
         if (isAllowed) {
           callback(null, true);
         } else {
+          console.error(`❌ CORS blocked origin: ${origin}`);
+          console.error(`   Allowed origins: ${config.ALLOWED_ORIGINS.join(', ')}`);
           callback(new Error('Not allowed by CORS'));
         }
       },
