@@ -22,44 +22,58 @@ export class AuthService {
   }
 
   async verifyToken(token: string): Promise<DecodedToken> {
+    console.log('🔍 Token received:', token.substring(0, 50) + '...');
+    console.log('🔑 NEXTAUTH_SECRET exists:', !!config.NEXTAUTH_SECRET);
+    console.log('🔑 NEXTAUTH_SECRET length:', config.NEXTAUTH_SECRET?.length);
+    console.log('🔑 JWT_SECRET exists:', !!config.JWT_SECRET);
+    
     try {
       // Remove 'Bearer ' prefix if present
       const cleanToken = token.replace(/^Bearer\s+/i, '').trim();
+      console.log('🧹 Clean token length:', cleanToken.length);
+      console.log('🧹 Clean token preview:', cleanToken.substring(0, 100));
       
       // Check token format
       const parts = cleanToken.split('.');
+      console.log('🔢 Token parts count:', parts.length);
       
       // Try to decrypt as NextAuth JWE token (5 parts)
       if (parts.length === 5 && config.NEXTAUTH_SECRET) {
+        console.log('🔐 Attempting JWE verification (NextAuth token)...');
         try {
           const payload = await this.verifyJWEToken(cleanToken);
+          console.log('✅ Token decoded successfully (JWE):', payload);
           return payload;
         } catch (jweError) {
-          if (config.NODE_ENV === 'development') {
-            console.error('JWE verification failed:', jweError);
-          }
+          const error = jweError as Error;
+          console.error('❌ JWE verification failed:', error.message);
+          console.error('❌ Error type:', error.constructor.name);
           // Fall through to try JWT verification
         }
       }
       
       // Try standard JWT verification (3 parts)
       if (parts.length === 3) {
+        console.log('🔐 Attempting JWT verification (standard JWT)...');
         try {
           const payload = await this.verifyJWTToken(cleanToken);
+          console.log('✅ Token decoded successfully (JWT):', payload);
           return payload;
         } catch (jwtError) {
-          if (config.NODE_ENV === 'development') {
-            console.error('JWT verification failed:', jwtError);
-          }
+          const error = jwtError as Error;
+          console.error('❌ JWT verification failed:', error.message);
+          console.error('❌ Error type:', error.constructor.name);
           throw new AppError('Invalid token signature', 401, 'INVALID_TOKEN');
         }
       }
       
+      console.error('❌ Invalid token format - expected 3 or 5 parts, got:', parts.length);
       throw new AppError('Invalid token format', 401, 'INVALID_TOKEN');
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
       }
+      console.error('❌ Unexpected error verifying token:', error);
       throw new AppError('Failed to verify token', 401, 'INVALID_TOKEN');
     }
   }

@@ -26,7 +26,11 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
   }
 
   if (tokenData?.accessToken) {
+    console.log('🎫 Sending token:', tokenData.accessToken.substring(0, 50) + '...');
+    console.log('🎫 Token length:', tokenData.accessToken.length);
     headers['Authorization'] = `Bearer ${tokenData.accessToken}`;
+  } else {
+    console.log('⚠️ No access token available');
   }
 
   try {

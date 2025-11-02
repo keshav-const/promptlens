@@ -11,20 +11,24 @@ export const requireAuth = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
+    console.log('📨 Auth header received:', authHeader?.substring(0, 60) + '...');
 
     if (!authHeader) {
+      console.error('❌ No auth header');
       throw new AppError('No authorization header provided', 401, 'UNAUTHORIZED');
     }
 
     const token = authHeader.split(' ')[1];
 
     if (!token) {
+      console.error('❌ No token in auth header');
       throw new AppError('No token provided', 401, 'UNAUTHORIZED');
     }
 
     const decoded = await authService.verifyToken(token);
 
     if (!decoded.email) {
+      console.error('❌ Token payload missing email');
       throw new AppError('Invalid token payload', 401, 'INVALID_TOKEN');
     }
 
@@ -39,6 +43,7 @@ export const requireAuth = async (
       email: user.email,
     };
 
+    console.log('✅ User authenticated:', user.email);
     next();
   } catch (error) {
     next(error);
