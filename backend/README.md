@@ -59,8 +59,8 @@ Copy `.env.example` to `.env` and configure the following variables:
 
 ### Authentication
 - `NEXTAUTH_URL` - NextAuth URL (for web dashboard)
-- `NEXTAUTH_SECRET` - NextAuth secret
-- `JWT_SECRET` - JWT signing secret (default provided for development)
+- `NEXTAUTH_SECRET` - NextAuth secret (used to decrypt NextAuth JWE tokens from the dashboard - must match web app's NEXTAUTH_SECRET)
+- `JWT_SECRET` - JWT signing secret for standard JWT tokens (default provided for development)
 - `JWT_EXPIRES_IN` - JWT expiration time (default: 7d)
 
 ### CORS Configuration
@@ -284,8 +284,8 @@ backend/
 ## Middleware
 
 ### Authentication
-- `requireAuth` - Requires valid authentication token (stub implementation)
-- `optionalAuth` - Optionally validates authentication token
+- `requireAuth` - Requires valid authentication token (supports NextAuth JWE tokens and standard JWT tokens)
+- `optionalAuth` - Optionally validates authentication token (supports NextAuth JWE tokens and standard JWT tokens)
 
 ### Rate Limiting
 - `apiLimiter` - General API rate limiting (100 requests per 15 minutes)
@@ -348,9 +348,9 @@ Shutdown process:
 
 The following features have stub implementations and need to be completed:
 
-- [ ] Authentication middleware (`requireAuth` and `optionalAuth`) - Currently returns placeholder user data
-- [ ] JWT token verification
-- [ ] User models and authentication service
+- [x] Authentication middleware (`requireAuth` and `optionalAuth`) - Supports NextAuth JWE and standard JWT tokens
+- [x] JWT token verification - Supports both NextAuth JWE tokens (from dashboard) and standard JWT tokens
+- [x] User models and authentication service
 - [ ] API endpoints for Phase 1 features
 
 ## License
