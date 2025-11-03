@@ -18,6 +18,11 @@ export const createApp = (): Express => {
         // Allow requests with no origin (like mobile apps, Postman)
         if (!origin) return callback(null, true);
 
+        // Allow all chrome-extension:// origins
+        if (origin.startsWith('chrome-extension://')) {
+          return callback(null, true);
+        }
+
         const isAllowed = config.ALLOWED_ORIGINS.some((allowedOrigin) => {
           if (allowedOrigin.includes('*')) {
             const pattern = allowedOrigin.replace(/\*/g, '.*');
