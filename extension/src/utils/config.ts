@@ -4,7 +4,7 @@ export interface AppConfig {
 }
 
 const DEFAULT_CONFIG: AppConfig = {
-  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
+  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000',
   extensionId: import.meta.env.VITE_EXTENSION_ID || ''
 };
 

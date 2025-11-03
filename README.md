@@ -111,7 +111,7 @@ See the [Environment Variables](#environment-variables) section for detailed inf
 ### Backend (`backend/.env`)
 
 **Server Configuration:**
-- `PORT` - Server port (default: 3000)
+- `PORT` - Server port (default: 5000)
 - `NODE_ENV` - Environment mode
 
 **Database:**
@@ -175,7 +175,7 @@ brew install stripe/stripe-cli/stripe  # macOS
 stripe login
 
 # Forward webhooks to local backend
-stripe listen --forward-to http://localhost:3000/api/upgrade
+stripe listen --forward-to http://localhost:5000/api/upgrade
 ```
 
 Copy the webhook signing secret (starts with `whsec_`) to `STRIPE_WEBHOOK_SECRET` in `backend/.env`.
@@ -208,10 +208,10 @@ npm run dev:web
 
 ### Typical Development Workflow
 
-1. Start the backend API (usually runs on `http://localhost:3000`)
-2. Start the web dashboard (usually runs on `http://localhost:3001`)
+1. Start the backend API (usually runs on `http://localhost:5000`)
+2. Start the web dashboard (usually runs on `http://localhost:3000`)
 3. Load the extension in your browser in development mode
-4. (Optional) Start Stripe webhook forwarding with `stripe listen --forward-to http://localhost:3000/api/upgrade`
+4. (Optional) Start Stripe webhook forwarding with `stripe listen --forward-to http://localhost:5000/api/upgrade`
 
 ## 🏗️ Building
 

@@ -5,7 +5,7 @@ dotenv.config();
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  PORT: z.string().transform(Number).default('3000'),
+  PORT: z.string().transform(Number).default('5000'),
   MONGODB_URI: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
   STRIPE_SECRET_KEY: z.string().optional(),
