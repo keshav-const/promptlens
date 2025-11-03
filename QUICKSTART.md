@@ -40,13 +40,13 @@ cp web/.env.example web/.env.local
 - `JWT_SECRET` - Generate with: `openssl rand -base64 32`
 
 **Web** (`web/.env.local`):
-- `NEXT_PUBLIC_API_BASE_URL` - Backend API URL (default: http://localhost:3000)
-- `NEXTAUTH_URL` - Web app URL (default: http://localhost:3001)
+- `NEXT_PUBLIC_API_BASE_URL` - Backend API URL (default: http://localhost:5000)
+- `NEXTAUTH_URL` - Web app URL (default: http://localhost:3000)
 - `NEXTAUTH_SECRET` - Same as backend
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
 
 **Extension** (`extension/.env`):
-- `VITE_API_BASE_URL` - Backend API URL (default: http://localhost:3000)
+- `VITE_API_BASE_URL` - Backend API URL (default: http://localhost:5000)
 
 ## Running the Project
 
@@ -55,10 +55,10 @@ cp web/.env.example web/.env.local
 Run each service in a separate terminal:
 
 ```bash
-# Terminal 1 - Backend API (runs on port 3000)
+# Terminal 1 - Backend API (runs on port 5000)
 npm run dev:backend
 
-# Terminal 2 - Web Dashboard (runs on port 3001)
+# Terminal 2 - Web Dashboard (runs on port 3000)
 npm run dev:web
 
 # Terminal 3 - Browser Extension

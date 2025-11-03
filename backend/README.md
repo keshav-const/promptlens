@@ -42,7 +42,7 @@ npm install
 Copy `.env.example` to `.env` and configure the following variables:
 
 ### Server Configuration
-- `PORT` - Server port (default: 3000)
+- `PORT` - Server port (default: 5000)
 - `NODE_ENV` - Environment mode (development | production | test)
 
 ### Database Configuration
@@ -108,7 +108,7 @@ brew install stripe/stripe-cli/stripe
 stripe login
 
 # Forward webhooks to local server
-stripe listen --forward-to http://localhost:3000/api/upgrade
+stripe listen --forward-to http://localhost:5000/api/upgrade
 ```
 
 The CLI will output your webhook signing secret (starts with `whsec_`). Add it to `.env`:
@@ -137,7 +137,7 @@ For production, configure a webhook endpoint in the Stripe Dashboard:
 npm run dev
 
 # Create checkout session (requires authentication)
-curl -X POST http://localhost:3000/api/billing/checkout \
+curl -X POST http://localhost:5000/api/billing/checkout \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json"
 ```
@@ -178,8 +178,8 @@ Start the development server with hot reload:
 npm run dev
 ```
 
-The server will start on the configured PORT (default: 3000) and will be available at:
-- Health check: http://localhost:3000/api/health
+The server will start on the configured PORT (default: 5000) and will be available at:
+- Health check: http://localhost:5000/api/health
 
 ## Building
 
