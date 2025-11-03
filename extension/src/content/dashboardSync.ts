@@ -29,21 +29,48 @@ interface ExtensionAuthToken {
 }
 
 /**
- * Sync token from dashboard localStorage to extension storage
+ * Fetch token from /api/token endpoint (most reliable method)
  */
-function syncTokenToExtension(): void {
+async function fetchTokenFromAPI(): Promise<void> {
+  try {
+    console.log('[PromptLens Dashboard Sync] Fetching token from /api/token');
+    const response = await fetch('/api/token', {
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      const data: DashboardTokenData = await response.json();
+      if (data.accessToken) {
+        const extensionToken: ExtensionAuthToken = {
+          token: data.accessToken,
+          expiresAt: data.expiresAt ? new Date(data.expiresAt).getTime() : undefined
+        };
+
+        await chrome.storage.local.set({ [AUTH_STORAGE_KEY]: extensionToken });
+        console.log('[PromptLens Dashboard Sync] ✅ Token fetched from API and synced to extension storage');
+        console.log('[PromptLens Dashboard Sync] Token expires at:', extensionToken.expiresAt ? new Date(extensionToken.expiresAt).toISOString() : 'never');
+      }
+    } else if (response.status === 401) {
+      console.log('[PromptLens Dashboard Sync] No active session, clearing extension storage');
+      await chrome.storage.local.remove([AUTH_STORAGE_KEY]);
+    }
+  } catch (error) {
+    console.error('[PromptLens Dashboard Sync] Error fetching token from API:', error);
+  }
+}
+
+/**
+ * Sync token from dashboard localStorage to extension storage (fallback method)
+ */
+function syncTokenFromLocalStorage(): void {
   try {
     const tokenDataStr = localStorage.getItem(DASHBOARD_TOKEN_KEY);
     
     if (!tokenDataStr) {
-      console.log('[PromptLens Dashboard Sync] No token found in localStorage, clearing extension storage');
-      chrome.storage.local.remove([AUTH_STORAGE_KEY], () => {
-        if (chrome.runtime.lastError) {
-          console.error('[PromptLens Dashboard Sync] Error clearing token:', chrome.runtime.lastError);
-        } else {
-          console.log('[PromptLens Dashboard Sync] Token cleared from extension storage');
-        }
-      });
+      console.log('[PromptLens Dashboard Sync] No token found in localStorage');
       return;
     }
 
@@ -65,13 +92,26 @@ function syncTokenToExtension(): void {
       if (chrome.runtime.lastError) {
         console.error('[PromptLens Dashboard Sync] Error saving token to extension:', chrome.runtime.lastError);
       } else {
-        console.log('[PromptLens Dashboard Sync] ✅ Token synced to extension storage');
+        console.log('[PromptLens Dashboard Sync] ✅ Token synced from localStorage to extension storage');
         console.log('[PromptLens Dashboard Sync] Token expires at:', extensionToken.expiresAt ? new Date(extensionToken.expiresAt).toISOString() : 'never');
       }
     });
   } catch (error) {
-    console.error('[PromptLens Dashboard Sync] Error syncing token:', error);
+    console.error('[PromptLens Dashboard Sync] Error syncing token from localStorage:', error);
   }
+}
+
+/**
+ * Combined sync function that tries API first, then localStorage
+ */
+async function syncToken(): Promise<void> {
+  console.log('[PromptLens Dashboard Sync] Starting token sync...');
+  
+  // Try fetching from API first (most reliable)
+  await fetchTokenFromAPI();
+  
+  // Also check localStorage as backup
+  syncTokenFromLocalStorage();
 }
 
 /**
@@ -81,7 +121,7 @@ function setupStorageListener(): void {
   window.addEventListener('storage', (event) => {
     if (event.key === DASHBOARD_TOKEN_KEY) {
       console.log('[PromptLens Dashboard Sync] Storage change detected for token');
-      syncTokenToExtension();
+      syncToken();
     }
   });
 }
@@ -93,7 +133,19 @@ function setupStorageListener(): void {
 function setupCustomEventListener(): void {
   window.addEventListener('promptlens-token-updated', () => {
     console.log('[PromptLens Dashboard Sync] Custom token update event received');
-    syncTokenToExtension();
+    syncToken();
+  });
+}
+
+/**
+ * Listen for page visibility changes to sync when tab becomes visible
+ */
+function setupVisibilityListener(): void {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      console.log('[PromptLens Dashboard Sync] Page became visible, syncing token');
+      syncToken();
+    }
   });
 }
 
@@ -102,13 +154,15 @@ function setupCustomEventListener(): void {
  * This handles cases where the storage event might be missed
  */
 function setupPeriodicSync(): void {
-  // Initial sync
-  syncTokenToExtension();
+  // Initial sync (immediate)
+  console.log('[PromptLens Dashboard Sync] Running initial token sync');
+  syncToken();
   
-  // Sync every 5 seconds to catch any changes
+  // Sync every 30 seconds to catch any changes
   setInterval(() => {
-    syncTokenToExtension();
-  }, 5000);
+    console.log('[PromptLens Dashboard Sync] Running periodic token sync');
+    syncToken();
+  }, 30000);
 }
 
 /**
@@ -118,7 +172,7 @@ function setupDOMObserver(): void {
   const observer = new MutationObserver(() => {
     // Trigger a sync when significant DOM changes occur
     // This helps catch token changes after login redirects
-    syncTokenToExtension();
+    syncToken();
   });
 
   observer.observe(document.documentElement, {
@@ -132,10 +186,18 @@ function setupDOMObserver(): void {
   }, 30000);
 }
 
-// Initialize all sync mechanisms
-setupStorageListener();
-setupCustomEventListener();
-setupPeriodicSync();
-setupDOMObserver();
+// Detect if we're on the dashboard
+if (window.location.hostname === 'localhost' || window.location.hostname.includes('vercel.app')) {
+  console.log('[PromptLens Dashboard Sync] On dashboard, initializing sync mechanisms...');
+  
+  // Initialize all sync mechanisms
+  setupStorageListener();
+  setupCustomEventListener();
+  setupVisibilityListener();
+  setupPeriodicSync();
+  setupDOMObserver();
 
-console.log('[PromptLens Dashboard Sync] All sync mechanisms initialized');
+  console.log('[PromptLens Dashboard Sync] All sync mechanisms initialized');
+} else {
+  console.log('[PromptLens Dashboard Sync] Not on dashboard domain, skipping initialization');
+}
