@@ -4,10 +4,13 @@ import { userService } from './user.service.js';
 import { WebhookEvent } from '../models/index.js';
 
 export class BillingService {
-  private stripe: Stripe;
+  private stripe: Stripe | null = null;
 
-  constructor() {
-    this.stripe = getStripe();
+  private getStripeInstance(): Stripe {
+    if (!this.stripe) {
+      this.stripe = getStripe();
+    }
+    return this.stripe;
   }
 
   async createCheckoutSession(userId: string, userEmail: string): Promise<Stripe.Checkout.Session> {
@@ -20,7 +23,7 @@ export class BillingService {
     let customerId = user.stripeCustomerId;
 
     if (!customerId) {
-      const customer = await this.stripe.customers.create({
+      const customer = await this.getStripeInstance().customers.create({
         email: userEmail,
         metadata: {
           userId,
@@ -31,7 +34,7 @@ export class BillingService {
       await userService.updateStripeCustomerId(userId, customerId);
     }
 
-    const session = await this.stripe.checkout.sessions.create({
+    const session = await this.getStripeInstance().checkout.sessions.create({
       customer: customerId,
       payment_method_types: ['card'],
       line_items: [
@@ -141,7 +144,7 @@ export class BillingService {
       throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
     }
 
-    return this.stripe.webhooks.constructEvent(payload, signature, STRIPE_CONFIG.WEBHOOK_SECRET);
+    return this.getStripeInstance().webhooks.constructEvent(payload, signature, STRIPE_CONFIG.WEBHOOK_SECRET);
   }
 }
 
