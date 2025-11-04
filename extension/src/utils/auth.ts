@@ -3,7 +3,7 @@ export interface AuthToken {
   expiresAt?: number;
 }
 
-const AUTH_STORAGE_KEY = 'promptlens_auth_token';
+const AUTH_STORAGE_KEY = 'authToken';
 
 export const getAuthToken = async (): Promise<string | null> => {
   return new Promise((resolve) => {

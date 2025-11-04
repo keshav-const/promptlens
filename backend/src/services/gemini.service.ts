@@ -14,7 +14,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export class GeminiService {
   private apiKey: string;
   private baseUrl =
-    'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent';
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
   constructor() {
     this.apiKey = config.GEMINI_API_KEY || 'test-key';

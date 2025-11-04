@@ -8,7 +8,7 @@
 
 console.log('[PromptLens Dashboard Sync] Content script loaded');
 
-const AUTH_STORAGE_KEY = 'promptlens_auth_token';
+const AUTH_STORAGE_KEY = 'authToken';
 const DASHBOARD_TOKEN_KEY = 'auth_token_data';
 
 interface DashboardTokenData {
