@@ -6,6 +6,16 @@ export interface OptimizeResult {
   explanation: string;
 }
 
+interface GeminiModel {
+  name: string;
+  displayName: string;
+  supportedGenerationMethods: string[];
+}
+
+interface ListModelsResponse {
+  models: GeminiModel[];
+}
+
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 1000;
 
@@ -13,14 +23,104 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export class GeminiService {
   private apiKey: string;
-  private baseUrl =
-    'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent';
+  private baseUrl: string | null = null;
+  private availableModels: GeminiModel[] = [];
+  private initialized = false;
 
   constructor() {
     this.apiKey = config.GEMINI_API_KEY || 'test-key';
   }
 
+  /**
+   * Discover available models from the Gemini API
+   */
+  private async discoverModels(): Promise<void> {
+    if (this.initialized) {
+      return;
+    }
+
+    if (config.NODE_ENV === 'test' && this.apiKey === 'test-key') {
+      // Skip model discovery in test environment
+      this.initialized = true;
+      return;
+    }
+
+    try {
+      console.log('🔍 Discovering available Gemini models...');
+      
+      const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${this.apiKey}`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to list models: ${response.status} - ${errorText}`);
+      }
+
+      const data = (await response.json()) as ListModelsResponse;
+      
+      if (!data.models || data.models.length === 0) {
+        throw new Error('No models available from Gemini API');
+      }
+
+      // Filter models that support generateContent
+      this.availableModels = data.models.filter((model) =>
+        model.supportedGenerationMethods.includes('generateContent')
+      );
+
+      if (this.availableModels.length === 0) {
+        throw new Error('No models found that support generateContent');
+      }
+
+      // Prefer models in this order: gemini-1.5-pro, gemini-pro, or the first available
+      let selectedModel = this.availableModels.find(
+        (m) => m.name.includes('gemini-1.5-pro') || m.displayName.includes('1.5 Pro')
+      );
+
+      if (!selectedModel) {
+        selectedModel = this.availableModels.find(
+          (m) => m.name.includes('gemini-pro') || m.displayName.includes('Pro')
+        );
+      }
+
+      if (!selectedModel) {
+        selectedModel = this.availableModels[0];
+      }
+
+      // Build the base URL using the discovered model name
+      // Model name comes in format "models/gemini-1.5-pro", we need to use it directly
+      this.baseUrl = `https://generativelanguage.googleapis.com/v1beta/${selectedModel.name}:generateContent`;
+
+      console.log(`✅ Selected model: ${selectedModel.displayName} (${selectedModel.name})`);
+      console.log(`📊 Available models: ${this.availableModels.map(m => m.displayName).join(', ')}`);
+
+      this.initialized = true;
+    } catch (error) {
+      console.error('❌ Failed to discover Gemini models:', error);
+      throw new AppError(
+        `Failed to initialize Gemini API: ${(error as Error).message}`,
+        503,
+        'GEMINI_INIT_ERROR'
+      );
+    }
+  }
+
+  /**
+   * Get available models (for debugging)
+   */
+  getAvailableModels(): GeminiModel[] {
+    return this.availableModels;
+  }
+
   async optimizePrompt(prompt: string): Promise<OptimizeResult> {
+    // Ensure models are discovered before making API calls
+    await this.discoverModels();
+
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
@@ -31,6 +131,13 @@ export class GeminiService {
         lastError = error as Error;
         console.error(`Gemini API attempt ${attempt + 1} failed:`, error);
 
+        // Log available models on error to help with debugging
+        if (this.availableModels.length > 0) {
+          console.error(
+            `Available models: ${this.availableModels.map((m) => `${m.displayName} (${m.name})`).join(', ')}`
+          );
+        }
+
         if (attempt < MAX_RETRIES - 1) {
           const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt);
           await sleep(delay);
@@ -38,8 +145,12 @@ export class GeminiService {
       }
     }
 
+    const errorMessage = this.availableModels.length > 0
+      ? `Failed to optimize prompt after ${MAX_RETRIES} attempts: ${lastError?.message}. Available models: ${this.availableModels.map((m) => m.displayName).join(', ')}`
+      : `Failed to optimize prompt after ${MAX_RETRIES} attempts: ${lastError?.message}`;
+
     throw new AppError(
-      `Failed to optimize prompt after ${MAX_RETRIES} attempts: ${lastError?.message}`,
+      errorMessage,
       503,
       'GEMINI_API_ERROR'
     );
@@ -48,6 +159,10 @@ export class GeminiService {
   private async callGeminiAPI(prompt: string): Promise<OptimizeResult> {
     if (config.NODE_ENV === 'test' && this.apiKey === 'test-key') {
       throw new Error('Gemini API called in test environment without mock');
+    }
+
+    if (!this.baseUrl) {
+      throw new Error('Gemini API not initialized - no model URL available');
     }
 
     const systemPrompt = `You are a prompt optimization expert. Your task is to analyze the given prompt and provide:
@@ -90,6 +205,17 @@ Format your response as JSON with the following structure:
 
     if (!response.ok) {
       const errorText = await response.text();
+      
+      // Enhanced error message for 404s
+      if (response.status === 404) {
+        const availableModelsMsg = this.availableModels.length > 0
+          ? `\nAvailable models: ${this.availableModels.map((m) => `${m.displayName} (${m.name})`).join(', ')}`
+          : '';
+        throw new Error(
+          `Gemini API model not found (404) - Model URL: ${this.baseUrl}${availableModelsMsg}\nError: ${errorText}`
+        );
+      }
+      
       throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
     }
 
