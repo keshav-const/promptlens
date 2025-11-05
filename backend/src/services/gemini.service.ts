@@ -78,14 +78,20 @@ try {
     throw new Error('No models found that support generateContent');
   }
 
-  // Prefer models in this order: gemini-1.5-pro, gemini-pro, or the first available
+  // Prefer free-tier Flash models first
   let selectedModel = this.availableModels.find(
-    (m) => m.name.includes('gemini-1.5-pro') || m.displayName.includes('1.5 Pro')
+    (m) => m.name.includes('gemini-2.0-flash') && !m.name.includes('lite') && !m.name.includes('exp')
   );
 
   if (!selectedModel) {
     selectedModel = this.availableModels.find(
-      (m) => m.name.includes('gemini-pro') || m.displayName.includes('Pro')
+      (m) => m.name.includes('gemini-flash') && !m.name.includes('lite') && !m.name.includes('pro')
+    );
+  }
+
+  if (!selectedModel) {
+    selectedModel = this.availableModels.find(
+      (m) => m.name.includes('flash-lite')
     );
   }
 
