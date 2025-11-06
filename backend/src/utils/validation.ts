@@ -26,6 +26,11 @@ export const historyQuerySchema = z.object({
     .string()
     .optional()
     .transform((val) => (val ? val.split(',').map((t) => t.trim()) : undefined)),
+  search: z.string().optional(),
+  favorites: z
+    .string()
+    .optional()
+    .transform((val) => val === 'true'),
   startDate: z
     .string()
     .optional()
@@ -38,5 +43,10 @@ export const historyQuerySchema = z.object({
     .refine((val) => !val || !isNaN(val.getTime()), 'Invalid end date'),
 });
 
+export const updatePromptSchema = z.object({
+  isFavorite: z.boolean(),
+});
+
 export type OptimizePromptInput = z.infer<typeof optimizePromptSchema>;
 export type HistoryQueryInput = z.infer<typeof historyQuerySchema>;
+export type UpdatePromptInput = z.infer<typeof updatePromptSchema>;

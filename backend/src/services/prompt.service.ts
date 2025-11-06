@@ -12,6 +12,8 @@ export interface CreatePromptData {
 export interface HistoryFilters {
   userId: string | mongoose.Types.ObjectId;
   tags?: string[];
+  search?: string;
+  favorites?: boolean;
   startDate?: Date;
   endDate?: Date;
 }
@@ -44,11 +46,7 @@ export class PromptService {
     const limit = Math.min(100, Math.max(1, options.limit || 10));
     const skip = (page - 1) * limit;
 
-    const query: {
-      userId: mongoose.Types.ObjectId | string;
-      createdAt?: { $gte?: Date; $lte?: Date };
-      'metadata.tags'?: { $in: string[] };
-    } = {
+    const query: any = {
       userId: filters.userId,
     };
 
@@ -64,6 +62,30 @@ export class PromptService {
 
     if (filters.tags && filters.tags.length > 0) {
       query['metadata.tags'] = { $in: filters.tags };
+    }
+
+    if (filters.search) {
+      query.$or = [
+        { original: { $regex: filters.search, $options: 'i' } },
+        { optimizedPrompt: { $regex: filters.search, $options: 'i' } },
+        { explanation: { $regex: filters.search, $options: 'i' } },
+      ];
+    }
+
+    // Note: favorites filtering is not implemented in the backend yet
+    // since we don't track favorites in the database
+    if (filters.favorites) {
+      // For now, return empty results for favorites filter
+      // In a real implementation, we would add an isFavorite field to the schema
+      return {
+        data: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          totalPages: 0,
+        },
+      };
     }
 
     const [data, total] = await Promise.all([
