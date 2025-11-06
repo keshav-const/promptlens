@@ -11,6 +11,7 @@ export interface IPrompt extends Document {
   original: string;
   optimizedPrompt: string;
   explanation: string;
+  isFavorite: boolean;
   metadata?: IPromptMetadata;
   createdAt: Date;
   updatedAt: Date;
@@ -36,6 +37,11 @@ const promptSchema = new Schema<IPrompt>(
       type: String,
       required: true,
     },
+    isFavorite: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
     metadata: {
       tags: [String],
       source: String,
@@ -47,6 +53,7 @@ const promptSchema = new Schema<IPrompt>(
 );
 
 promptSchema.index({ userId: 1, createdAt: -1 });
+promptSchema.index({ userId: 1, isFavorite: 1 });
 promptSchema.index({ 'metadata.tags': 1 });
 
 export const Prompt = mongoose.model<IPrompt>('Prompt', promptSchema);

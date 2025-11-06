@@ -10,6 +10,10 @@ export default function UsageTracker({ usage, onRefresh, isRefreshing }: UsageTr
   const percentage = Math.min((usage.dailyCount / usage.dailyLimit) * 100, 100);
   const isNearLimit = percentage >= 80;
   const isAtLimit = percentage >= 100;
+  const monthlyLimit = usage.monthlyLimit || usage.dailyLimit;
+  const monthlyCount = usage.monthlyLimit ? usage.monthlyCount : usage.dailyCount;
+  const monthlyUsageText =
+    monthlyLimit > 0 ? `${monthlyCount} / ${monthlyLimit}` : 'Unlimited';
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
@@ -55,9 +59,7 @@ export default function UsageTracker({ usage, onRefresh, isRefreshing }: UsageTr
       <div className="mt-4 border-t border-gray-200 pt-4">
         <div className="flex justify-between text-sm text-gray-600">
           <span>Monthly usage:</span>
-          <span className="font-medium text-gray-900">
-            {usage.monthlyCount} / {usage.monthlyLimit}
-          </span>
+          <span className="font-medium text-gray-900">{monthlyUsageText}</span>
         </div>
         <div className="mt-1 flex justify-between text-xs text-gray-500">
           <span>Plan:</span>

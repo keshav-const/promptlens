@@ -18,7 +18,7 @@ export const getHistory = async (
 
     const validatedQuery = historyQuerySchema.parse(req.query);
 
-    const result = await promptService.getHistory(
+    const { data, pagination, stats } = await promptService.getHistory(
       {
         userId: req.userId,
         tags: validatedQuery.tags,
@@ -33,21 +33,24 @@ export const getHistory = async (
       }
     );
 
-    // Transform the response to match frontend expectations
-    const transformedPrompts = result.data.map((prompt) => ({
+    const transformedPrompts = data.map((prompt) => ({
       id: prompt._id.toString(),
       userId: prompt.userId.toString(),
       originalText: prompt.original,
       optimizedText: prompt.optimizedPrompt,
       tags: prompt.metadata?.tags || [],
-      isFavorite: false, // Backend doesn't track favorites yet
+      isFavorite: Boolean(prompt.isFavorite),
       createdAt: prompt.createdAt.toISOString(),
       updatedAt: prompt.updatedAt.toISOString(),
     }));
 
     const transformedResult = {
       prompts: transformedPrompts,
-      total: result.pagination.total,
+      total: pagination.total,
+      stats: {
+        totalPrompts: stats.totalPrompts,
+        favoriteCount: stats.favoriteCount,
+      },
     };
 
     sendSuccess(res, transformedResult);
@@ -78,7 +81,6 @@ export const updatePrompt = async (
       throw new AppError('Invalid prompt ID', 400, 'INVALID_ID');
     }
 
-    // For now, we don't track favorites in the backend, so just return the prompt as-is
     const prompt = await promptService.getById(id);
 
     if (!prompt) {
@@ -89,16 +91,21 @@ export const updatePrompt = async (
       throw new AppError('Access denied', 403, 'ACCESS_DENIED');
     }
 
-    // Transform the response to match frontend expectations
+    const updatedPrompt = await promptService.updateFavorite(id, req.userId, isFavorite);
+
+    if (!updatedPrompt) {
+      throw new AppError('Prompt not found', 404, 'PROMPT_NOT_FOUND');
+    }
+
     const transformedPrompt = {
-      id: prompt._id.toString(),
-      userId: prompt.userId.toString(),
-      originalText: prompt.original,
-      optimizedText: prompt.optimizedPrompt,
-      tags: prompt.metadata?.tags || [],
-      isFavorite: isFavorite || false, // Return the requested value
-      createdAt: prompt.createdAt.toISOString(),
-      updatedAt: prompt.updatedAt.toISOString(),
+      id: updatedPrompt._id.toString(),
+      userId: updatedPrompt.userId.toString(),
+      originalText: updatedPrompt.original,
+      optimizedText: updatedPrompt.optimizedPrompt,
+      tags: updatedPrompt.metadata?.tags || [],
+      isFavorite: updatedPrompt.isFavorite,
+      createdAt: updatedPrompt.createdAt.toISOString(),
+      updatedAt: updatedPrompt.updatedAt.toISOString(),
     };
 
     sendSuccess(res, transformedPrompt);
