@@ -29,14 +29,18 @@ export const getUsage = async (
     const limit = userService.getUsageLimit(user.plan);
     const remaining = Math.max(0, limit - user.usageCount);
 
-    sendSuccess(res, {
+    // Transform the response to match frontend expectations
+    const transformedUsage = {
+      userId: user._id.toString(),
+      dailyCount: user.usageCount,
+      dailyLimit: limit,
+      monthlyCount: 0, // Backend doesn't track monthly usage yet
+      monthlyLimit: 0, // Backend doesn't track monthly limits yet
+      resetAt: new Date(user.lastResetAt.getTime() + 24 * 60 * 60 * 1000).toISOString(),
       plan: user.plan,
-      usageCount: user.usageCount,
-      limit,
-      remaining,
-      lastResetAt: user.lastResetAt.toISOString(),
-      nextResetAt: new Date(user.lastResetAt.getTime() + 24 * 60 * 60 * 1000).toISOString(),
-    });
+    };
+
+    sendSuccess(res, transformedUsage);
   } catch (error) {
     next(error);
   }
