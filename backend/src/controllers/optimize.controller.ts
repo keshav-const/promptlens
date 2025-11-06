@@ -27,7 +27,7 @@ export const optimizePrompt = async (
       await promptService.createPrompt({
         userId: req.userId,
         original: validatedData.prompt,
-        optimized: result.optimized,
+        optimizedPrompt: result.optimizedPrompt,
         explanation: result.explanation,
         metadata: validatedData.metadata,
       });
@@ -38,8 +38,8 @@ export const optimizePrompt = async (
     const remaining = Math.max(0, limit - (user?.usageCount || 0));
 
     sendSuccess(res, {
-      original: validatedData.prompt,
-      optimized: result.optimized,
+      originalPrompt: validatedData.prompt,
+      optimizedPrompt: result.optimizedPrompt,
       explanation: result.explanation,
       usage: {
         count: user?.usageCount || 0,

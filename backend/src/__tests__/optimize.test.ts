@@ -33,8 +33,8 @@ describe('Optimize Endpoint', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data).toMatchObject({
-        original: 'Write a story about a cat',
-        optimized: mockGeminiResponse.optimized,
+        originalPrompt: 'Write a story about a cat',
+        optimizedPrompt: mockGeminiResponse.optimizedPrompt,
         explanation: mockGeminiResponse.explanation,
       });
       expect(response.body.data.usage).toMatchObject({
@@ -59,6 +59,7 @@ describe('Optimize Endpoint', () => {
       const prompts = await Prompt.find({});
       expect(prompts).toHaveLength(1);
       expect(prompts[0].original).toBe('Test prompt');
+      expect(prompts[0].optimizedPrompt).toBe(mockGeminiResponse.optimizedPrompt);
       expect(prompts[0].metadata?.tags).toEqual(['test']);
       expect(prompts[0].metadata?.source).toBe('api');
     });

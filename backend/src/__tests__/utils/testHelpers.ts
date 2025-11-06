@@ -48,7 +48,8 @@ export const createMockToken = async (email: string, name?: string): Promise<str
 };
 
 export const mockGeminiResponse = {
-  optimized: 'This is an optimized version of the prompt that is clearer and more specific.',
+  optimizedPrompt:
+    'This is an optimized version of the prompt that is clearer and more specific.',
   explanation:
     'The prompt has been improved by adding more context and specific instructions to get better results.',
 };

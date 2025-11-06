@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 export interface CreatePromptData {
   userId: string | mongoose.Types.ObjectId;
   original: string;
-  optimized: string;
+  optimizedPrompt: string;
   explanation: string;
   metadata?: IPromptMetadata;
 }
