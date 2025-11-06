@@ -2,7 +2,7 @@ import { config } from '../config/env.js';
 import { AppError } from '../middlewares/errorHandler.js';
 
 export interface OptimizeResult {
-  optimized: string;
+  optimizedPrompt: string;
   explanation: string;
 }
 
@@ -261,7 +261,7 @@ try {
   }
 
   return {
-    optimized: parsed.optimized,
+    optimizedPrompt: parsed.optimized,
     explanation: parsed.explanation,
   };
 } catch (parseError) {
