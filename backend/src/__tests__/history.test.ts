@@ -41,21 +41,21 @@ describe('History Endpoint', () => {
         {
           userId,
           original: 'First prompt',
-          optimized: 'Optimized first',
+          optimizedPrompt: 'Optimized first',
           explanation: 'Explanation 1',
           createdAt: new Date('2024-01-01'),
         },
         {
           userId,
           original: 'Second prompt',
-          optimized: 'Optimized second',
+          optimizedPrompt: 'Optimized second',
           explanation: 'Explanation 2',
           createdAt: new Date('2024-01-02'),
         },
         {
           userId,
           original: 'Third prompt',
-          optimized: 'Optimized third',
+          optimizedPrompt: 'Optimized third',
           explanation: 'Explanation 3',
           createdAt: new Date('2024-01-03'),
         },
@@ -78,7 +78,7 @@ describe('History Endpoint', () => {
       const prompts = Array.from({ length: 15 }, (_, i) => ({
         userId,
         original: `Prompt ${i + 1}`,
-        optimized: `Optimized ${i + 1}`,
+        optimizedPrompt: `Optimized ${i + 1}`,
         explanation: `Explanation ${i + 1}`,
       }));
 
@@ -109,7 +109,7 @@ describe('History Endpoint', () => {
       await Prompt.create({
         userId,
         original: 'Test 1',
-        optimized: 'Opt 1',
+        optimizedPrompt: 'Opt 1',
         explanation: 'Exp 1',
         metadata: { tags: ['work', 'important'] },
         createdAt: new Date(now - 2000),
@@ -117,7 +117,7 @@ describe('History Endpoint', () => {
       await Prompt.create({
         userId,
         original: 'Test 2',
-        optimized: 'Opt 2',
+        optimizedPrompt: 'Opt 2',
         explanation: 'Exp 2',
         metadata: { tags: ['personal'] },
         createdAt: new Date(now - 1000),
@@ -125,7 +125,7 @@ describe('History Endpoint', () => {
       await Prompt.create({
         userId,
         original: 'Test 3',
-        optimized: 'Opt 3',
+        optimizedPrompt: 'Opt 3',
         explanation: 'Exp 3',
         metadata: { tags: ['work'] },
         createdAt: new Date(now),
@@ -146,14 +146,14 @@ describe('History Endpoint', () => {
         {
           userId,
           original: 'Old prompt',
-          optimized: 'Opt',
+          optimizedPrompt: 'Opt',
           explanation: 'Exp',
           createdAt: new Date('2024-01-01'),
         },
         {
           userId,
           original: 'Recent prompt',
-          optimized: 'Opt',
+          optimizedPrompt: 'Opt',
           explanation: 'Exp',
           createdAt: new Date('2024-06-01'),
         },
@@ -180,13 +180,13 @@ describe('History Endpoint', () => {
         {
           userId,
           original: 'My prompt',
-          optimized: 'Opt',
+          optimizedPrompt: 'Opt',
           explanation: 'Exp',
         },
         {
           userId: otherUser._id,
           original: 'Other prompt',
-          optimized: 'Opt',
+          optimizedPrompt: 'Opt',
           explanation: 'Exp',
         },
       ]);

@@ -9,7 +9,7 @@ export interface IPrompt extends Document {
   _id: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   original: string;
-  optimized: string;
+  optimizedPrompt: string;
   explanation: string;
   metadata?: IPromptMetadata;
   createdAt: Date;
@@ -28,7 +28,7 @@ const promptSchema = new Schema<IPrompt>(
       type: String,
       required: true,
     },
-    optimized: {
+    optimizedPrompt: {
       type: String,
       required: true,
     },
