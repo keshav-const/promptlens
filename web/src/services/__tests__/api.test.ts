@@ -50,6 +50,10 @@ describe('API Service', () => {
             },
           ],
           total: 1,
+          stats: {
+            totalPrompts: 1,
+            favoriteCount: 0,
+          },
         },
         timestamp: '2024-01-01T00:00:00.000Z',
       };
@@ -75,7 +79,11 @@ describe('API Service', () => {
     it('should handle filters correctly', async () => {
       const mockResponse = {
         success: true,
-        data: { prompts: [], total: 0 },
+        data: {
+          prompts: [],
+          total: 0,
+          stats: { totalPrompts: 0, favoriteCount: 0 },
+        },
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 
@@ -322,7 +330,11 @@ describe('API Service', () => {
 
       const mockResponse = {
         success: true,
-        data: { prompts: [], total: 0 },
+        data: {
+          prompts: [],
+          total: 0,
+          stats: { totalPrompts: 0, favoriteCount: 0 },
+        },
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 

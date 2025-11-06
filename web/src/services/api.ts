@@ -1,5 +1,5 @@
 import { TokenStorage } from '@/lib/token';
-import type { Prompt, UsageData, CheckoutSession, ApiResponse } from '@/types/api';
+import type { Prompt, UsageData, CheckoutSession, ApiResponse, PromptHistoryResponse } from '@/types/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:5000/api';
 
@@ -77,7 +77,7 @@ export async function fetchPromptHistory(filters?: {
   favorites?: boolean;
   limit?: number;
   offset?: number;
-}): Promise<{ prompts: Prompt[]; total: number }> {
+}): Promise<PromptHistoryResponse> {
   const params = new URLSearchParams();
 
   if (filters?.search) params.append('search', filters.search);
@@ -89,7 +89,7 @@ export async function fetchPromptHistory(filters?: {
   const queryString = params.toString();
   const endpoint = `/history${queryString ? `?${queryString}` : ''}`;
 
-  return fetchWithAuth<{ prompts: Prompt[]; total: number }>(endpoint);
+  return fetchWithAuth<PromptHistoryResponse>(endpoint);
 }
 
 export async function fetchUsageData(): Promise<UsageData> {

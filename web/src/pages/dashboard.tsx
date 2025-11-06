@@ -10,7 +10,7 @@ import {
   deletePrompt,
   handleApiError,
 } from '@/services/api';
-import { Prompt, UsageData } from '@/types/api';
+import { Prompt, UsageData, PromptStats } from '@/types/api';
 import PromptCard from '@/components/PromptCard';
 import UsageTracker from '@/components/UsageTracker';
 import UpgradeModal from '@/components/UpgradeModal';
@@ -19,6 +19,7 @@ export default function Dashboard() {
   const { data: session } = useSession();
   const router = useRouter();
   const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [promptStats, setPromptStats] = useState<PromptStats | null>(null);
   const [usage, setUsage] = useState<UsageData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -38,7 +39,11 @@ export default function Dashboard() {
           favorites: showFavoritesOnly || undefined,
         }).catch((err) => {
           console.error('Failed to fetch prompts:', err);
-          return { prompts: [], total: 0 }; // Return default on error
+          return {
+            prompts: [],
+            total: 0,
+            stats: { totalPrompts: 0, favoriteCount: 0 },
+          };
         }),
         fetchUsageData().catch((err) => {
           console.error('Failed to fetch usage:', err);
@@ -46,13 +51,22 @@ export default function Dashboard() {
         }),
       ]);
 
-      setPrompts(promptsData?.prompts || []);
+      const historyData =
+        promptsData || {
+          prompts: [],
+          total: 0,
+          stats: { totalPrompts: 0, favoriteCount: 0 },
+        };
+
+      setPrompts(historyData.prompts);
+      setPromptStats(historyData.stats);
       setUsage(usageData);
     } catch (err) {
       console.error('Dashboard load error:', err);
       setError(handleApiError(err));
       // Ensure prompts is always an array even on error
       setPrompts([]);
+      setPromptStats({ totalPrompts: 0, favoriteCount: 0 });
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -77,13 +91,73 @@ export default function Dashboard() {
   };
 
   const handleFavoriteToggle = async (promptId: string, isFavorite: boolean) => {
-    await updatePromptFavorite(promptId, isFavorite);
-    setPrompts((prev) => prev.map((p) => (p.id === promptId ? { ...p, isFavorite } : p)));
+    const existingPrompt = prompts.find((p) => p.id === promptId);
+    if (!existingPrompt) {
+      return;
+    }
+
+    const updatedPrompt = await updatePromptFavorite(promptId, isFavorite);
+
+    setPrompts((prev) => {
+      if (showFavoritesOnly && !updatedPrompt.isFavorite) {
+        return prev.filter((p) => p.id !== promptId);
+      }
+
+      return prev.map((p) => (p.id === promptId ? { ...p, isFavorite: updatedPrompt.isFavorite } : p));
+    });
+
+    setPromptStats((prev) => {
+      const currentStats =
+        prev ?? {
+          totalPrompts: prompts.length,
+          favoriteCount: prompts.filter((p) => p.isFavorite).length,
+        };
+
+      if (existingPrompt.isFavorite === updatedPrompt.isFavorite) {
+        return currentStats;
+      }
+
+      const favoriteCount = Math.max(
+        0,
+        currentStats.favoriteCount + (updatedPrompt.isFavorite ? 1 : -1)
+      );
+
+      return {
+        ...currentStats,
+        favoriteCount,
+      };
+    });
   };
 
   const handleDelete = async (promptId: string) => {
+    const existingPrompt = prompts.find((p) => p.id === promptId);
+    if (!existingPrompt) {
+      return;
+    }
+
     await deletePrompt(promptId);
     setPrompts((prev) => prev.filter((p) => p.id !== promptId));
+
+    setPromptStats((prev) => {
+      const currentStats =
+        prev ?? {
+          totalPrompts: prompts.length,
+          favoriteCount: prompts.filter((p) => p.isFavorite).length,
+        };
+
+      const favoriteCount = Math.max(
+        0,
+        currentStats.favoriteCount - (existingPrompt.isFavorite ? 1 : 0)
+      );
+
+      const totalPrompts = Math.max(0, currentStats.totalPrompts - 1);
+
+      return {
+        ...currentStats,
+        totalPrompts,
+        favoriteCount,
+      };
+    });
   };
 
   if (isLoading) {
@@ -217,12 +291,14 @@ export default function Dashboard() {
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Total prompts:</span>
-                <span className="font-medium text-gray-900">{prompts.length}</span>
+                <span className="font-medium text-gray-900">
+                  {promptStats?.totalPrompts ?? prompts.length}
+                </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Favorites:</span>
                 <span className="font-medium text-gray-900">
-                  {prompts.filter((p) => p.isFavorite).length}
+                  {promptStats?.favoriteCount ?? prompts.filter((p) => p.isFavorite).length}
                 </span>
               </div>
               {usage && (

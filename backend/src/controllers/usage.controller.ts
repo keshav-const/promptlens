@@ -34,8 +34,8 @@ export const getUsage = async (
       userId: user._id.toString(),
       dailyCount: user.usageCount,
       dailyLimit: limit,
-      monthlyCount: 0, // Backend doesn't track monthly usage yet
-      monthlyLimit: 0, // Backend doesn't track monthly limits yet
+      monthlyCount: user.usageCount,
+      monthlyLimit: limit,
       resetAt: new Date(user.lastResetAt.getTime() + 24 * 60 * 60 * 1000).toISOString(),
       plan: user.plan,
     };

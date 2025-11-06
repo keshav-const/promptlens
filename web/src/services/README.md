@@ -28,16 +28,19 @@ import {
 
 ```typescript
 // Get all prompts
-const { prompts, total } = await fetchPromptHistory();
+const { prompts, total, stats } = await fetchPromptHistory();
 
 // With filters
-const { prompts, total } = await fetchPromptHistory({
+const { prompts, total, stats } = await fetchPromptHistory({
   search: 'optimization',
   tags: ['important', 'work'],
   favorites: true,
   limit: 20,
   offset: 0,
 });
+
+console.log(`Total prompts: ${stats.totalPrompts}`);
+console.log(`Favorite prompts: ${stats.favoriteCount}`);
 ```
 
 ### Fetching Usage Data

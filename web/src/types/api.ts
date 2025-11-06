@@ -24,9 +24,20 @@ export interface Prompt {
   originalText: string;
   optimizedText: string;
   tags?: string[];
-  isFavorite?: boolean;
+  isFavorite: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PromptStats {
+  totalPrompts: number;
+  favoriteCount: number;
+}
+
+export interface PromptHistoryResponse {
+  prompts: Prompt[];
+  total: number;
+  stats: PromptStats;
 }
 
 export interface PlanFeatures {
