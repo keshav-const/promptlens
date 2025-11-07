@@ -39,12 +39,36 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
       headers,
     });
 
-    const data: ApiResponse<T> = await response.json();
+    const responseText = await response.text();
+    const hasBody = responseText.trim().length > 0;
+
+    if (!hasBody) {
+      if (!response.ok) {
+        throw new ApiError(
+          response.statusText || 'An error occurred',
+          `HTTP_${response.status}`
+        );
+      }
+
+      return undefined as T;
+    }
+
+    let data: ApiResponse<T>;
+
+    try {
+      data = JSON.parse(responseText) as ApiResponse<T>;
+    } catch (parseError) {
+      throw new ApiError(
+        'Failed to parse server response',
+        `HTTP_${response.status}`,
+        parseError
+      );
+    }
 
     if (!response.ok) {
       throw new ApiError(
         data.error?.message || 'An error occurred',
-        data.error?.code || 'UNKNOWN_ERROR',
+        data.error?.code || `HTTP_${response.status}`,
         data.error?.details
       );
     }
