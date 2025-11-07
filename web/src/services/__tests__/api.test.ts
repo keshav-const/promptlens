@@ -12,6 +12,25 @@ import { TokenStorage } from '@/lib/token';
 
 jest.mock('@/lib/token');
 
+const createFetchResponse = (
+  body: unknown,
+  {
+    ok = true,
+    status = ok ? 200 : 400,
+    statusText,
+  }: { ok?: boolean; status?: number; statusText?: string } = {}
+) => {
+  const responseBody =
+    body === undefined ? '' : typeof body === 'string' ? body : JSON.stringify(body);
+
+  return {
+    ok,
+    status,
+    statusText: statusText ?? (ok ? 'OK' : 'Error'),
+    text: jest.fn().mockResolvedValue(responseBody),
+  };
+};
+
 const mockTokenStorage = TokenStorage as jest.Mocked<typeof TokenStorage>;
 
 describe('API Service', () => {
@@ -58,10 +77,9 @@ describe('API Service', () => {
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      });
+      (global.fetch as jest.Mock).mockResolvedValueOnce(
+        createFetchResponse(mockResponse)
+      );
 
       const result = await fetchPromptHistory();
 
@@ -87,10 +105,9 @@ describe('API Service', () => {
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      });
+      (global.fetch as jest.Mock).mockResolvedValueOnce(
+        createFetchResponse(mockResponse)
+      );
 
       await fetchPromptHistory({
         search: 'test',
@@ -124,17 +141,23 @@ describe('API Service', () => {
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        json: jest.fn().mockResolvedValue(mockResponse),
-      });
+      (global.fetch as jest.Mock).mockResolvedValueOnce(
+        createFetchResponse(mockResponse, {
+          ok: false,
+          status: 401,
+          statusText: 'Unauthorized',
+        })
+      );
 
       await expect(fetchPromptHistory()).rejects.toThrow(ApiError);
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        json: jest.fn().mockResolvedValue(mockResponse),
-      });
+      (global.fetch as jest.Mock).mockResolvedValueOnce(
+        createFetchResponse(mockResponse, {
+          ok: false,
+          status: 401,
+          statusText: 'Unauthorized',
+        })
+      );
 
       await expect(fetchPromptHistory()).rejects.toThrow('Unauthorized');
     });
@@ -156,10 +179,9 @@ describe('API Service', () => {
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      });
+      (global.fetch as jest.Mock).mockResolvedValueOnce(
+        createFetchResponse(mockResponse)
+      );
 
       const result = await fetchUsageData();
 
@@ -182,10 +204,9 @@ describe('API Service', () => {
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      });
+      (global.fetch as jest.Mock).mockResolvedValueOnce(
+        createFetchResponse(mockResponse)
+      );
 
       const result = await createCheckoutSession();
 
@@ -209,10 +230,9 @@ describe('API Service', () => {
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      });
+      (global.fetch as jest.Mock).mockResolvedValueOnce(
+        createFetchResponse(mockResponse)
+      );
 
       const result = await createBillingPortalSession();
 
@@ -243,10 +263,9 @@ describe('API Service', () => {
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      });
+      (global.fetch as jest.Mock).mockResolvedValueOnce(
+        createFetchResponse(mockResponse)
+      );
 
       const result = await updatePromptFavorite('1', true);
 
@@ -263,16 +282,12 @@ describe('API Service', () => {
 
   describe('deletePrompt', () => {
     it('should delete prompt successfully', async () => {
-      const mockResponse = {
-        success: true,
-        data: undefined,
-        timestamp: '2024-01-01T00:00:00.000Z',
-      };
-
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      });
+      (global.fetch as jest.Mock).mockResolvedValueOnce(
+        createFetchResponse(undefined, {
+          status: 204,
+          statusText: 'No Content',
+        })
+      );
 
       await deletePrompt('1');
 
@@ -338,10 +353,9 @@ describe('API Service', () => {
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
-      });
+      (global.fetch as jest.Mock).mockResolvedValueOnce(
+        createFetchResponse(mockResponse)
+      );
 
       await fetchPromptHistory();
 
