@@ -50,6 +50,8 @@
     "dist",
     "node_modules",
     "*.config.ts",
-    "*.config.js"
+    "*.config.js",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ]
 }
