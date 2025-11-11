@@ -3,9 +3,12 @@ export interface User {
   email: string;
   name: string;
   image?: string;
-  plan: 'free' | 'pro';
+  plan: 'free' | 'pro_monthly' | 'pro_yearly';
   createdAt: string;
-  stripeCustomerId?: string;
+  razorpayCustomerId?: string;
+  razorpaySubscriptionId?: string;
+  subscriptionStatus?: string;
+  subscriptionCurrentPeriodEnd?: string;
 }
 
 export interface UsageData {
@@ -15,7 +18,7 @@ export interface UsageData {
   monthlyCount: number;
   monthlyLimit: number;
   resetAt: string;
-  plan: 'free' | 'pro';
+  plan: 'free' | 'pro_monthly' | 'pro_yearly';
 }
 
 export interface Prompt {
@@ -48,6 +51,20 @@ export interface PlanFeatures {
   features: string[];
 }
 
+export interface RazorpayCheckoutData {
+  subscriptionId: string;
+  razorpayKeyId: string;
+  plan: 'pro_monthly' | 'pro_yearly';
+  planName: string;
+}
+
+export interface RazorpayVerificationData {
+  paymentId: string;
+  orderId: string;
+  signature: string;
+  subscriptionId: string;
+}
+
 export interface CheckoutSession {
   url: string;
   sessionId: string;
@@ -56,7 +73,7 @@ export interface CheckoutSession {
 export interface ApiError {
   message: string;
   code: string;
-  details?: any;
+  details?: unknown;
 }
 
 export interface ApiResponse<T> {

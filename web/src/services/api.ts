@@ -1,5 +1,12 @@
 import { TokenStorage } from '@/lib/token';
-import type { Prompt, UsageData, CheckoutSession, ApiResponse, PromptHistoryResponse } from '@/types/api';
+import type {
+  Prompt,
+  UsageData,
+  RazorpayCheckoutData,
+  RazorpayVerificationData,
+  ApiResponse,
+  PromptHistoryResponse,
+} from '@/types/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:5000/api';
 
@@ -7,7 +14,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public code: string,
-    public details?: any
+    public details?: unknown
   ) {
     super(message);
     this.name = 'ApiError';
@@ -44,10 +51,7 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
 
     if (!hasBody) {
       if (!response.ok) {
-        throw new ApiError(
-          response.statusText || 'An error occurred',
-          `HTTP_${response.status}`
-        );
+        throw new ApiError(response.statusText || 'An error occurred', `HTTP_${response.status}`);
       }
 
       return undefined as T;
@@ -58,11 +62,7 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
     try {
       data = JSON.parse(responseText) as ApiResponse<T>;
     } catch (parseError) {
-      throw new ApiError(
-        'Failed to parse server response',
-        `HTTP_${response.status}`,
-        parseError
-      );
+      throw new ApiError('Failed to parse server response', `HTTP_${response.status}`, parseError);
     }
 
     if (!response.ok) {
@@ -120,9 +120,22 @@ export async function fetchUsageData(): Promise<UsageData> {
   return fetchWithAuth<UsageData>('/usage');
 }
 
-export async function createCheckoutSession(): Promise<CheckoutSession> {
-  return fetchWithAuth<CheckoutSession>('/billing/checkout', {
+export async function createSubscription(
+  plan: 'monthly' | 'yearly'
+): Promise<RazorpayCheckoutData> {
+  const backendPlan = plan === 'monthly' ? 'pro_monthly' : 'pro_yearly';
+  return fetchWithAuth<RazorpayCheckoutData>('/billing/checkout', {
     method: 'POST',
+    body: JSON.stringify({ plan: backendPlan }),
+  });
+}
+
+export async function verifySubscription(
+  verificationData: RazorpayVerificationData
+): Promise<{ success: boolean; plan: string }> {
+  return fetchWithAuth<{ success: boolean; plan: string }>('/billing/verify', {
+    method: 'POST',
+    body: JSON.stringify(verificationData),
   });
 }
 
@@ -149,6 +162,9 @@ export function handleApiError(error: unknown): string {
   if (error instanceof ApiError) {
     if (error.code === 'RATE_LIMIT_EXCEEDED') {
       return 'Rate limit exceeded. Please try again later.';
+    }
+    if (error.code === 'QUOTA_EXCEEDED') {
+      return 'Daily limit reached. Upgrade to Pro for unlimited prompts.';
     }
     if (error.code === 'UNAUTHORIZED') {
       return 'Please sign in to continue.';

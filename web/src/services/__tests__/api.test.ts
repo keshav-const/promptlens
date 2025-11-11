@@ -1,7 +1,7 @@
 import {
   fetchPromptHistory,
   fetchUsageData,
-  createCheckoutSession,
+  createSubscription,
   createBillingPortalSession,
   updatePromptFavorite,
   deletePrompt,
@@ -77,9 +77,7 @@ describe('API Service', () => {
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce(
-        createFetchResponse(mockResponse)
-      );
+      (global.fetch as jest.Mock).mockResolvedValueOnce(createFetchResponse(mockResponse));
 
       const result = await fetchPromptHistory();
 
@@ -105,9 +103,7 @@ describe('API Service', () => {
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce(
-        createFetchResponse(mockResponse)
-      );
+      (global.fetch as jest.Mock).mockResolvedValueOnce(createFetchResponse(mockResponse));
 
       await fetchPromptHistory({
         search: 'test',
@@ -179,9 +175,7 @@ describe('API Service', () => {
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce(
-        createFetchResponse(mockResponse)
-      );
+      (global.fetch as jest.Mock).mockResolvedValueOnce(createFetchResponse(mockResponse));
 
       const result = await fetchUsageData();
 
@@ -193,28 +187,29 @@ describe('API Service', () => {
     });
   });
 
-  describe('createCheckoutSession', () => {
-    it('should create checkout session successfully', async () => {
+  describe('createSubscription', () => {
+    it('should create subscription successfully', async () => {
       const mockResponse = {
         success: true,
         data: {
-          url: 'https://checkout.stripe.com/test',
-          sessionId: 'test-session-id',
+          subscriptionId: 'sub_test123',
+          razorpayKeyId: 'rzp_test_key',
+          plan: 'pro_monthly',
+          planName: 'Pro (Monthly)',
         },
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce(
-        createFetchResponse(mockResponse)
-      );
+      (global.fetch as jest.Mock).mockResolvedValueOnce(createFetchResponse(mockResponse));
 
-      const result = await createCheckoutSession();
+      const result = await createSubscription('monthly');
 
       expect(result).toEqual(mockResponse.data);
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/billing/checkout'),
         expect.objectContaining({
           method: 'POST',
+          body: JSON.stringify({ plan: 'pro_monthly' }),
         })
       );
     });
@@ -225,14 +220,12 @@ describe('API Service', () => {
       const mockResponse = {
         success: true,
         data: {
-          url: 'https://billing.stripe.com/test',
+          url: 'https://billing.razorpay.com/test',
         },
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce(
-        createFetchResponse(mockResponse)
-      );
+      (global.fetch as jest.Mock).mockResolvedValueOnce(createFetchResponse(mockResponse));
 
       const result = await createBillingPortalSession();
 
@@ -263,9 +256,7 @@ describe('API Service', () => {
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce(
-        createFetchResponse(mockResponse)
-      );
+      (global.fetch as jest.Mock).mockResolvedValueOnce(createFetchResponse(mockResponse));
 
       const result = await updatePromptFavorite('1', true);
 
@@ -319,6 +310,12 @@ describe('API Service', () => {
       expect(message).toBe('Network error');
     });
 
+    it('should handle ApiError with QUOTA_EXCEEDED', () => {
+      const error = new ApiError('Daily limit reached', 'QUOTA_EXCEEDED');
+      const message = handleApiError(error);
+      expect(message).toBe('Daily limit reached. Upgrade to Pro for unlimited prompts.');
+    });
+
     it('should handle ApiError with custom message', () => {
       const error = new ApiError('Custom error', 'CUSTOM_ERROR');
       const message = handleApiError(error);
@@ -353,9 +350,7 @@ describe('API Service', () => {
         timestamp: '2024-01-01T00:00:00.000Z',
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce(
-        createFetchResponse(mockResponse)
-      );
+      (global.fetch as jest.Mock).mockResolvedValueOnce(createFetchResponse(mockResponse));
 
       await fetchPromptHistory();
 
