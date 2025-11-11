@@ -19,15 +19,10 @@ console.log('\nResolved API Base URL:');
 console.log('  API_BASE_URL:', API_BASE_URL);
 
 // Test endpoint construction
-const testEndpoints = [
-  '/usage',
-  '/history',
-  '/billing/checkout',
-  '/billing/portal'
-];
+const testEndpoints = ['/usage', '/history', '/billing/checkout', '/billing/portal'];
 
 console.log('\nExpected API Endpoints:');
-testEndpoints.forEach(endpoint => {
+testEndpoints.forEach((endpoint) => {
   console.log(`  ${API_BASE_URL}${endpoint}`);
 });
 

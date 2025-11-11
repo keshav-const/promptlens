@@ -15,7 +15,7 @@ export async function requireAuth(context: GetServerSidePropsContext) {
   }
 
   const cleanSession = JSON.parse(
-    JSON.stringify(session, (key, value) => (value === undefined ? null : value))
+    JSON.stringify(session, (_, value) => (value === undefined ? null : value))
   );
 
   return {

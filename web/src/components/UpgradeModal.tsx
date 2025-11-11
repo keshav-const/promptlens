@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { createCheckoutSession, handleApiError } from '@/services/api';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { createSubscription, verifySubscription, handleApiError } from '@/services/api';
+import { loadRazorpayScript, openRazorpayCheckout, getRazorpayKeyId } from '@/lib/razorpay';
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -7,18 +9,72 @@ interface UpgradeModalProps {
 }
 
 export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('monthly');
+  const [isScriptLoading, setIsScriptLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && !isScriptLoading) {
+      setIsScriptLoading(true);
+      loadRazorpayScript()
+        .catch((err) => {
+          console.error('Failed to load Razorpay script:', err);
+          setError('Payment system is currently unavailable. Please try again later.');
+        })
+        .finally(() => {
+          setIsScriptLoading(false);
+        });
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleUpgrade = async () => {
+    if (isLoading || isScriptLoading) return;
+
     setIsLoading(true);
     setError(null);
 
     try {
-      const { url } = await createCheckoutSession();
-      window.location.href = url;
+      const checkoutData = await createSubscription(selectedPlan);
+
+      openRazorpayCheckout({
+        key: checkoutData.razorpayKeyId || getRazorpayKeyId(),
+        subscription_id: checkoutData.subscriptionId,
+        name: 'PromptLens Pro',
+        description: `${checkoutData.planName} subscription`,
+        image: '/logo.png',
+        handler: async (response) => {
+          try {
+            await verifySubscription({
+              paymentId: response.razorpay_payment_id,
+              orderId: response.razorpay_order_id,
+              signature: response.razorpay_signature,
+              subscriptionId: response.razorpay_subscription_id,
+            });
+
+            // Close modal and redirect to dashboard with success message
+            onClose();
+            router.push('/dashboard?upgraded=true');
+          } catch (err) {
+            setError('Payment verification failed. Please contact support.');
+            setIsLoading(false);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setIsLoading(false);
+          },
+          escape: true,
+          backdropclose: true,
+          animate: true,
+        },
+        theme: {
+          color: '#4F46E5',
+        },
+      });
     } catch (err) {
       setError(handleApiError(err));
       setIsLoading(false);
@@ -49,17 +105,50 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
         </div>
 
         <div className="mb-6">
+          {/* Plan Selection Toggle */}
+          <div className="mb-4 flex justify-center">
+            <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
+              <button
+                onClick={() => setSelectedPlan('monthly')}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  selectedPlan === 'monthly'
+                    ? 'bg-primary-600 text-white'
+                    : 'text-gray-700 hover:text-gray-900'
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setSelectedPlan('yearly')}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  selectedPlan === 'yearly'
+                    ? 'bg-primary-600 text-white'
+                    : 'text-gray-700 hover:text-gray-900'
+                }`}
+              >
+                Yearly
+                <span className="ml-1 rounded bg-green-100 px-1.5 py-0.5 text-xs text-green-800">
+                  Save 20%
+                </span>
+              </button>
+            </div>
+          </div>
+
           <div className="mb-4 rounded-lg bg-primary-50 p-4">
             <div className="text-center">
-              <div className="mb-2 text-4xl font-bold text-primary-600">$9.99</div>
-              <div className="text-sm text-gray-600">per month</div>
+              <div className="mb-2 text-4xl font-bold text-primary-600">
+                {selectedPlan === 'monthly' ? '$9.99' : '$7.99'}
+              </div>
+              <div className="text-sm text-gray-600">
+                per {selectedPlan === 'monthly' ? 'month' : 'month (billed yearly)'}
+              </div>
             </div>
           </div>
 
           <h3 className="mb-3 font-semibold text-gray-900">Pro Features:</h3>
           <ul className="space-y-2">
             {[
-              'Unlimited daily prompts',
+              selectedPlan === 'monthly' ? '50 prompts per day' : 'Unlimited daily prompts',
               'Advanced prompt optimization',
               'Priority support',
               'Export prompt history',
@@ -100,10 +189,14 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
           </button>
           <button
             onClick={handleUpgrade}
-            disabled={isLoading}
+            disabled={isLoading || isScriptLoading}
             className="flex-1 rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
           >
-            {isLoading ? 'Processing...' : 'Upgrade Now'}
+            {isScriptLoading
+              ? 'Loading Payment...'
+              : isLoading
+                ? 'Processing...'
+                : `Upgrade Now (${selectedPlan})`}
           </button>
         </div>
 

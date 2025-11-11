@@ -1,25 +1,81 @@
 import { GetServerSideProps } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { createCheckoutSession, handleApiError } from '@/services/api';
+import { createSubscription, verifySubscription, handleApiError } from '@/services/api';
+import { loadRazorpayScript, openRazorpayCheckout, getRazorpayKeyId } from '@/lib/razorpay';
 
 export default function Pricing() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const [isScriptLoading, setIsScriptLoading] = useState(false);
+  const [processingPlan, setProcessingPlan] = useState<string | null>(null);
 
-  const handleUpgrade = async () => {
+  useEffect(() => {
+    setIsScriptLoading(true);
+    loadRazorpayScript()
+      .catch((err) => {
+        console.error('Failed to load Razorpay script:', err);
+        setError('Payment system is currently unavailable. Please try again later.');
+      })
+      .finally(() => {
+        setIsScriptLoading(false);
+      });
+  }, []);
+
+  const handleUpgrade = async (plan: 'monthly' | 'yearly') => {
+    if (isLoading || isScriptLoading) return;
+
     setIsLoading(true);
+    setProcessingPlan(plan);
     setError(null);
 
     try {
-      const { url } = await createCheckoutSession();
-      window.location.href = url;
+      const checkoutData = await createSubscription(plan);
+
+      openRazorpayCheckout({
+        key: checkoutData.razorpayKeyId || getRazorpayKeyId(),
+        subscription_id: checkoutData.subscriptionId,
+        name: 'PromptLens Pro',
+        description: `${checkoutData.planName} subscription`,
+        image: '/logo.png',
+        handler: async (response) => {
+          try {
+            await verifySubscription({
+              paymentId: response.razorpay_payment_id,
+              orderId: response.razorpay_order_id,
+              signature: response.razorpay_signature,
+              subscriptionId: response.razorpay_subscription_id,
+            });
+
+            // Redirect to dashboard with success message
+            router.push('/dashboard?upgraded=true');
+          } catch (err) {
+            setError('Payment verification failed. Please contact support.');
+            setIsLoading(false);
+            setProcessingPlan(null);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setIsLoading(false);
+            setProcessingPlan(null);
+          },
+          escape: true,
+          backdropclose: true,
+          animate: true,
+        },
+        theme: {
+          color: '#4F46E5',
+        },
+      });
     } catch (err) {
       setError(handleApiError(err));
       setIsLoading(false);
+      setProcessingPlan(null);
     }
   };
 
@@ -30,6 +86,35 @@ export default function Pricing() {
         <p className="mt-4 text-lg text-gray-600">
           Choose the plan that's right for you. Upgrade or downgrade anytime.
         </p>
+
+        {/* Billing Cycle Toggle */}
+        <div className="mt-8 flex justify-center">
+          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
+            <button
+              onClick={() => setBillingCycle('monthly')}
+              className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                billingCycle === 'monthly'
+                  ? 'bg-primary-600 text-white'
+                  : 'text-gray-700 hover:text-gray-900'
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setBillingCycle('yearly')}
+              className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                billingCycle === 'yearly'
+                  ? 'bg-primary-600 text-white'
+                  : 'text-gray-700 hover:text-gray-900'
+              }`}
+            >
+              Yearly
+              <span className="ml-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-800">
+                Save 20%
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -63,8 +148,8 @@ export default function Pricing() {
                 />
               </svg>
               <div>
-                <span className="font-medium text-gray-900">10 prompts per day</span>
-                <p className="text-sm text-gray-600">300 prompts per month</p>
+                <span className="font-medium text-gray-900">4 prompts per day</span>
+                <p className="text-sm text-gray-600">120 prompts per month</p>
               </div>
             </li>
             <li className="flex items-start">
@@ -143,8 +228,12 @@ export default function Pricing() {
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-900">Pro</h2>
             <div className="mt-4 flex items-baseline">
-              <span className="text-5xl font-bold text-gray-900">$9.99</span>
-              <span className="ml-2 text-xl text-gray-600">/month</span>
+              <span className="text-5xl font-bold text-gray-900">
+                {billingCycle === 'monthly' ? '$9.99' : '$7.99'}
+              </span>
+              <span className="ml-2 text-xl text-gray-600">
+                /{billingCycle === 'monthly' ? 'month' : 'month (billed yearly)'}
+              </span>
             </div>
             <p className="mt-2 text-sm text-gray-600">For power users and professionals</p>
           </div>
@@ -163,8 +252,14 @@ export default function Pricing() {
                 />
               </svg>
               <div>
-                <span className="font-medium text-gray-900">Unlimited prompts</span>
-                <p className="text-sm text-gray-600">No daily or monthly limits</p>
+                <span className="font-medium text-gray-900">
+                  {billingCycle === 'monthly' ? '50 prompts per day' : 'Unlimited prompts'}
+                </span>
+                <p className="text-sm text-gray-600">
+                  {billingCycle === 'monthly'
+                    ? '~1,500 prompts per month'
+                    : 'No daily or monthly limits'}
+                </p>
               </div>
             </li>
             <li className="flex items-start">
@@ -254,11 +349,15 @@ export default function Pricing() {
           </ul>
 
           <button
-            onClick={handleUpgrade}
-            disabled={isLoading}
+            onClick={() => handleUpgrade(billingCycle)}
+            disabled={isLoading || isScriptLoading || processingPlan !== null}
             className="w-full rounded-md bg-primary-600 px-6 py-3 text-base font-medium text-white hover:bg-primary-700 disabled:opacity-50"
           >
-            {isLoading ? 'Processing...' : 'Upgrade to Pro'}
+            {isScriptLoading
+              ? 'Loading Payment...'
+              : processingPlan === billingCycle
+                ? 'Processing...'
+                : `Upgrade to Pro (${billingCycle})`}
           </button>
         </div>
       </div>
@@ -299,7 +398,7 @@ export default function Pricing() {
             <h3 className="mb-2 font-semibold text-gray-900">How do I manage my billing?</h3>
             <p className="text-sm text-gray-600">
               You can manage your subscription, update payment methods, and view billing history
-              from your Settings page. We use Stripe for secure payment processing.
+              from your Settings page. We use Razorpay for secure payment processing.
             </p>
           </div>
         </div>
@@ -333,7 +432,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   const cleanSession = JSON.parse(
-    JSON.stringify(session, (key, value) => (value === undefined ? null : value))
+    JSON.stringify(session, (_, value) => (value === undefined ? null : value))
   );
 
   return {

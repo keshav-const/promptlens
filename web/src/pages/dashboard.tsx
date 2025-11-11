@@ -51,12 +51,11 @@ export default function Dashboard() {
         }),
       ]);
 
-      const historyData =
-        promptsData || {
-          prompts: [],
-          total: 0,
-          stats: { totalPrompts: 0, favoriteCount: 0 },
-        };
+      const historyData = promptsData || {
+        prompts: [],
+        total: 0,
+        stats: { totalPrompts: 0, favoriteCount: 0 },
+      };
 
       setPrompts(historyData.prompts);
       setPromptStats(historyData.stats);
@@ -75,7 +74,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadData();
-  }, [searchTerm, showFavoritesOnly]);
+  }, [searchTerm, showFavoritesOnly, loadData]);
 
   useEffect(() => {
     if (router.query.upgraded === 'true') {
@@ -103,15 +102,16 @@ export default function Dashboard() {
         return prev.filter((p) => p.id !== promptId);
       }
 
-      return prev.map((p) => (p.id === promptId ? { ...p, isFavorite: updatedPrompt.isFavorite } : p));
+      return prev.map((p) =>
+        p.id === promptId ? { ...p, isFavorite: updatedPrompt.isFavorite } : p
+      );
     });
 
     setPromptStats((prev) => {
-      const currentStats =
-        prev ?? {
-          totalPrompts: prompts.length,
-          favoriteCount: prompts.filter((p) => p.isFavorite).length,
-        };
+      const currentStats = prev ?? {
+        totalPrompts: prompts.length,
+        favoriteCount: prompts.filter((p) => p.isFavorite).length,
+      };
 
       if (existingPrompt.isFavorite === updatedPrompt.isFavorite) {
         return currentStats;
@@ -139,11 +139,10 @@ export default function Dashboard() {
     setPrompts((prev) => prev.filter((p) => p.id !== promptId));
 
     setPromptStats((prev) => {
-      const currentStats =
-        prev ?? {
-          totalPrompts: prompts.length,
-          favoriteCount: prompts.filter((p) => p.isFavorite).length,
-        };
+      const currentStats = prev ?? {
+        totalPrompts: prompts.length,
+        favoriteCount: prompts.filter((p) => p.isFavorite).length,
+      };
 
       const favoriteCount = Math.max(
         0,
@@ -173,7 +172,7 @@ export default function Dashboard() {
       {router.query.upgraded === 'true' && (
         <div className="mb-6 rounded-md bg-green-50 p-4">
           <p className="text-sm text-green-800">
-            Successfully upgraded to Pro! You now have unlimited prompts.
+            Successfully upgraded to Pro! You now have access to premium features.
           </p>
         </div>
       )}
@@ -275,7 +274,7 @@ export default function Dashboard() {
             <div className="rounded-lg border border-primary-200 bg-primary-50 p-6">
               <h3 className="mb-2 text-lg font-semibold text-primary-900">Upgrade to Pro</h3>
               <p className="mb-4 text-sm text-primary-800">
-                Get unlimited prompts, advanced optimization, and priority support.
+                Get more prompts, advanced optimization, and priority support.
               </p>
               <button
                 onClick={() => setIsUpgradeModalOpen(true)}
@@ -304,7 +303,13 @@ export default function Dashboard() {
               {usage && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Plan:</span>
-                  <span className="font-medium uppercase text-gray-900">{usage.plan}</span>
+                  <span className="font-medium text-gray-900">
+                    {usage.plan === 'pro_monthly'
+                      ? 'Pro (Monthly)'
+                      : usage.plan === 'pro_yearly'
+                        ? 'Pro (Yearly)'
+                        : usage.plan.charAt(0).toUpperCase() + usage.plan.slice(1)}
+                  </span>
                 </div>
               )}
             </div>

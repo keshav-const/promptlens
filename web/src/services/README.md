@@ -19,7 +19,8 @@ The API service layer provides typed, centralized access to backend endpoints wi
 import {
   fetchPromptHistory,
   fetchUsageData,
-  createCheckoutSession,
+  createSubscription,
+  verifySubscription,
   handleApiError,
 } from '@/services/api';
 ```
@@ -63,13 +64,21 @@ await deletePrompt('prompt-id');
 ### Upgrade Flow
 
 ```typescript
-// Create checkout session
-const { url } = await createCheckoutSession();
-window.location.href = url; // Redirect to Stripe
+// Create subscription
+const checkoutData = await createSubscription('monthly');
+// Open Razorpay checkout modal with checkoutData
+
+// Verify payment after successful checkout
+const result = await verifySubscription({
+  paymentId: 'razorpay_payment_id',
+  orderId: 'razorpay_order_id',
+  signature: 'razorpay_signature',
+  subscriptionId: 'razorpay_subscription_id',
+});
 
 // Create billing portal session (for Pro users)
 const { url } = await createBillingPortalSession();
-window.location.href = url; // Redirect to Stripe portal
+window.location.href = url; // Redirect to billing portal
 ```
 
 ## Error Handling
@@ -89,6 +98,7 @@ try {
 ### Error Types
 
 - `RATE_LIMIT_EXCEEDED` - User hit API rate limit
+- `QUOTA_EXCEEDED` - User exceeded daily/monthly usage limit
 - `UNAUTHORIZED` - Invalid or missing authentication
 - `NETWORK_ERROR` - Connection issues
 - Custom error codes from backend
@@ -115,7 +125,8 @@ All functions use TypeScript types from `@/types/api`:
 
 - `Prompt` - Prompt data structure
 - `UsageData` - Usage/quota information
-- `CheckoutSession` - Stripe checkout details
+- `RazorpayCheckoutData` - Razorpay subscription checkout details
+- `RazorpayVerificationData` - Razorpay payment verification payload
 - `ApiResponse<T>` - Standard API response wrapper
 - `ApiError` - Error structure
 
@@ -141,7 +152,8 @@ Tests cover:
 | ---------------------------- | ------------------- | ------ | ---- |
 | `fetchPromptHistory`         | `/history`          | GET    | Yes  |
 | `fetchUsageData`             | `/usage`            | GET    | Yes  |
-| `createCheckoutSession`      | `/billing/checkout` | POST   | Yes  |
+| `createSubscription`         | `/billing/checkout` | POST   | Yes  |
+| `verifySubscription`         | `/billing/verify`   | POST   | Yes  |
 | `createBillingPortalSession` | `/billing/portal`   | POST   | Yes  |
 | `updatePromptFavorite`       | `/history/:id`      | PATCH  | Yes  |
 | `deletePrompt`               | `/history/:id`      | DELETE | Yes  |
@@ -192,7 +204,8 @@ export default function UsageDisplay() {
 
 ```typescript
 import { useState } from 'react';
-import { createCheckoutSession, handleApiError } from '@/services/api';
+import { createSubscription, verifySubscription, handleApiError } from '@/services/api';
+import { loadRazorpayScript, openRazorpayCheckout } from '@/lib/razorpay';
 
 export default function UpgradeButton() {
   const [loading, setLoading] = useState(false);
@@ -203,8 +216,38 @@ export default function UpgradeButton() {
     setError(null);
 
     try {
-      const { url } = await createCheckoutSession();
-      window.location.href = url;
+      const checkoutData = await createSubscription('monthly');
+
+      openRazorpayCheckout({
+        key: checkoutData.razorpayKeyId,
+        subscription_id: checkoutData.subscriptionId,
+        name: 'PromptLens Pro',
+        description: checkoutData.planName,
+        handler: async (response) => {
+          try {
+            await verifySubscription({
+              paymentId: response.razorpay_payment_id,
+              orderId: response.razorpay_order_id,
+              signature: response.razorpay_signature,
+              subscriptionId: response.razorpay_subscription_id,
+            });
+            // Handle successful upgrade
+          } catch (err) {
+            setError(handleApiError(err));
+          } finally {
+            setLoading(false);
+          }
+        },
+        modal: {
+          ondismiss: () => setLoading(false),
+          escape: true,
+          backdropclose: true,
+          animate: true,
+        },
+        theme: {
+          color: '#4F46E5',
+        },
+      });
     } catch (err) {
       setError(handleApiError(err));
       setLoading(false);
