@@ -31,7 +31,7 @@
     },
 
     /* Chrome types */
-    "types": ["chrome", "vite/client", "node"]
+    "types": ["chrome", "vite/client", "node", "jest"]
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
