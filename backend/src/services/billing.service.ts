@@ -1,121 +1,224 @@
-import Stripe from 'stripe';
-import { getStripe, STRIPE_CONFIG } from '../config/stripe.js';
+import crypto from 'crypto';
+import Razorpay from 'razorpay';
+import { getRazorpay, RAZORPAY_CONFIG, isRazorpayConfigured } from '../config/razorpay.js';
 import { userService } from './user.service.js';
 import { WebhookEvent } from '../models/index.js';
 
-export class BillingService {
-  private stripe: Stripe | null = null;
+export interface CheckoutSessionData {
+  subscriptionId: string;
+  razorpayKeyId: string;
+  plan: 'pro_monthly' | 'pro_yearly';
+  planName: string;
+}
 
-  private getStripeInstance(): Stripe {
-    if (!this.stripe) {
-      this.stripe = getStripe();
+export interface VerificationData {
+  success: boolean;
+  userId?: string;
+  plan?: string;
+  subscriptionId?: string;
+}
+
+export class BillingService {
+  private razorpay: Razorpay | null = null;
+
+  private getRazorpayInstance(): Razorpay {
+    if (!this.razorpay) {
+      this.razorpay = getRazorpay();
     }
-    return this.stripe;
+    return this.razorpay;
   }
 
-  async createCheckoutSession(userId: string, userEmail: string): Promise<Stripe.Checkout.Session> {
+  async createCheckoutSession(
+    userId: string, 
+    userEmail: string, 
+    plan: 'pro_monthly' | 'pro_yearly'
+  ): Promise<CheckoutSessionData> {
     const user = await userService.findById(userId);
 
     if (!user) {
       throw new Error('User not found');
     }
 
-    let customerId = user.stripeCustomerId;
+    let customerId = user.razorpayCustomerId;
 
     if (!customerId) {
-      const customer = await this.getStripeInstance().customers.create({
+      const customer = await this.getRazorpayInstance().customers.create({
         email: userEmail,
-        metadata: {
+        name: user.displayName || userEmail,
+        fail_existing: 0,
+        notes: {
           userId,
         },
       });
       customerId = customer.id;
 
-      await userService.updateStripeCustomerId(userId, customerId);
+      await userService.updateRazorpayCustomerId(userId, customerId);
     }
 
-    const session = await this.getStripeInstance().checkout.sessions.create({
-      customer: customerId,
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price: STRIPE_CONFIG.PRICE_ID,
-          quantity: 1,
-        },
-      ],
-      mode: 'subscription',
-      success_url: STRIPE_CONFIG.SUCCESS_URL,
-      cancel_url: STRIPE_CONFIG.CANCEL_URL,
-      metadata: {
+    const planId = plan === 'pro_monthly' 
+      ? RAZORPAY_CONFIG.PRO_MONTHLY_PLAN_ID 
+      : RAZORPAY_CONFIG.PRO_YEARLY_PLAN_ID;
+
+    // Create subscription
+    const subscription = await this.getRazorpayInstance().subscriptions.create({
+      plan_id: planId,
+      customer_notify: 1,
+      quantity: 1,
+      total_count: 12, // For yearly, this would be 1, for monthly 12
+      notes: {
         userId,
+        plan,
       },
     });
 
-    return session;
+    return {
+      subscriptionId: subscription.id,
+      razorpayKeyId: (this.getRazorpayInstance() as any).key_id,
+      plan,
+      planName: userService.getPlanName(plan),
+    };
   }
 
-  async handleWebhookEvent(event: Stripe.Event): Promise<void> {
-    const alreadyProcessed = await WebhookEvent.findOne({ eventId: event.id });
+  async verifyPayment(
+    paymentId: string,
+    orderId: string,
+    signature: string,
+    subscriptionId: string
+  ): Promise<VerificationData> {
+    try {
+      // Verify the payment signature
+      const generatedSignature = crypto
+        .createHmac('sha256', (getRazorpay() as any).key_secret)
+        .update(`${orderId}|${paymentId}`)
+        .digest('hex');
+
+      if (generatedSignature !== signature) {
+        return { success: false };
+      }
+
+      // Get payment details to find the user
+      await this.getRazorpayInstance().payments.fetch(paymentId);
+      const subscription = await this.getRazorpayInstance().subscriptions.fetch(subscriptionId);
+
+      const userId = subscription.notes?.userId as string;
+      const plan = subscription.notes?.plan as 'pro_monthly' | 'pro_yearly';
+
+      if (!userId || !plan) {
+        return { success: false };
+      }
+
+      // Update user subscription
+      const user = await userService.updateSubscription(userId, {
+        subscriptionId,
+        plan,
+        status: 'active',
+        currentPeriodEnd: subscription.current_end ? new Date(subscription.current_end * 1000) : undefined,
+      });
+
+      if (user) {
+        console.log(`User ${userId} upgraded to ${plan} with subscription ${subscriptionId}`);
+        return { 
+          success: true, 
+          userId, 
+          plan, 
+          subscriptionId 
+        };
+      } else {
+        console.error(`Failed to update user ${userId} to ${plan} plan`);
+        return { success: false };
+      }
+    } catch (error) {
+      console.error('Payment verification failed:', error);
+      return { success: false };
+    }
+  }
+
+  async handleWebhookEvent(body: string, signature: string): Promise<void> {
+    if (!RAZORPAY_CONFIG.WEBHOOK_SECRET) {
+      throw new Error('RAZORPAY_WEBHOOK_SECRET is not configured');
+    }
+
+    // Verify webhook signature
+    const expectedSignature = crypto
+      .createHmac('sha256', RAZORPAY_CONFIG.WEBHOOK_SECRET)
+      .update(body)
+      .digest('hex');
+
+    if (expectedSignature !== signature) {
+      throw new Error('Invalid webhook signature');
+    }
+
+    const event = JSON.parse(body);
+
+    // Check if event already processed
+    const alreadyProcessed = await WebhookEvent.findOne({ eventId: event.event });
 
     if (alreadyProcessed) {
-      console.log(`Event ${event.id} already processed, skipping`);
+      console.log(`Event ${event.event} already processed, skipping`);
       return;
     }
 
-    switch (event.type) {
-      case 'checkout.session.completed':
-        await this.handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
+    switch (event.event) {
+      case 'subscription.authenticated':
+      case 'subscription.activated':
+        await this.handleSubscriptionActivated(event);
         break;
-      case 'customer.subscription.deleted':
-        await this.handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
+      case 'subscription.completed':
+      case 'subscription.cancelled':
+        await this.handleSubscriptionCancelled(event);
         break;
-      case 'invoice.payment_failed':
-        await this.handlePaymentFailed(event.data.object as Stripe.Invoice);
+      case 'payment.failed':
+        await this.handlePaymentFailed(event);
         break;
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        console.log(`Unhandled event type: ${event.event}`);
     }
 
     await WebhookEvent.create({
-      eventId: event.id,
-      type: event.type,
+      eventId: event.event,
+      type: event.event,
       processedAt: new Date(),
     });
   }
 
-  private async handleCheckoutCompleted(session: Stripe.Checkout.Session): Promise<void> {
-    const userId = session.metadata?.userId;
+  private async handleSubscriptionActivated(event: any): Promise<void> {
+    const subscription = event.payload.subscription.entity;
+    const userId = subscription.notes?.userId as string;
+    const plan = subscription.notes?.plan as 'pro_monthly' | 'pro_yearly';
 
-    if (!userId) {
-      console.error('No userId in checkout session metadata');
+    if (!userId || !plan) {
+      console.error('Missing userId or plan in subscription activation');
       return;
     }
 
-    const subscriptionId = session.subscription as string;
-
-    if (!subscriptionId) {
-      console.error('No subscription ID in checkout session');
-      return;
-    }
-
-    const user = await userService.updateSubscription(userId, subscriptionId, 'pro');
+    const user = await userService.updateSubscription(userId, {
+      subscriptionId: subscription.id,
+      plan,
+      status: subscription.status,
+      currentPeriodEnd: subscription.current_end ? new Date(subscription.current_end * 1000) : undefined,
+    });
 
     if (user) {
-      console.log(`User ${userId} upgraded to pro plan with subscription ${subscriptionId}`);
+      console.log(`User ${userId} activated ${plan} subscription ${subscription.id}`);
     } else {
-      console.error(`Failed to update user ${userId} to pro plan`);
+      console.error(`Failed to update user ${userId} subscription`);
     }
   }
 
-  private async handleSubscriptionDeleted(subscription: Stripe.Subscription): Promise<void> {
-    const user = await userService.findByStripeCustomerId(subscription.customer as string);
+  private async handleSubscriptionCancelled(event: any): Promise<void> {
+    const subscription = event.payload.subscription.entity;
+    const user = await userService.findByRazorpaySubscriptionId(subscription.id);
 
     if (!user) {
-      console.error('User not found for customer', subscription.customer);
+      console.error('User not found for subscription', subscription.id);
       return;
     }
 
-    const updatedUser = await userService.updateSubscription(user._id, subscription.id, 'free');
+    const updatedUser = await userService.updateSubscription(user._id, {
+      subscriptionId: subscription.id,
+      plan: 'free',
+      status: subscription.status,
+    });
 
     if (updatedUser) {
       console.log(`User ${user._id} downgraded to free plan`);
@@ -124,27 +227,15 @@ export class BillingService {
     }
   }
 
-  private async handlePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
-    const invoiceData = invoice as { subscription?: string | { id: string } };
-    const subscriptionId =
-      typeof invoiceData.subscription === 'string'
-        ? invoiceData.subscription
-        : invoiceData.subscription?.id;
-
-    if (!subscriptionId) {
-      console.error('No subscription ID in invoice');
-      return;
-    }
-
-    console.log(`Payment failed for subscription ${subscriptionId}`);
+  private async handlePaymentFailed(event: {
+    payload: { payment: { entity: { id: string } } };
+  }): Promise<void> {
+    const payment = event.payload.payment.entity;
+    console.log(`Payment failed for payment ${payment.id}`);
   }
 
-  constructWebhookEvent(payload: Buffer, signature: string): Stripe.Event {
-    if (!STRIPE_CONFIG.WEBHOOK_SECRET) {
-      throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
-    }
-
-    return this.getStripeInstance().webhooks.constructEvent(payload, signature, STRIPE_CONFIG.WEBHOOK_SECRET);
+  isConfigured(): boolean {
+    return isRazorpayConfigured();
   }
 }
 

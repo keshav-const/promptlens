@@ -35,7 +35,7 @@ export const optimizePrompt = async (
 
     const user = await userService.findById(req.userId);
     const limit = userService.getUsageLimit(user?.plan || 'free');
-    const remaining = Math.max(0, limit - (user?.usageCount || 0));
+    const remaining = limit !== null ? Math.max(0, limit - (user?.usageCount || 0)) : null;
 
     sendSuccess(res, {
       originalPrompt: validatedData.prompt,

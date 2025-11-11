@@ -21,9 +21,16 @@ export const checkQuota = async (
 
     const limit = userService.getUsageLimit(user.plan);
 
+    // Handle unlimited plans
+    if (limit === null) {
+      req.userDoc = user;
+      next();
+      return;
+    }
+
     if (user.usageCount >= limit) {
       throw new AppError(
-        `Daily quota exceeded. You have used ${user.usageCount}/${limit} requests. Quota resets at ${new Date(
+        `Daily limit reached. You have used ${user.usageCount}/${limit} requests. Quota resets at ${new Date(
           user.lastResetAt.getTime() + 24 * 60 * 60 * 1000
         ).toISOString()}`,
         429,
@@ -32,6 +39,7 @@ export const checkQuota = async (
           usageCount: user.usageCount,
           limit,
           plan: user.plan,
+          planName: userService.getPlanName(user.plan),
           resetAt: new Date(user.lastResetAt.getTime() + 24 * 60 * 60 * 1000).toISOString(),
         }
       );

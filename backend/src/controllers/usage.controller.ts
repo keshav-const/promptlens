@@ -27,7 +27,7 @@ export const getUsage = async (
     }
 
     const limit = userService.getUsageLimit(user.plan);
-    const remaining = Math.max(0, limit - user.usageCount);
+    const remaining = limit === null ? null : Math.max(0, limit - user.usageCount);
 
     // Transform the response to match frontend expectations
     const transformedUsage = {
@@ -36,8 +36,11 @@ export const getUsage = async (
       dailyLimit: limit,
       monthlyCount: user.usageCount,
       monthlyLimit: limit,
+      remaining,
       resetAt: new Date(user.lastResetAt.getTime() + 24 * 60 * 60 * 1000).toISOString(),
       plan: user.plan,
+      planName: userService.getPlanName(user.plan),
+      isUnlimited: limit === null,
     };
 
     sendSuccess(res, transformedUsage);

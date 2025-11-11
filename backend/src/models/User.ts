@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export type UserPlan = 'free' | 'pro';
+export type UserPlan = 'free' | 'pro_monthly' | 'pro_yearly';
 
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
@@ -9,8 +9,10 @@ export interface IUser extends Document {
   plan: UserPlan;
   usageCount: number;
   lastResetAt: Date;
-  stripeCustomerId?: string;
-  stripeSubscriptionId?: string;
+  razorpayCustomerId?: string;
+  razorpaySubscriptionId?: string;
+  subscriptionStatus?: string;
+  subscriptionCurrentPeriodEnd?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,7 +32,7 @@ const userSchema = new Schema<IUser>(
     },
     plan: {
       type: String,
-      enum: ['free', 'pro'],
+      enum: ['free', 'pro_monthly', 'pro_yearly'],
       default: 'free',
     },
     usageCount: {
@@ -42,12 +44,20 @@ const userSchema = new Schema<IUser>(
       type: Date,
       default: Date.now,
     },
-    stripeCustomerId: {
+    razorpayCustomerId: {
       type: String,
       sparse: true,
     },
-    stripeSubscriptionId: {
+    razorpaySubscriptionId: {
       type: String,
+      sparse: true,
+    },
+    subscriptionStatus: {
+      type: String,
+      sparse: true,
+    },
+    subscriptionCurrentPeriodEnd: {
+      type: Date,
       sparse: true,
     },
   },
