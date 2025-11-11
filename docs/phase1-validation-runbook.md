@@ -32,7 +32,7 @@ This runbook provides operational procedures for validating, monitoring, and mai
 ### System Dependencies
 
 - **Database**: MongoDB Atlas
-- **Payment Processing**: Stripe
+- **Payment Processing**: Razorpay
 - **Authentication**: Google OAuth 2.0
 - **AI Service**: Google Gemini API
 - **CDN/Hosting**: Vercel (dashboard), Railway/Render (backend)
@@ -65,7 +65,7 @@ Sentry:           https://sentry.io/organizations/promptlens
 Railway:          https://railway.app/project/YOUR_PROJECT
 Vercel:           https://vercel.com/YOUR_TEAM/promptlens-dashboard
 MongoDB Atlas:    https://cloud.mongodb.com
-Stripe:           https://dashboard.stripe.com
+Razorpay:          https://dashboard.razorpay.com
 
 # Chrome Extension
 Store Listing:    chrome://extensions
@@ -79,7 +79,7 @@ Console Logs:     Open extension → Inspect views → service worker
 | API Response Time (P95) | >500ms | >1000ms | Scale backend |
 | Error Rate | >2% | >5% | Page on-call |
 | Database Connection Pool | >80% | >95% | Increase pool size |
-| Stripe Webhook Failures | >5% | >10% | Check webhook config |
+| Razorpay Webhook Failures | >5% | >10% | Check webhook config |
 | Extension Install Errors | >3% | >10% | Check Chrome Store status |
 
 ### ⚡ Quick Commands
@@ -97,8 +97,8 @@ railway logs --service backend
 # View Vercel logs
 vercel logs https://dashboard.promptlens.app
 
-# Test Stripe webhook
-stripe trigger checkout.session.completed
+# Test Razorpay webhook
+# Use Razorpay Dashboard: Settings → Webhooks → [Your Webhook] → Send Test Webhook
 ```
 
 ---
@@ -123,21 +123,21 @@ Complete this checklist before deploying to production:
 - [ ] MongoDB Atlas cluster is in production tier (M10+)
 - [ ] Automatic backups are enabled (daily snapshots)
 - [ ] Database indexes are created:
-  - [ ] Users: `email` (unique), `stripeCustomerId`
+  - [ ] Users: `email` (unique), `razorpayCustomerId`
   - [ ] WebhookEvents: `eventId` (unique), `createdAt` (TTL index)
 - [ ] Connection pooling is configured (min: 10, max: 100)
 - [ ] Network access whitelist includes production IPs
 - [ ] Monitoring alerts are enabled
 
-### Stripe Configuration
+### Razorpay Configuration
 
-- [ ] Stripe is in live mode (not test mode)
+- [ ] Razorpay is in live mode (not test mode)
 - [ ] Product and pricing are configured
-- [ ] Webhook endpoint is registered: `https://api.promptlens.app/api/upgrade`
+- [ ] Webhook endpoint is registered: `https://api.promptlens.app/api/billing/webhook`
 - [ ] Webhook events are enabled:
-  - [ ] `checkout.session.completed`
-  - [ ] `customer.subscription.deleted`
-  - [ ] `invoice.payment_failed`
+  - [ ] `subscription.activated`
+  - [ ] `subscription.cancelled`
+  - [ ] `payment.failed`
 - [ ] Webhook signing secret is configured in backend
 - [ ] Test payment processed successfully in test mode
 
@@ -1080,7 +1080,7 @@ groups:
 3. **Test Webhook Delivery**:
    ```bash
    # Trigger test webhook
-   stripe trigger checkout.session.completed
+   # Use Razorpay Dashboard: Settings → Webhooks → [Your Webhook] → Send Test Webhook
    
    # Check backend received it
    railway logs | grep "checkout.session.completed"
@@ -1383,7 +1383,7 @@ groups:
   ```javascript
   // Add missing indexes
   db.prompts.createIndex({ userId: 1, createdAt: -1 });
-  db.users.createIndex({ stripeCustomerId: 1 });
+  db.users.createIndex({ razorpayCustomerId: 1 });
   ```
 
 - **If external API slow** (Gemini):

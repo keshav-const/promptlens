@@ -395,7 +395,7 @@ npm start
 - [ ] Dark theme implementation
 - [ ] User profile management
 - [ ] Backend API integration
-- [ ] Subscription management with Stripe
+- [ ] Subscription management with Razorpay
 - [ ] Advanced settings and preferences
 - [ ] Email notifications
 - [ ] Activity logs

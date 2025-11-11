@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide covers deploying the PromptLens backend API (Node.js/Express) to production using either Railway or Render. The backend handles authentication, prompt management, usage tracking, and Stripe integration.
+This guide covers deploying the PromptLens backend API (Node.js/Express) to production using either Railway or Render. The backend handles authentication, prompt management, usage tracking, and Razorpay integration.
 
 ## Table of Contents
 
@@ -45,11 +45,12 @@ NEXTAUTH_SECRET=[generate with: openssl rand -base64 32]
 JWT_SECRET=[generate with: openssl rand -base64 32]
 JWT_EXPIRES_IN=7d
 
-# Stripe (get from Stripe Dashboard in live mode)
-STRIPE_SECRET_KEY=sk_live_...
-STRIPE_PUBLISHABLE_KEY=pk_live_...
-STRIPE_WEBHOOK_SECRET=whsec_... (configure after deployment)
-STRIPE_PRICE_ID=price_... (from Stripe product setup)
+# Razorpay (get from Razorpay Dashboard in live mode)
+RAZORPAY_KEY_ID=rzp_live_...
+RAZORPAY_KEY_SECRET=...
+RAZORPAY_PRO_MONTHLY_PLAN_ID=plan_...
+RAZORPAY_PRO_YEARLY_PLAN_ID=plan_...
+RAZORPAY_WEBHOOK_SECRET=...
 
 # Security
 ALLOWED_ORIGINS=https://dashboard.promptlens.app,chrome-extension://[EXTENSION_ID]

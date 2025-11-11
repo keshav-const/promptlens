@@ -413,20 +413,19 @@ Authorization: Bearer <jwt_token>
 
 | Scenario | Setup | Expected Status | Expected Behavior |
 |----------|-------|-----------------|-------------------|
-| **Valid Checkout Completed** | Send `checkout.session.completed` with valid signature | 200 | User upgraded to Pro, subscription ID saved |
-| **Valid Subscription Deleted** | Send `customer.subscription.deleted` with valid signature | 200 | User downgraded to Free |
-| **Missing Signature** | Omit `stripe-signature` header | 400 | `{ "error": { "message": "Missing signature" } }` |
+| **Valid Subscription Activated** | Send `subscription.activated` with valid signature | 200 | User upgraded to Pro, subscription ID saved |
+| **Valid Subscription Cancelled** | Send `subscription.cancelled` with valid signature | 200 | User downgraded to Free |
+| **Missing Signature** | Omit `x-razorpay-signature` header | 400 | `{ "error": { "message": "Missing signature" } }` |
 | **Invalid Signature** | Send incorrect signature | 400 | `{ "error": { "message": "Invalid signature" } }` |
 | **Duplicate Event** | Send same event twice (same event ID) | 200 | Idempotent - no duplicate processing |
 | **Unknown Event** | Send unsupported event type | 200 | Event ignored, no error |
 
-**Triggering Stripe Test Events:**
+**Triggering Razorpay Test Events:**
 
 ```bash
-# With Stripe CLI listening
-stripe trigger checkout.session.completed
-stripe trigger customer.subscription.deleted
-stripe trigger invoice.payment_failed
+# With Razorpay Dashboard
+# Go to Settings → Webhooks → [Your Webhook] → Send Test Webhook
+# Select event type: subscription.activated, subscription.cancelled, or payment.failed
 ```
 
 ---

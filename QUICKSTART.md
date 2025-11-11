@@ -35,7 +35,8 @@ cp web/.env.example web/.env.local
 **Backend** (`backend/.env`):
 - `MONGODB_URI` - MongoDB connection string
 - `GEMINI_API_KEY` - Google Gemini API key
-- `STRIPE_SECRET_KEY` - Stripe secret key
+- `RAZORPAY_KEY_ID` - Razorpay key ID
+- `RAZORPAY_KEY_SECRET` - Razorpay key secret
 - `NEXTAUTH_SECRET` - Generate with: `openssl rand -base64 32`
 - `JWT_SECRET` - Generate with: `openssl rand -base64 32`
 
@@ -43,7 +44,7 @@ cp web/.env.example web/.env.local
 - `NEXT_PUBLIC_API_BASE_URL` - Backend API URL (default: http://localhost:5000)
 - `NEXTAUTH_URL` - Web app URL (default: http://localhost:3000)
 - `NEXTAUTH_SECRET` - Same as backend
-- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
+- `NEXT_PUBLIC_RAZORPAY_KEY_ID` - Razorpay key ID (for frontend)
 
 **Extension** (`extension/.env`):
 - `VITE_API_BASE_URL` - Backend API URL (default: http://localhost:5000)
@@ -123,8 +124,8 @@ npm install -g npm@latest
 ```
 
 ### Port already in use
-- Backend uses port 3000
-- Web uses port 3001
+- Backend uses port 5000
+- Web uses port 3000
 - Check for processes using these ports and stop them
 
 ### MongoDB connection failed
