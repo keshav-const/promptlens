@@ -32,7 +32,7 @@ This document provides a visual overview of the monorepo structure.
 │   ├── database.md          # MongoDB Atlas setup
 │   ├── google-oauth.md      # OAuth configuration
 │   ├── backend.md           # Backend API deployment
-│   ├── stripe.md            # Stripe configuration
+│   ├── razorpay.md          # Razorpay configuration
 │   ├── dashboard.md         # Web dashboard deployment
 │   └── extension.md         # Extension publication
 │

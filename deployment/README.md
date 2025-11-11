@@ -33,10 +33,10 @@ Each guide provides actionable, step-by-step instructions for deploying a specif
    - Credential generation and testing
    - Scope management
 
-4. **[Stripe Configuration](./stripe.md)** - Live payment processing setup
+4. **[Razorpay Configuration](./razorpay.md)** - Live payment processing setup
    - Switch to live mode
-   - Product and pricing creation ($9.99/mo Pro plan)
-   - Customer portal activation
+   - Subscription plan creation (₹999/mo, ₹9,999/yr Pro plans)
+   - Customer management setup
    - Webhook endpoint configuration
    - Payment verification testing
 

@@ -196,14 +196,115 @@ The API accepts requests from:
 - All timestamps are in ISO 8601 format (UTC)
 - Request logging is enabled in development mode
 
+## Billing Endpoints
+
+### Create Subscription
+
+**Endpoint:** `POST /billing/checkout`
+
+**Authentication:** Required
+
+**Request Body:**
+```json
+{
+  "plan": "pro_monthly" | "pro_yearly"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "subscriptionId": "sub_00000000000001",
+    "razorpayKeyId": "rzp_test_...",
+    "plan": "pro_monthly",
+    "planName": "Pro (Monthly)"
+  }
+}
+```
+
+### Verify Payment
+
+**Endpoint:** `POST /billing/verify`
+
+**Authentication:** Required
+
+**Request Body:**
+```json
+{
+  "paymentId": "pay_00000000000001",
+  "orderId": "order_00000000000001",
+  "signature": "generated_signature",
+  "subscriptionId": "sub_00000000000001"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "message": "Payment verified successfully",
+    "plan": "pro_monthly"
+  }
+}
+```
+
+### Get Billing Status
+
+**Endpoint:** `GET /billing/status`
+
+**Authentication:** Required
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "plan": "pro_monthly",
+    "planName": "Pro (Monthly)",
+    "subscriptionId": "sub_00000000000001",
+    "subscriptionStatus": "active",
+    "subscriptionCurrentPeriodEnd": "2024-02-01T00:00:00.000Z",
+    "isConfigured": true
+  }
+}
+```
+
+### Webhook Endpoint
+
+**Endpoint:** `POST /billing/webhook`
+
+**Authentication:** Razorpay signature validation
+
+**Description:** Processes Razorpay webhook events for subscription lifecycle management.
+
+## Plan Information
+
+The application supports three subscription tiers:
+
+| Plan | Daily Requests | Price | Features |
+|------|----------------|-------|----------|
+| Free | 4 requests/day | Free | Basic prompt optimization |
+| Pro Monthly | 50 requests/day | ₹999/month | Increased quota, priority support |
+| Pro Yearly | Unlimited requests | ₹9,999/year | Unlimited usage, all features |
+
+**Quota Behavior:**
+- Quotas reset every 24 hours from last request
+- When limit reached, detailed error message includes reset time
+- Upgrading immediately resets usage count to 0
+- Real-time plan updates reflected in all API calls
+
 ## Coming Soon
 
-The following endpoints will be added in Phase 1:
+The following endpoints will be added in future phases:
 
 - User authentication and registration
 - Bookmark management
 - AI-powered insights with Gemini API
-- Subscription management with Stripe
+- Advanced subscription management
 - User preferences and settings
 
 Check the main README for the complete roadmap.

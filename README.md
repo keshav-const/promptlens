@@ -120,11 +120,12 @@ See the [Environment Variables](#environment-variables) section for detailed inf
 **API Keys:**
 - `GEMINI_API_KEY` - Google Gemini API key for AI features
 
-**Stripe (Payment Processing):**
-- `STRIPE_SECRET_KEY` - Stripe secret key (get from Stripe Dashboard)
-- `STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
-- `STRIPE_WEBHOOK_SECRET` - Stripe webhook secret (get from webhook configuration)
-- `STRIPE_PRICE_ID` - Stripe price ID for Pro subscription (e.g., price_1234)
+**Razorpay (Payment Processing):**
+- `RAZORPAY_KEY_ID` - Razorpay key ID (get from Razorpay Dashboard)
+- `RAZORPAY_KEY_SECRET` - Razorpay key secret (get from Razorpay Dashboard)
+- `RAZORPAY_WEBHOOK_SECRET` - Razorpay webhook secret (get from webhook configuration)
+- `RAZORPAY_PRO_MONTHLY_PLAN_ID` - Razorpay plan ID for Pro Monthly subscription
+- `RAZORPAY_PRO_YEARLY_PLAN_ID` - Razorpay plan ID for Pro Yearly subscription
 
 **Authentication:**
 - `NEXTAUTH_URL` - NextAuth URL (web dashboard URL)
@@ -144,46 +145,53 @@ See the [Environment Variables](#environment-variables) section for detailed inf
 - `NEXT_PUBLIC_API_BASE_URL` - Backend API URL
 - `NEXTAUTH_URL` - NextAuth URL (should match deployment URL)
 - `NEXTAUTH_SECRET` - NextAuth secret (same as backend)
-- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
+- `NEXT_PUBLIC_RAZORPAY_KEY_ID` - Razorpay key ID (for frontend)
 - `GOOGLE_CLIENT_ID` - Google OAuth client ID (if using)
 - `GOOGLE_CLIENT_SECRET` - Google OAuth client secret (if using)
 - `GITHUB_CLIENT_ID` - GitHub OAuth client ID (if using)
 - `GITHUB_CLIENT_SECRET` - GitHub OAuth client secret (if using)
 
-## 💳 Stripe Setup
+## 💳 Razorpay Setup
 
-The application uses Stripe for subscription billing. Follow these steps to set up Stripe for development:
+The application uses Razorpay for subscription billing. Follow these steps to set up Razorpay for development:
 
-### 1. Create Stripe Account
-1. Sign up at https://stripe.com
-2. Get your test API keys from Developers > API keys
+### 1. Create Razorpay Account
+1. Sign up at https://razorpay.com
+2. Get your API keys from Settings > API keys
 3. Add keys to `backend/.env` and `web/.env.local`
 
-### 2. Create Subscription Product
-1. Go to Stripe Dashboard > Products
-2. Create a new product (e.g., "Pro Plan")
-3. Add a recurring price (e.g., $9.99/month)
-4. Copy the Price ID (starts with `price_`) to `STRIPE_PRICE_ID` in `backend/.env`
+### 2. Create Subscription Plans
+1. Go to Razorpay Dashboard > Subscriptions > Plans
+2. Create Pro Monthly plan (e.g., ₹999/month)
+3. Create Pro Yearly plan (e.g., ₹9,999/year)
+4. Copy the Plan IDs to `RAZORPAY_PRO_MONTHLY_PLAN_ID` and `RAZORPAY_PRO_YEARLY_PLAN_ID` in `backend/.env`
 
 ### 3. Setup Webhook (Local Development)
 ```bash
-# Install Stripe CLI
-brew install stripe/stripe-cli/stripe  # macOS
-# Or download from https://stripe.com/docs/stripe-cli
+# Install Razorpay CLI
+npm install -g razorpay-cli
 
-# Login to Stripe
-stripe login
+# Login to Razorpay
+razorpay login
 
 # Forward webhooks to local backend
-stripe listen --forward-to http://localhost:5000/api/upgrade
+razorpay listen --forward-to http://localhost:5000/api/billing/webhook
 ```
 
-Copy the webhook signing secret (starts with `whsec_`) to `STRIPE_WEBHOOK_SECRET` in `backend/.env`.
+Copy the webhook signing secret to `RAZORPAY_WEBHOOK_SECRET` in `backend/.env`.
 
 ### 4. Test the Integration
-- Use test card: `4242 4242 4242 4242`
-- Any future expiry date, CVC, and postal code
-- See full test cards list: https://stripe.com/docs/testing
+- Use any valid test card: `4111 1111 1111 1111`
+- Any future expiry date and 3-digit CVV
+- See [backend/RAZORPAY_INTEGRATION.md](./backend/RAZORPAY_INTEGRATION.md) for detailed testing instructions
+
+### Plan Details
+
+| Plan | Daily Requests | Price | Features |
+|------|----------------|-------|----------|
+| Free | 4 requests/day | Free | Basic prompt optimization |
+| Pro Monthly | 50 requests/day | ₹999/month | Increased quota, priority support |
+| Pro Yearly | Unlimited requests | ₹9,999/year | Unlimited usage, all features |
 
 For detailed setup instructions, see [backend/README.md](./backend/README.md).
 
@@ -211,7 +219,7 @@ npm run dev:web
 1. Start the backend API (usually runs on `http://localhost:5000`)
 2. Start the web dashboard (usually runs on `http://localhost:3000`)
 3. Load the extension in your browser in development mode
-4. (Optional) Start Stripe webhook forwarding with `stripe listen --forward-to http://localhost:5000/api/upgrade`
+4. (Optional) Start Razorpay webhook forwarding with `razorpay listen --forward-to http://localhost:5000/api/billing/webhook`
 
 ## 🏗️ Building
 
@@ -470,6 +478,7 @@ Comprehensive documentation is available to guide development, testing, and depl
 - **[STRUCTURE.md](./STRUCTURE.md)** - Detailed project structure and architecture
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Contribution guidelines and workflow
 - **[QUICKSTART.md](./QUICKSTART.md)** - Quick start guide for new developers
+- **[docs/BILLING_GUIDE.md](./docs/BILLING_GUIDE.md)** - Complete billing and subscription guide
 
 ### Package Documentation
 

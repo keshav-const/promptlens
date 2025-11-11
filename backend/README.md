@@ -51,11 +51,12 @@ Copy `.env.example` to `.env` and configure the following variables:
 ### API Keys
 - `GEMINI_API_KEY` - Gemini API key (for AI features)
 
-### Stripe Configuration
-- `STRIPE_SECRET_KEY` - Stripe secret key
-- `STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
-- `STRIPE_WEBHOOK_SECRET` - Stripe webhook secret (get from Stripe webhook dashboard)
-- `STRIPE_PRICE_ID` - Stripe price ID for Pro subscription (e.g., price_1234)
+### Razorpay Configuration
+- `RAZORPAY_KEY_ID` - Razorpay key ID (get from Razorpay Dashboard)
+- `RAZORPAY_KEY_SECRET` - Razorpay key secret (get from Razorpay Dashboard)
+- `RAZORPAY_WEBHOOK_SECRET` - Razorpay webhook secret (get from webhook configuration)
+- `RAZORPAY_PRO_MONTHLY_PLAN_ID` - Razorpay plan ID for Pro Monthly subscription
+- `RAZORPAY_PRO_YEARLY_PLAN_ID` - Razorpay plan ID for Pro Yearly subscription
 
 ### Authentication
 - `NEXTAUTH_URL` - NextAuth URL (for web dashboard)
@@ -70,66 +71,87 @@ Copy `.env.example` to `.env` and configure the following variables:
 - `RATE_LIMIT_WINDOW_MS` - Rate limit window in milliseconds (default: 900000 = 15 minutes)
 - `RATE_LIMIT_MAX_REQUESTS` - Maximum requests per window (default: 100)
 
-## Stripe Setup
+## Razorpay Setup
 
 ### Prerequisites
-1. Create a Stripe account at https://stripe.com
-2. Get your API keys from the Stripe Dashboard (Developers > API keys)
-3. Create a subscription product and price in the Stripe Dashboard
+1. Create a Razorpay account at https://razorpay.com
+2. Get your API keys from the Razorpay Dashboard (Settings > API Keys)
+3. Create subscription plans in the Razorpay Dashboard
 
-### Setting up Stripe for Development
+### Setting up Razorpay for Development
 
 #### 1. Configure Environment Variables
-Add your Stripe keys to `.env`:
+Add your Razorpay keys to `.env`:
 
 ```env
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_PUBLISHABLE_KEY=pk_test_...
-STRIPE_PRICE_ID=price_...
+RAZORPAY_KEY_ID=rzp_test_...
+RAZORPAY_KEY_SECRET=your_razorpay_secret
+RAZORPAY_PRO_MONTHLY_PLAN_ID=plan_...
+RAZORPAY_PRO_YEARLY_PLAN_ID=plan_...
 ```
 
-#### 2. Create a Subscription Product
-1. Go to Stripe Dashboard > Products
-2. Create a new product (e.g., "Pro Plan")
-3. Add a price (e.g., $9.99/month recurring)
-4. Copy the Price ID (starts with `price_`) to `STRIPE_PRICE_ID`
+#### 2. Create Subscription Plans
+1. Go to Razorpay Dashboard > Subscriptions > Plans
+2. Create a new plan for Pro Monthly:
+   - Name: "Pro Monthly"
+   - Amount: 99900 (₹999.00 - adjust as needed)
+   - Period: monthly
+   - Copy the Plan ID to `RAZORPAY_PRO_MONTHLY_PLAN_ID`
+3. Create another plan for Pro Yearly:
+   - Name: "Pro Yearly" 
+   - Amount: 999900 (₹9,999.00 - adjust as needed)
+   - Period: yearly
+   - Copy the Plan ID to `RAZORPAY_PRO_YEARLY_PLAN_ID`
 
 #### 3. Setup Webhook for Local Development
-Use the Stripe CLI to forward webhooks to your local server:
+Use the Razorpay CLI to forward webhooks to your local server:
 
 ```bash
-# Install Stripe CLI
-# macOS
-brew install stripe/stripe-cli/stripe
+# Install Razorpay CLI
+npm install -g razorpay-cli
 
-# Or download from https://stripe.com/docs/stripe-cli
-
-# Login to Stripe
-stripe login
+# Login to Razorpay
+razorpay login
 
 # Forward webhooks to local server
-stripe listen --forward-to http://localhost:5000/api/upgrade
+razorpay listen --forward-to http://localhost:5000/api/billing/webhook
 ```
 
-The CLI will output your webhook signing secret (starts with `whsec_`). Add it to `.env`:
+The CLI will output your webhook signing secret. Add it to `.env`:
 
 ```env
-STRIPE_WEBHOOK_SECRET=whsec_...
+RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
 ```
 
 #### 4. Production Webhook Setup
-For production, configure a webhook endpoint in the Stripe Dashboard:
+For production, configure a webhook endpoint in the Razorpay Dashboard:
 
-1. Go to Stripe Dashboard > Developers > Webhooks
-2. Click "Add endpoint"
-3. Set URL to: `https://your-domain.com/api/upgrade`
+1. Go to Razorpay Dashboard > Settings > Webhooks
+2. Click "Add Webhook"
+3. Set URL to: `https://your-domain.com/api/billing/webhook`
 4. Select the following events to listen for:
-   - `checkout.session.completed`
-   - `customer.subscription.deleted`
-   - `invoice.payment_failed`
+   - `subscription.activated`
+   - `subscription.cancelled`
+   - `payment.failed`
 5. Copy the webhook signing secret and add to your production environment
 
-### Testing Stripe Integration
+### Plan Details and Quotas
+
+The application offers three subscription tiers:
+
+| Plan | Daily Requests | Price | Features |
+|------|----------------|-------|----------|
+| Free | 4 requests/day | Free | Basic prompt optimization |
+| Pro Monthly | 50 requests/day | ₹999/month | Increased quota, priority support |
+| Pro Yearly | Unlimited requests | ₹9,999/year | Unlimited usage, all features |
+
+**Quota Behavior:**
+- Quotas reset every 24 hours from the last request
+- When limit is reached, users get a clear error message with reset time
+- Upgrading to a paid plan immediately resets usage count to 0
+- Downgrading to free preserves current usage until next reset
+
+### Testing Razorpay Integration
 
 #### Test Checkout Flow
 ```bash
@@ -139,34 +161,32 @@ npm run dev
 # Create checkout session (requires authentication)
 curl -X POST http://localhost:5000/api/billing/checkout \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json"
+  -H "Content-Type: application/json" \
+  -d '{"plan": "pro_monthly"}'
 ```
 
-The response will include a checkout URL. Open it in your browser to test the checkout flow.
+The response will include subscription details for the frontend to process.
 
-#### Test Cards
-Use Stripe's test card numbers:
-- Success: `4242 4242 4242 4242`
-- Decline: `4000 0000 0000 0002`
-- Authentication required: `4000 0025 0000 3155`
-
-Use any future expiry date, any 3-digit CVC, and any postal code.
+#### Test Payment
+Use Razorpay's test mode with test cards:
+- Success: Any valid card number (e.g., 4111 1111 1111 1111)
+- Use any future expiry date and any 3-digit CVV
 
 ### Webhook Events Handled
 
-The backend handles the following Stripe webhook events:
+The backend handles the following Razorpay webhook events:
 
-1. **checkout.session.completed**
-   - Triggered when a user completes checkout
-   - Updates user plan to "pro"
-   - Stores subscription ID
+1. **subscription.activated**
+   - Triggered when a subscription is successfully created
+   - Updates user plan to "pro_monthly" or "pro_yearly"
+   - Stores subscription ID and current period end
    - Resets usage count to 0
 
-2. **customer.subscription.deleted**
+2. **subscription.cancelled**
    - Triggered when a subscription is canceled or expires
    - Downgrades user plan to "free"
 
-3. **invoice.payment_failed**
+3. **payment.failed**
    - Triggered when a subscription payment fails
    - Logged for monitoring (future: send notification emails)
 
@@ -263,13 +283,19 @@ backend/
 ### Health Check
 - `GET /api/health` - Returns server health status and database connection status
 
-### Billing (Stripe Integration)
-- `POST /api/billing/checkout` - Create Stripe checkout session for Pro upgrade (requires authentication)
-  - Returns: `{ sessionId, url }` - Redirect user to `url` to complete checkout
-- `POST /api/upgrade` - Stripe webhook endpoint for subscription events
-  - Handles: checkout completion, subscription cancellation, payment failures
-  - Validates Stripe signature for security
+### Billing (Razorpay Integration)
+- `POST /api/billing/checkout` - Create Razorpay subscription for Pro upgrade (requires authentication)
+  - Request: `{ plan: 'pro_monthly' | 'pro_yearly' }`
+  - Returns: `{ subscriptionId, razorpayKeyId, plan, planName }`
+- `POST /api/billing/verify` - Verify Razorpay payment after completion (requires authentication)
+  - Request: `{ paymentId, orderId, signature, subscriptionId }`
+  - Returns: `{ success: true, message: 'Payment verified successfully', plan }`
+- `POST /api/billing/webhook` - Razorpay webhook endpoint for subscription events
+  - Handles: subscription activation, cancellation, payment failures
+  - Validates Razorpay signature for security
   - Implements idempotency to prevent duplicate event processing
+- `GET /api/billing/status` - Get current billing status (requires authentication)
+  - Returns: `{ plan, planName, subscriptionId, subscriptionStatus, subscriptionCurrentPeriodEnd, isConfigured }`
 
 ### Usage & Quotas
 - `GET /api/usage` - Get current user's usage stats and plan limits (requires authentication)

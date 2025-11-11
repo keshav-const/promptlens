@@ -198,7 +198,7 @@ All commands should complete successfully before proceeding with production depl
 | `GOOGLE_CLIENT_ID` | Web | OAuth client ID | Vercel | Frontend Engineer | `123456.apps.googleusercontent.com` |
 | `GOOGLE_CLIENT_SECRET` | Web | OAuth client secret | Vercel | Frontend Engineer | `GOCSPX-...` |
 | `NEXT_PUBLIC_API_BASE_URL` | Web | Backend API URL | Vercel | Frontend Engineer | `https://api.promptlens.app` |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Web | Stripe public key | Vercel | Frontend Engineer | `pk_live_...` |
+| `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Web | Razorpay public key | Vercel | Frontend Engineer | `rzp_live_...` |
 | `VITE_API_BASE_URL` | Extension | Backend API URL | Build-time | Frontend Engineer | `https://api.promptlens.app` |
 | `VITE_EXTENSION_ID` | Extension | Chrome extension ID | Build-time | Frontend Engineer | `abcdefghijklmnop` |
 

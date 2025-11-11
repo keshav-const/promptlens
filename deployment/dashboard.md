@@ -24,7 +24,7 @@ This guide covers deploying the PromptLens web dashboard (Next.js application) t
 - [ ] Backend API deployed and accessible (see [backend.md](./backend.md))
 - [ ] MongoDB database configured (see [database.md](./database.md))
 - [ ] Google OAuth credentials (see [google-oauth.md](./google-oauth.md))
-- [ ] Stripe configured (see [stripe.md](./stripe.md))
+- [ ] Razorpay configured (see [razorpay.md](./razorpay.md))
 - [ ] Vercel account (sign up at https://vercel.com)
 - [ ] GitHub repository access
 
@@ -43,8 +43,8 @@ GOOGLE_CLIENT_SECRET=GOCSPX-abc123def456
 # Backend API
 NEXT_PUBLIC_API_BASE_URL=https://api.promptlens.app
 
-# Stripe (from Stripe Dashboard - live mode)
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_abc123def456
+# Razorpay (from Razorpay Dashboard - live mode)
+NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_live_abc123def456
 ```
 
 ### CLI Tools
