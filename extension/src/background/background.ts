@@ -152,7 +152,7 @@ interface OptimizePromptPayload {
   prompt: string;
 }
 
-async function handleOptimizePrompt(payload: unknown): Promise<unknown> {
+export async function handleOptimizePrompt(payload: unknown): Promise<unknown> {
   const config = await getConfig();
   const token = await getAuthToken();
   const { prompt } = payload as OptimizePromptPayload;
@@ -188,7 +188,16 @@ async function handleOptimizePrompt(payload: unknown): Promise<unknown> {
   }
 
   if (response.status === 429) {
-    const error: ApiError = new Error('Rate limit exceeded. Please try again later.');
+    let errorMessage = 'Daily limit reached. Upgrade for more prompts.';
+    try {
+      const errorData = await response.json();
+      if (errorData.error?.message) {
+        errorMessage = errorData.error.message;
+      }
+    } catch {
+      // Keep default message if JSON parsing fails
+    }
+    const error: ApiError = new Error(errorMessage);
     error.status = 429;
     throw error;
   }
