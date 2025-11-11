@@ -48,7 +48,7 @@ export const createApp = (): Express => {
   app.use(
     express.json({
       verify: (req, _res, buf) => {
-        if (req.url?.startsWith('/api/upgrade')) {
+        if (req.url?.startsWith('/api/billing/webhook')) {
           (req as { rawBody?: Buffer }).rawBody = buf;
         }
       },

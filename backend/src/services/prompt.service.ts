@@ -59,7 +59,13 @@ export class PromptService {
       userId: filters.userId,
     };
 
-    const query: any = {
+    const query: {
+      userId: string | mongoose.Types.ObjectId;
+      tags?: { $in: string[] };
+      $or?: Array<{ original: { $regex: string; $options: string } } | { optimizedPrompt: { $regex: string; $options: string } }>;
+      favorite?: boolean;
+      createdAt?: { $gte?: Date; $lte?: Date };
+    } = {
       userId: filters.userId,
     };
 
@@ -74,19 +80,18 @@ export class PromptService {
     }
 
     if (filters.tags && filters.tags.length > 0) {
-      query['metadata.tags'] = { $in: filters.tags };
+      query.tags = { $in: filters.tags };
     }
 
     if (filters.search) {
       query.$or = [
         { original: { $regex: filters.search, $options: 'i' } },
         { optimizedPrompt: { $regex: filters.search, $options: 'i' } },
-        { explanation: { $regex: filters.search, $options: 'i' } },
       ];
     }
 
     if (filters.favorites === true) {
-      query.isFavorite = true;
+      query.favorite = true;
     }
 
     const [data, total, totalPrompts, favoriteCount] = await Promise.all([

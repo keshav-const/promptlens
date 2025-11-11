@@ -5,7 +5,6 @@ import optimizeRoutes from './optimize.routes.js';
 import historyRoutes from './history.routes.js';
 import usageRoutes from './usage.routes.js';
 import billingRoutes from './billing.routes.js';
-import upgradeRoutes from './upgrade.routes.js';
 import authRoutes from './auth.routes.js';
 import { requireAuth } from '../middlewares/auth.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
@@ -19,7 +18,6 @@ router.use('/optimize', optimizeRoutes);
 router.use('/history', historyRoutes);
 router.use('/usage', usageRoutes);
 router.use('/billing', billingRoutes);
-router.use('/upgrade', upgradeRoutes);
 router.use('/auth', authRoutes);
 
 // Direct token endpoint for extension compatibility
