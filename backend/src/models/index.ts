@@ -1,4 +1,4 @@
-export { User } from './User.js';
+export { User, USER_PLAN_VALUES } from './User.js';
 export type { IUser, UserPlan } from './User.js';
 
 export { Prompt } from './Prompt.js';

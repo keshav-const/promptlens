@@ -1,6 +1,8 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export type UserPlan = 'free' | 'pro_monthly' | 'pro_yearly';
+export const USER_PLAN_VALUES = ['free', 'pro_monthly', 'pro_yearly'] as const;
+
+export type UserPlan = (typeof USER_PLAN_VALUES)[number];
 
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
@@ -32,7 +34,7 @@ const userSchema = new Schema<IUser>(
     },
     plan: {
       type: String,
-      enum: ['free', 'pro_monthly', 'pro_yearly'],
+      enum: [...USER_PLAN_VALUES],
       default: 'free',
     },
     usageCount: {
