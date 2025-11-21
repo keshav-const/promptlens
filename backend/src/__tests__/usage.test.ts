@@ -56,7 +56,7 @@ describe('Usage Endpoint', () => {
     it('should return correct usage stats for pro plan', async () => {
       await User.create({
         email: testEmail,
-        plan: 'pro',
+        plan: 'pro_monthly',
         usageCount: 15,
         lastResetAt: new Date(),
       });
@@ -64,10 +64,10 @@ describe('Usage Endpoint', () => {
       const response = await request(app).get('/api/usage').set('Authorization', `Bearer ${token}`);
 
       expect(response.body.data).toMatchObject({
-        plan: 'pro',
+        plan: 'pro_monthly',
         usageCount: 15,
-        limit: 20,
-        remaining: 5,
+        limit: 50,
+        remaining: 35,
       });
     });
 

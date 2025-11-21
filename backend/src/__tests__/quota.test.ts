@@ -63,32 +63,32 @@ describe('Quota Management', () => {
   });
 
   describe('Pro plan quota', () => {
-    it('should allow requests within pro plan limit (20/day)', async () => {
+    it('should allow requests within pro plan limit (50/day)', async () => {
       const user = await User.create({
         email: testEmail,
-        plan: 'pro',
+        plan: 'pro_monthly',
         usageCount: 0,
         lastResetAt: new Date(),
       });
 
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 50; i++) {
         const response = await request(app)
           .post('/api/optimize')
           .set('Authorization', `Bearer ${token}`)
           .send({ prompt: `Test prompt ${i}` });
 
         expect(response.status).toBe(200);
-        expect(response.body.data.usage.limit).toBe(20);
+        expect(response.body.data.usage.limit).toBe(50);
       }
 
       await user.deleteOne();
     });
 
-    it('should reject 21st request with 429', async () => {
+    it('should reject 51st request with 429', async () => {
       await User.create({
         email: testEmail,
-        plan: 'pro',
-        usageCount: 20,
+        plan: 'pro_monthly',
+        usageCount: 50,
         lastResetAt: new Date(),
       });
 
@@ -98,7 +98,7 @@ describe('Quota Management', () => {
         .send({ prompt: 'Test prompt' });
 
       expect(response.status).toBe(429);
-      expect(response.body.error.details.limit).toBe(20);
+      expect(response.body.error.details.limit).toBe(50);
     });
   });
 
