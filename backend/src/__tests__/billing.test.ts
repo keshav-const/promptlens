@@ -198,6 +198,36 @@ describe('Billing API', () => {
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('INVALID_PLAN');
     });
+
+    it('should allow checkout even when quota is exceeded', async () => {
+      // Create user with exceeded quota on free plan
+      await User.create({
+        email: testEmail,
+        plan: 'free',
+        usageCount: 4, // Free plan limit is 4
+        lastResetAt: new Date(),
+      });
+
+      const mockCustomer = { id: 'cust_quota_test' };
+      const mockSubscription = {
+        id: 'sub_quota_test',
+        current_end: Math.floor(Date.now() / 1000) + 86400,
+      };
+
+      const mockRazorpay = jest.requireMock('../config/razorpay.ts').getRazorpay();
+      mockRazorpay.customers.create.mockResolvedValue(mockCustomer);
+      mockRazorpay.subscriptions.create.mockResolvedValue(mockSubscription);
+
+      // Should allow checkout even though quota is exceeded
+      const response = await request(app)
+        .post('/api/billing/checkout')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ plan: 'pro_monthly' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.subscriptionId).toBe('sub_quota_test');
+    });
   });
 
   describe('POST /api/billing/verify', () => {
@@ -284,6 +314,45 @@ describe('Billing API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('MISSING_DATA');
+    });
+
+    it('should allow payment verification even when quota is exceeded', async () => {
+      const user = await User.create({
+        email: testEmail,
+        plan: 'free',
+        usageCount: 4, // Free plan limit is 4 - quota exceeded
+        lastResetAt: new Date(),
+        razorpayCustomerId: 'cust_test123',
+        razorpaySubscriptionId: 'sub_test123',
+      });
+
+      const mockPayment = { id: 'pay_test123' };
+      const mockSubscription = {
+        id: 'sub_test123',
+        notes: {
+          userId: user._id.toString(),
+          plan: 'pro_monthly',
+        },
+        current_end: Math.floor(Date.now() / 1000) + 86400,
+      };
+
+      const mockRazorpay = jest.requireMock('../config/razorpay.ts').getRazorpay();
+      mockRazorpay.payments.fetch.mockResolvedValue(mockPayment);
+      mockRazorpay.subscriptions.fetch.mockResolvedValue(mockSubscription);
+
+      // Should allow verification even though quota was exceeded
+      const response = await request(app)
+        .post('/api/billing/verify')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          paymentId: 'pay_test123',
+          orderId: 'order_test123',
+          signature: 'valid_signature',
+          subscriptionId: 'sub_test123',
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
     });
   });
 
@@ -489,6 +558,24 @@ describe('Billing API', () => {
       const response = await request(app).get('/api/billing/status');
 
       expect(response.status).toBe(401);
+    });
+
+    it('should return billing status even when quota is exceeded', async () => {
+      await User.create({
+        email: testEmail,
+        plan: 'free',
+        usageCount: 4, // Free plan limit is 4 - quota exceeded
+        lastResetAt: new Date(),
+      });
+
+      // Should allow checking billing status even though quota is exceeded
+      const response = await request(app)
+        .get('/api/billing/status')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.plan).toBe('free');
     });
   });
 
