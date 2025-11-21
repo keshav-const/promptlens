@@ -199,5 +199,43 @@ describe('History Endpoint', () => {
       expect(response.body.data.data).toHaveLength(1);
       expect(response.body.data.data[0].original).toBe('My prompt');
     });
+
+    it('should return history even when quota is exceeded', async () => {
+      // Create user with exceeded quota on free plan
+      const quotaUser = await User.create({
+        email: testEmail,
+        plan: 'free',
+        usageCount: 4, // Free plan limit is 4 - quota exceeded
+        lastResetAt: new Date(),
+      });
+
+      // Add some prompts to history
+      await Prompt.insertMany([
+        {
+          userId: quotaUser._id,
+          original: 'Historical prompt 1',
+          optimizedPrompt: 'Optimized 1',
+          explanation: 'Explanation 1',
+        },
+        {
+          userId: quotaUser._id,
+          original: 'Historical prompt 2',
+          optimizedPrompt: 'Optimized 2',
+          explanation: 'Explanation 2',
+        },
+      ]);
+
+      // Should return history even though quota is exceeded
+      // Users must be able to access their history at any time
+      const response = await request(app)
+        .get('/api/history')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.data).toHaveLength(2);
+      expect(response.body.data.data[0].original).toBe('Historical prompt 2');
+      expect(response.body.data.data[1].original).toBe('Historical prompt 1');
+    });
   });
 });
