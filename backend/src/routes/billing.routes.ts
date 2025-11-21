@@ -10,6 +10,9 @@ import {
 
 const router = Router();
 
+// IMPORTANT: Do NOT add checkQuota middleware to billing routes
+// Users must be able to upgrade their plan even when they've exhausted their quota
+// Only authentication (requireAuth) should be applied to protected billing endpoints
 router.post('/checkout', requireAuth, asyncHandler(createCheckoutSession));
 router.post('/verify', requireAuth, asyncHandler(verifyPayment));
 router.get('/status', requireAuth, asyncHandler(getBillingStatus));
