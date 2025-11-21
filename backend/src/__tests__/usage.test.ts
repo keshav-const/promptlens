@@ -140,5 +140,30 @@ describe('Usage Endpoint', () => {
       const user = await User.findOne({ email: newEmail });
       expect(user).not.toBeNull();
     });
+
+    it('should return usage stats even when quota is exceeded', async () => {
+      // Create user with exceeded quota on free plan
+      await User.create({
+        email: testEmail,
+        plan: 'free',
+        usageCount: 4, // Free plan limit is 4 - quota exceeded
+        lastResetAt: new Date(),
+      });
+
+      // Should return usage info even though quota is exceeded
+      // Users must be able to check their usage at any time
+      const response = await request(app)
+        .get('/api/usage')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toMatchObject({
+        plan: 'free',
+        usageCount: 4,
+        limit: 4,
+        remaining: 0,
+      });
+    });
   });
 });
