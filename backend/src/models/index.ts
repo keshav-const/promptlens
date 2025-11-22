@@ -9,3 +9,6 @@ export type { IWebhookEvent } from './WebhookEvent.js';
 
 export { Template } from './template.model.js';
 export type { ITemplate } from './template.model.js';
+
+export { ABTest } from './abtest.model.js';
+export type { IABTest, IVariant } from './abtest.model.js';

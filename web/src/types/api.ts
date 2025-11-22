@@ -62,6 +62,29 @@ export interface Template {
   updatedAt: string;
 }
 
+export interface Variant {
+  name: string;
+  prompt: string;
+  optimizedPrompt?: string;
+  responseTime?: number;
+  rating?: number;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface ABTest {
+  _id: string;
+  userId: string;
+  name: string;
+  description?: string;
+  variants: Variant[];
+  winner?: string;
+  status: 'draft' | 'active' | 'completed';
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string;
+}
+
 export interface PlanFeatures {
   name: string;
   price: string;

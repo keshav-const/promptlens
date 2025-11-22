@@ -7,6 +7,8 @@ import type {
   ApiResponse,
   PromptHistoryResponse,
   Template,
+  ABTest,
+  Variant,
 } from '@/types/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:5000/api';
@@ -277,4 +279,82 @@ export async function useTemplate(id: string): Promise<Template> {
 
 export async function fetchCategories(): Promise<{ categories: string[] }> {
   return fetchWithAuth('/templates/categories');
+}
+
+// A/B Test API functions
+export async function fetchABTests(filters?: {
+  status?: 'draft' | 'active' | 'completed';
+}): Promise<{ tests: ABTest[]; count: number }> {
+  const params = new URLSearchParams();
+  if (filters?.status) params.append('status', filters.status);
+
+  const query = params.toString();
+  return fetchWithAuth(`/ab-tests${query ? `?${query}` : ''}`);
+}
+
+export async function fetchABTestById(id: string): Promise<ABTest> {
+  return fetchWithAuth(`/ab-tests/${id}`);
+}
+
+export async function createABTest(data: {
+  name: string;
+  description?: string;
+  variants: Array<{ name: string; prompt: string }>;
+}): Promise<ABTest> {
+  return fetchWithAuth('/ab-tests', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateABTest(
+  id: string,
+  data: Partial<{
+    name: string;
+    description: string;
+    status: 'draft' | 'active' | 'completed';
+  }>
+): Promise<ABTest> {
+  return fetchWithAuth(`/ab-tests/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateVariant(
+  testId: string,
+  variantName: string,
+  data: {
+    optimizedPrompt?: string;
+    responseTime?: number;
+    rating?: number;
+    notes?: string;
+  }
+): Promise<ABTest> {
+  return fetchWithAuth(`/ab-tests/${testId}/variants/${encodeURIComponent(variantName)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function setWinner(testId: string, winnerName: string): Promise<ABTest> {
+  return fetchWithAuth(`/ab-tests/${testId}/winner`, {
+    method: 'POST',
+    body: JSON.stringify({ winner: winnerName }),
+  });
+}
+
+export async function deleteABTest(id: string): Promise<{ message: string }> {
+  return fetchWithAuth(`/ab-tests/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function getABTestStats(): Promise<{
+  total: number;
+  draft: number;
+  active: number;
+  completed: number;
+}> {
+  return fetchWithAuth('/ab-tests/stats');
 }
