@@ -46,7 +46,7 @@ export default function Pricing() {
           try {
             await verifySubscription({
               paymentId: response.razorpay_payment_id,
-              orderId: response.razorpay_order_id,
+              orderId: response.razorpay_order_id || '', // Subscriptions don't have order IDs
               signature: response.razorpay_signature,
               subscriptionId: response.razorpay_subscription_id,
             });
@@ -92,21 +92,19 @@ export default function Pricing() {
           <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
             <button
               onClick={() => setBillingCycle('monthly')}
-              className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                billingCycle === 'monthly'
+              className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${billingCycle === 'monthly'
                   ? 'bg-primary-600 text-white'
                   : 'text-gray-700 hover:text-gray-900'
-              }`}
+                }`}
             >
               Monthly
             </button>
             <button
               onClick={() => setBillingCycle('yearly')}
-              className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                billingCycle === 'yearly'
+              className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${billingCycle === 'yearly'
                   ? 'bg-primary-600 text-white'
                   : 'text-gray-700 hover:text-gray-900'
-              }`}
+                }`}
             >
               Yearly
               <span className="ml-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-800">

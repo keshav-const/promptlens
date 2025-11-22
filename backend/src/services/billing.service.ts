@@ -29,8 +29,8 @@ export class BillingService {
   }
 
   async createCheckoutSession(
-    userId: string, 
-    userEmail: string, 
+    userId: string,
+    userEmail: string,
     plan: 'pro_monthly' | 'pro_yearly'
   ): Promise<CheckoutSessionData> {
     const user = await userService.findById(userId);
@@ -55,8 +55,8 @@ export class BillingService {
       await userService.updateRazorpayCustomerId(userId, customerId);
     }
 
-    const planId = plan === 'pro_monthly' 
-      ? RAZORPAY_CONFIG.PRO_MONTHLY_PLAN_ID 
+    const planId = plan === 'pro_monthly'
+      ? RAZORPAY_CONFIG.PRO_MONTHLY_PLAN_ID
       : RAZORPAY_CONFIG.PRO_YEARLY_PLAN_ID;
 
     // Create subscription
@@ -86,15 +86,23 @@ export class BillingService {
     subscriptionId: string
   ): Promise<VerificationData> {
     try {
-      // Verify the payment signature
+      // For subscriptions, Razorpay uses: razorpay_subscription_id|razorpay_payment_id
+      // NOT orderId|paymentId
       const generatedSignature = crypto
         .createHmac('sha256', (getRazorpay() as any).key_secret)
-        .update(`${orderId}|${paymentId}`)
+        .update(`${subscriptionId}|${paymentId}`)
         .digest('hex');
 
+      console.log('🔐 Verifying payment signature...');
+      console.log('📝 Expected signature:', signature);
+      console.log('📝 Generated signature:', generatedSignature);
+
       if (generatedSignature !== signature) {
+        console.error('❌ Signature verification failed');
         return { success: false };
       }
+
+      console.log('✅ Signature verified successfully');
 
       // Get payment details to find the user
       await this.getRazorpayInstance().payments.fetch(paymentId);
@@ -117,11 +125,11 @@ export class BillingService {
 
       if (user) {
         console.log(`User ${userId} upgraded to ${plan} with subscription ${subscriptionId}`);
-        return { 
-          success: true, 
-          userId, 
-          plan, 
-          subscriptionId 
+        return {
+          success: true,
+          userId,
+          plan,
+          subscriptionId
         };
       } else {
         console.error(`Failed to update user ${userId} to ${plan} plan`);

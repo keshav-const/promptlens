@@ -16,14 +16,14 @@ export const createCheckoutSession = async (
     }
 
     const { plan = 'pro_monthly' } = req.body;
-    
+
     if (!['pro_monthly', 'pro_yearly'].includes(plan)) {
       throw new AppError('Invalid plan specified', 400, 'INVALID_PLAN');
     }
 
     const sessionData = await billingService.createCheckoutSession(
-      req.userId, 
-      req.user.email, 
+      req.userId,
+      req.user.email,
       plan
     );
 
@@ -41,7 +41,8 @@ export const verifyPayment = async (
   try {
     const { paymentId, orderId, signature, subscriptionId } = req.body;
 
-    if (!paymentId || !orderId || !signature || !subscriptionId) {
+    // For subscriptions, orderId is optional (subscriptions don't have order IDs)
+    if (!paymentId || !signature || !subscriptionId) {
       throw new AppError('Missing required payment verification data', 400, 'MISSING_DATA');
     }
 
@@ -53,10 +54,10 @@ export const verifyPayment = async (
     );
 
     if (result.success) {
-      sendSuccess(res, { 
-        success: true, 
+      sendSuccess(res, {
+        success: true,
         message: 'Payment verified successfully',
-        plan: result.plan 
+        plan: result.plan
       });
     } else {
       throw new AppError('Payment verification failed', 400, 'VERIFICATION_FAILED');
