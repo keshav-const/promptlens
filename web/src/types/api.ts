@@ -23,11 +23,14 @@ export interface UsageData {
 
 export interface Prompt {
   id: string;
-  userId: string;
   originalText: string;
   optimizedText: string;
-  tags?: string[];
+  explanation?: string;
   isFavorite: boolean;
+  originalTokens?: number;
+  optimizedTokens?: number;
+  tokensSaved?: number;
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
 }

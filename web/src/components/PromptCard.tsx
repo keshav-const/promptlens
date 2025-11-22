@@ -122,6 +122,35 @@ export default function PromptCard({ prompt, onFavoriteToggle, onDelete }: Promp
           <p className="text-sm text-gray-700">{prompt.optimizedText}</p>
         </div>
 
+        {/* Token Savings Display */}
+        {prompt.tokensSaved !== undefined && prompt.tokensSaved !== 0 && (
+          <div className="mb-2 rounded-md bg-green-50 border border-green-200 p-3">
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2">
+                <svg className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                <span className="font-medium text-green-800">
+                  {prompt.tokensSaved > 0 ? 'Tokens Saved' : 'Tokens Added'}
+                </span>
+              </div>
+              <div className="text-right">
+                <div className="font-semibold text-green-900">
+                  {Math.abs(prompt.tokensSaved)} tokens
+                  {prompt.originalTokens && prompt.originalTokens > 0 && (
+                    <span className="ml-1 text-xs">
+                      ({Math.round((Math.abs(prompt.tokensSaved) / prompt.originalTokens) * 100)}%)
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-green-700">
+                  {prompt.originalTokens || 0} → {prompt.optimizedTokens || 0}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {prompt.originalText && (
           <details className="mt-2">
             <summary className="cursor-pointer text-xs text-gray-500 hover:text-gray-700">

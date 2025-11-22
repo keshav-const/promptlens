@@ -4,6 +4,15 @@ export interface OptimizationResult {
   originalPrompt: string;
   optimizedPrompt: string;
   explanation?: string;
+  tokenAnalysis?: {
+    original: number;
+    optimized: number;
+    saved: number;
+    percentageSaved: number;
+    originalCost: string;
+    optimizedCost: string;
+    costSavings: string;
+  };
 }
 
 interface OptimizationModalProps {
@@ -243,6 +252,49 @@ export const OptimizationModal = ({
                   </button>
                 )}
               </div>
+
+              {/* Token Savings Banner */}
+              {result.tokenAnalysis && result.tokenAnalysis.saved !== 0 && (
+                <div
+                  style={{
+                    backgroundColor: result.tokenAnalysis.saved > 0 ? '#f0fdf4' : '#fef2f2',
+                    borderBottom: `1px solid ${result.tokenAnalysis.saved > 0 ? '#86efac' : '#fecaca'}`,
+                    padding: '12px 24px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '20px' }}>
+                      {result.tokenAnalysis.saved > 0 ? '✓' : '⚠'}
+                    </span>
+                    <div>
+                      <div style={{
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: result.tokenAnalysis.saved > 0 ? '#166534' : '#991b1b'
+                      }}>
+                        {result.tokenAnalysis.saved > 0
+                          ? `${result.tokenAnalysis.saved} tokens saved (${result.tokenAnalysis.percentageSaved}%)`
+                          : `${Math.abs(result.tokenAnalysis.saved)} tokens added`
+                        }
+                      </div>
+                      <div style={{
+                        fontSize: '12px',
+                        color: result.tokenAnalysis.saved > 0 ? '#15803d' : '#b91c1c'
+                      }}>
+                        {result.tokenAnalysis.original} → {result.tokenAnalysis.optimized} tokens
+                        {result.tokenAnalysis.saved > 0 && (
+                          <span style={{ marginLeft: '8px' }}>
+                            • Saves {result.tokenAnalysis.costSavings}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div
                 style={{
