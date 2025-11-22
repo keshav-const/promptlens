@@ -25,6 +25,9 @@ interface OptimizationModalProps {
   onCopy: (optimizedPrompt: string) => void;
   onSave: (result: OptimizationResult) => void;
   isSaving: boolean;
+  mode: 'enhanced' | 'concise';
+  onModeChange: (mode: 'enhanced' | 'concise') => void;
+  onOptimize: () => void;
 }
 
 export const OptimizationModal = ({
@@ -36,7 +39,10 @@ export const OptimizationModal = ({
   onReplace,
   onCopy,
   onSave,
-  isSaving
+  isSaving,
+  mode,
+  onModeChange,
+  onOptimize
 }: OptimizationModalProps) => {
   const [activeTab, setActiveTab] = useState<'original' | 'optimized' | 'explanation'>('optimized');
   const [copySuccess, setCopySuccess] = useState(false);
@@ -111,9 +117,11 @@ export const OptimizationModal = ({
               alignItems: 'center'
             }}
           >
-            <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#111827' }}>
-              PromptLens Optimization
-            </h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#111827' }}>
+                PromptLens Optimization
+              </h2>
+            </div>
             <button
               onClick={onClose}
               style={{
@@ -186,6 +194,96 @@ export const OptimizationModal = ({
               >
                 <p style={{ color: '#dc2626', margin: 0, fontSize: '14px' }}>{error}</p>
               </div>
+            </div>
+          )}
+
+          {/* Mode Selection Screen - shown before optimization */}
+          {!isLoading && !error && !result && (
+            <div
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '40px',
+                gap: '24px'
+              }}
+            >
+              <div style={{ textAlign: 'center', maxWidth: '500px' }}>
+                <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '600', color: '#111827' }}>
+                  Choose Optimization Mode
+                </h3>
+                <p style={{ margin: 0, fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}>
+                  Select how you want to optimize your prompt
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '16px', width: '100%', maxWidth: '500px' }}>
+                <button
+                  onClick={() => onModeChange('concise')}
+                  style={{
+                    flex: 1,
+                    padding: '20px',
+                    border: mode === 'concise' ? '3px solid #6366f1' : '2px solid #e5e7eb',
+                    backgroundColor: mode === 'concise' ? '#eef2ff' : 'white',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    textAlign: 'left'
+                  }}
+                >
+                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>🎯</div>
+                  <div style={{ fontSize: '16px', fontWeight: '600', color: '#111827', marginBottom: '4px' }}>
+                    Concise
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#6b7280', lineHeight: '1.4' }}>
+                    Reduce tokens while maintaining quality. Best for cost savings.
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => onModeChange('enhanced')}
+                  style={{
+                    flex: 1,
+                    padding: '20px',
+                    border: mode === 'enhanced' ? '3px solid #6366f1' : '2px solid #e5e7eb',
+                    backgroundColor: mode === 'enhanced' ? '#eef2ff' : 'white',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    textAlign: 'left'
+                  }}
+                >
+                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>✨</div>
+                  <div style={{ fontSize: '16px', fontWeight: '600', color: '#111827', marginBottom: '4px' }}>
+                    Enhanced
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#6b7280', lineHeight: '1.4' }}>
+                    Add detail and clarity. May increase tokens for better results.
+                  </div>
+                </button>
+              </div>
+
+              <button
+                onClick={onOptimize}
+                style={{
+                  padding: '12px 32px',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  backgroundColor: '#6366f1',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s',
+                  boxShadow: '0 2px 4px rgba(99, 102, 241, 0.2)'
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4f46e5')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#6366f1')}
+              >
+                Optimize Prompt
+              </button>
             </div>
           )}
 

@@ -20,7 +20,7 @@ export const optimizePrompt = async (
 
     const validatedData = optimizePromptSchema.parse(req.body);
 
-    const result = await geminiService.optimizePrompt(validatedData.prompt);
+    const result = await geminiService.optimizePrompt(validatedData.prompt, validatedData.mode);
 
     // Calculate token savings
     const tokenAnalysis = calculateTokenSavings(
@@ -56,6 +56,7 @@ export const optimizePrompt = async (
       originalPrompt: validatedData.prompt,
       optimizedPrompt: result.optimizedPrompt,
       explanation: result.explanation,
+      mode: validatedData.mode,
       tokenAnalysis: {
         original: tokenAnalysis.originalTokens,
         optimized: tokenAnalysis.optimizedTokens,

@@ -27,8 +27,14 @@ class PromptLensUI {
   private isSaving = false;
   private observer: MutationObserver | null = null;
   private focusCheckInterval: number | null = null;
+  private mode: 'enhanced' | 'concise' = 'concise';
 
   constructor() {
+    // Load mode preference from localStorage
+    const savedMode = localStorage.getItem('promptlens_optimization_mode');
+    if (savedMode === 'enhanced' || savedMode === 'concise') {
+      this.mode = savedMode;
+    }
     this.init();
   }
 
@@ -141,18 +147,33 @@ class PromptLensUI {
       return;
     }
 
+    // Show modal with mode selector, don't start optimization yet
     this.showModal();
+    this.renderModal();
+  }
+
+  private async startOptimization() {
+    if (!this.currentTextarea) return;
+
+    const prompt = getTextareaValue(this.currentTextarea);
+
+    if (!prompt || prompt.trim().length === 0) {
+      this.error = 'Please enter a prompt before optimizing.';
+      this.renderModal();
+      return;
+    }
+
     this.isLoading = true;
     this.error = null;
     this.optimizationResult = null;
     this.renderModal();
 
-    console.log('Optimizing prompt:', prompt);
+    console.log('Optimizing prompt with mode:', this.mode);
 
     try {
       const response = await sendMessageToBackground({
         type: MessageType.OPTIMIZE_PROMPT,
-        payload: { prompt }
+        payload: { prompt, mode: this.mode }
       });
 
       if (response.success && response.data) {
@@ -242,6 +263,9 @@ class PromptLensUI {
         onCopy={(optimizedPrompt) => this.handleCopy(optimizedPrompt)}
         onSave={(result) => this.handleSave(result)}
         isSaving={this.isSaving}
+        mode={this.mode}
+        onModeChange={(mode) => this.handleModeChange(mode)}
+        onOptimize={() => this.startOptimization()}
       />
     );
   }
@@ -263,6 +287,12 @@ class PromptLensUI {
       .catch((error) => {
         console.error('Failed to copy to clipboard:', error);
       });
+  }
+
+  private handleModeChange(mode: 'enhanced' | 'concise') {
+    this.mode = mode;
+    localStorage.setItem('promptlens_optimization_mode', mode);
+    this.renderModal();
   }
 
   private async handleSave(result: OptimizationResult) {

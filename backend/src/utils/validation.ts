@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const optimizePromptSchema = z.object({
   prompt: z.string().min(1, 'Prompt is required').max(5000, 'Prompt is too long'),
+  mode: z.enum(['enhanced', 'concise']).optional().default('concise'),
   metadata: z
     .object({
       tags: z.array(z.string()).optional(),

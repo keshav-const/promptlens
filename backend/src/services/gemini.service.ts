@@ -124,7 +124,7 @@ export class GeminiService {
   getAvailableModels(): GeminiModel[] {
     return this.availableModels;
   }
-  async optimizePrompt(prompt: string): Promise<OptimizeResult> {
+  async optimizePrompt(prompt: string, mode: 'enhanced' | 'concise' = 'concise'): Promise<OptimizeResult> {
 
     // Ensure models are discovered before making API calls
     await this.discoverModels();
@@ -133,7 +133,7 @@ export class GeminiService {
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
-        const response = await this.callGeminiAPI(prompt);
+        const response = await this.callGeminiAPI(prompt, mode);
         return response;
       } catch (error) {
         lastError = error as Error;
@@ -164,7 +164,7 @@ export class GeminiService {
     );
   }
 
-  private async callGeminiAPI(prompt: string): Promise<OptimizeResult> {
+  private async callGeminiAPI(prompt: string, mode: 'enhanced' | 'concise' = 'concise'): Promise<OptimizeResult> {
     if (config.NODE_ENV === 'test' && this.apiKey === 'test-key') {
       throw new Error('Gemini API called in test environment without mock');
     }
@@ -173,7 +173,20 @@ export class GeminiService {
       throw new Error('Gemini API not initialized - no model URL available');
     }
 
-    const systemPrompt = `You are a prompt optimization expert. Your task is to analyze the given prompt and provide:
+    const enhancedSystemPrompt = `You are a prompt optimization expert. Your task is to analyze the given prompt and provide:
+1. An ENHANCED version that is more detailed, comprehensive, and effective
+2. Add clarity, context, and specific instructions to improve results
+3. Include relevant examples or constraints that would help the AI understand better
+4. The enhanced prompt may be longer than the original to ensure better quality
+5. A brief explanation of the improvements made
+
+Format your response as JSON with the following structure:
+{
+  "optimized": "The enhanced, detailed prompt text",
+  "explanation": "Brief explanation of enhancements and quality improvements"
+}`;
+
+    const conciseSystemPrompt = `You are a prompt optimization expert. Your task is to analyze the given prompt and provide:
 1. An optimized version that is MORE CONCISE while being clearer, more specific, and more effective
 2. IMPORTANT: The optimized prompt should use FEWER tokens than the original while maintaining or improving quality
 3. Remove redundant words, use shorter phrasing, and eliminate unnecessary details
@@ -184,6 +197,8 @@ Format your response as JSON with the following structure:
   "optimized": "The improved prompt text (should be shorter than original)",
   "explanation": "Brief explanation of improvements and token savings"
 }`;
+
+    const systemPrompt = mode === 'enhanced' ? enhancedSystemPrompt : conciseSystemPrompt;
 
     const requestBody = {
       contents: [
