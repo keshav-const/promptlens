@@ -86,23 +86,51 @@ export class BillingService {
     subscriptionId: string
   ): Promise<VerificationData> {
     try {
-      // For subscriptions, Razorpay uses: razorpay_subscription_id|razorpay_payment_id
-      // NOT orderId|paymentId
-      const generatedSignature = crypto
-        .createHmac('sha256', (getRazorpay() as any).key_secret)
-        .update(`${subscriptionId}|${paymentId}`)
-        .digest('hex');
+      console.log('🔍 Payment verification data received:');
+      console.log('  paymentId:', paymentId);
+      console.log('  orderId:', orderId);
+      console.log('  subscriptionId:', subscriptionId);
+      console.log('  signature:', signature);
 
-      console.log('🔐 Verifying payment signature...');
-      console.log('📝 Expected signature:', signature);
-      console.log('📝 Generated signature:', generatedSignature);
+      // Try different signature formats to see which one Razorpay is using
+      const format1 = `${subscriptionId}|${paymentId}`;
+      const format2 = `${paymentId}|${subscriptionId}`;
+      const format3 = orderId ? `${orderId}|${paymentId}` : null;
 
-      if (generatedSignature !== signature) {
-        console.error('❌ Signature verification failed');
-        return { success: false };
+      const sig1 = crypto.createHmac('sha256', (getRazorpay() as any).key_secret).update(format1).digest('hex');
+      const sig2 = crypto.createHmac('sha256', (getRazorpay() as any).key_secret).update(format2).digest('hex');
+      const sig3 = format3 ? crypto.createHmac('sha256', (getRazorpay() as any).key_secret).update(format3).digest('hex') : null;
+
+      console.log('🔐 Trying different signature formats:');
+      console.log('  Format 1 (subscriptionId|paymentId):', format1);
+      console.log('    Generated:', sig1);
+      console.log('    Match:', sig1 === signature ? '✅' : '❌');
+      console.log('  Format 2 (paymentId|subscriptionId):', format2);
+      console.log('    Generated:', sig2);
+      console.log('    Match:', sig2 === signature ? '✅' : '❌');
+      if (format3 && sig3) {
+        console.log('  Format 3 (orderId|paymentId):', format3);
+        console.log('    Generated:', sig3);
+        console.log('    Match:', sig3 === signature ? '✅' : '❌');
       }
 
-      console.log('✅ Signature verified successfully');
+      // Check which format matches
+      let isValid = false;
+      if (sig1 === signature) {
+        console.log('✅ Signature verified using format: subscriptionId|paymentId');
+        isValid = true;
+      } else if (sig2 === signature) {
+        console.log('✅ Signature verified using format: paymentId|subscriptionId');
+        isValid = true;
+      } else if (sig3 && sig3 === signature) {
+        console.log('✅ Signature verified using format: orderId|paymentId');
+        isValid = true;
+      }
+
+      if (!isValid) {
+        console.error('❌ Signature verification failed - no format matched');
+        return { success: false };
+      }
 
       // Get payment details to find the user
       await this.getRazorpayInstance().payments.fetch(paymentId);
