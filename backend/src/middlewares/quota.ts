@@ -9,6 +9,13 @@ export const checkQuota = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    // Check if this request should skip quota checking
+    if ((req as any).skipQuotaCheck === true) {
+      console.log('🚫 Quota check skipped for this request');
+      next();
+      return;
+    }
+
     if (!req.userId) {
       throw new AppError('User not authenticated', 401, 'UNAUTHORIZED');
     }

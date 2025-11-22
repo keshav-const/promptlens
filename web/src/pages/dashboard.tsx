@@ -74,7 +74,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadData();
-  }, [searchTerm, showFavoritesOnly, loadData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, showFavoritesOnly]);
 
   useEffect(() => {
     if (router.query.upgraded === 'true') {
@@ -203,11 +204,10 @@ export default function Dashboard() {
                 />
                 <button
                   onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-                  className={`rounded-md border px-3 py-2 text-sm font-medium ${
-                    showFavoritesOnly
+                  className={`rounded-md border px-3 py-2 text-sm font-medium ${showFavoritesOnly
                       ? 'border-primary-600 bg-primary-50 text-primary-700'
                       : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   <svg
                     className="h-4 w-4"

@@ -14,13 +14,23 @@ export default function Navbar({ onUpgradeClick }: NavbarProps) {
   const [usage, setUsage] = useState<UsageData | null>(null);
 
   useEffect(() => {
-    if (session) {
+    if (!session) {
+      setUsage(null);
+      return;
+    }
+
+    // Debounce usage data fetching to prevent rapid repeated calls
+    // Increased to 1 second to handle rapid session changes
+    const timeoutId = setTimeout(() => {
       fetchUsageData()
         .then(setUsage)
-        .catch(() => {
+        .catch((err) => {
+          console.warn('Failed to fetch usage data:', err);
           // Silently fail - usage display is optional
         });
-    }
+    }, 1000); // 1 second debounce
+
+    return () => clearTimeout(timeoutId);
   }, [session]);
 
   return (

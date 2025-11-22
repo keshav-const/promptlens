@@ -9,6 +9,8 @@ import type {
 } from '@/types/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:5000/api';
+const MAX_RETRIES = 3;
+const INITIAL_RETRY_DELAY = 1000; // 1 second
 
 export class ApiError extends Error {
   constructor(
@@ -21,7 +23,11 @@ export class ApiError extends Error {
   }
 }
 
-async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+async function fetchWithAuth<T>(
+  endpoint: string,
+  options: RequestInit = {},
+  retryCount = 0
+): Promise<T> {
   const tokenData = TokenStorage.getToken();
 
   const headers: Record<string, string> = {
@@ -66,11 +72,30 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
     }
 
     if (!response.ok) {
-      throw new ApiError(
+      const error = new ApiError(
         data.error?.message || 'An error occurred',
         data.error?.code || `HTTP_${response.status}`,
         data.error?.details
       );
+
+      // Don't retry on quota exceeded errors - they won't resolve with retries
+      if (error.code === 'QUOTA_EXCEEDED') {
+        console.warn('⚠️ Quota exceeded, not retrying');
+        throw error;
+      }
+
+      // Retry on server errors (5xx) or rate limit errors
+      if (
+        retryCount < MAX_RETRIES &&
+        (response.status >= 500 || error.code === 'RATE_LIMIT_EXCEEDED')
+      ) {
+        const delay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
+        console.log(`⏳ Retrying in ${delay}ms (attempt ${retryCount + 1}/${MAX_RETRIES})...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return fetchWithAuth<T>(endpoint, options, retryCount + 1);
+      }
+
+      throw error;
     }
 
     if (!data.success) {
@@ -88,6 +113,13 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
     }
 
     if (error instanceof TypeError) {
+      // Retry on network errors
+      if (retryCount < MAX_RETRIES) {
+        const delay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
+        console.log(`⏳ Network error, retrying in ${delay}ms (attempt ${retryCount + 1}/${MAX_RETRIES})...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return fetchWithAuth<T>(endpoint, options, retryCount + 1);
+      }
       throw new ApiError('Network error. Please check your connection.', 'NETWORK_ERROR');
     }
 
