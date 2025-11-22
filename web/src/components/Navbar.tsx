@@ -1,4 +1,4 @@
-import { signOut, useSession } from 'next-auth/react';
+import { signIn, signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
@@ -122,12 +122,12 @@ export default function Navbar({ onUpgradeClick }: NavbarProps) {
                 </button>
               </>
             ) : (
-              <Link
-                href="/api/auth/signin"
+              <button
+                onClick={() => signIn('google')}
                 className="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
               >
                 Sign In
-              </Link>
+              </button>
             )}
           </div>
         </div>

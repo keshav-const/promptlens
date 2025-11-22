@@ -9,7 +9,7 @@ export default function Home() {
 
   useEffect(() => {
     if (status === 'authenticated' && !router.query.error) {
-      router.push('/dashboard');
+      router.replace('/dashboard');
     }
   }, [status, router, router.query.error]);
 
@@ -29,6 +29,7 @@ export default function Home() {
     );
   }
 
+  // Redirect to dashboard if authenticated (return null to avoid flash)
   if (session) {
     return null;
   }

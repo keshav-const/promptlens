@@ -31,7 +31,7 @@ interface ExtensionAuthToken {
 /**
  * Fetch token from /api/token endpoint (most reliable method)
  */
-async function fetchTokenFromAPI(): Promise<void> {
+async function fetchTokenFromAPI(): Promise<boolean> {
   try {
     console.log('[PromptLens Dashboard Sync] Fetching token from /api/token');
     const response = await fetch('/api/token', {
@@ -57,14 +57,17 @@ async function fetchTokenFromAPI(): Promise<void> {
           '[PromptLens Dashboard Sync] Token expires at:',
           extensionToken.expiresAt ? new Date(extensionToken.expiresAt).toISOString() : 'never'
         );
+        return true;
       }
     } else if (response.status === 401) {
       console.log('[PromptLens Dashboard Sync] No active session, clearing extension storage');
       await chrome.storage.local.remove([AUTH_STORAGE_KEY]);
+      return false; // Return false to indicate no session
     }
   } catch (error) {
     console.error('[PromptLens Dashboard Sync] Error fetching token from API:', error);
   }
+  return false;
 }
 
 /**
@@ -121,10 +124,14 @@ async function syncToken(): Promise<void> {
   console.log('[PromptLens Dashboard Sync] Starting token sync...');
 
   // Try fetching from API first (most reliable)
-  await fetchTokenFromAPI();
+  const hasSession = await fetchTokenFromAPI();
 
-  // Also check localStorage as backup
-  syncTokenFromLocalStorage();
+  // Only check localStorage if we have an active session
+  if (hasSession) {
+    syncTokenFromLocalStorage();
+  } else {
+    console.log('[PromptLens Dashboard Sync] No token found in localStorage');
+  }
 }
 
 /**
@@ -167,36 +174,37 @@ function setupVisibilityListener(): void {
  * This handles cases where the storage event might be missed
  */
 function setupPeriodicSync(): void {
-  // Initial sync (immediate)
-  console.log('[PromptLens Dashboard Sync] Running initial token sync');
-  syncToken();
+  // Wait 5 seconds before initial sync to allow login/redirect to complete
+  console.log('[PromptLens Dashboard Sync] Waiting 5 seconds before initial sync...');
+  setTimeout(() => {
+    console.log('[PromptLens Dashboard Sync] Running initial token sync');
+    syncToken();
+  }, 5000);
 
-  // Sync every 30 seconds to catch any changes
+  // Sync every 60 seconds (reduced from 30s to avoid overwhelming during login)
   setInterval(() => {
     console.log('[PromptLens Dashboard Sync] Running periodic token sync');
     syncToken();
-  }, 30000);
+  }, 60000);
 }
 
 /**
  * Monitor DOM mutations to detect when the app becomes ready
+ * DISABLED: This was causing too many sync attempts during login
  */
 function setupDOMObserver(): void {
-  const observer = new MutationObserver(() => {
-    // Trigger a sync when significant DOM changes occur
-    // This helps catch token changes after login redirects
-    syncToken();
-  });
-
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true
-  });
-
-  // Stop observing after 30 seconds to avoid unnecessary work
-  setTimeout(() => {
-    observer.disconnect();
-  }, 30000);
+  // Commented out to prevent interference with login flow
+  // const observer = new MutationObserver(() => {
+  //   syncToken();
+  // });
+  // observer.observe(document.documentElement, {
+  //   childList: true,
+  //   subtree: true
+  // });
+  // setTimeout(() => {
+  //   observer.disconnect();
+  // }, 30000);
+  console.log('[PromptLens Dashboard Sync] DOM observer disabled to prevent login interference');
 }
 
 // Detect if we're on the dashboard

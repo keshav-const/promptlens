@@ -18,6 +18,17 @@ export const authOptions: NextAuthOptions = {
     error: '/',
   },
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      // Redirect to dashboard after successful sign in
+      if (url === baseUrl || url === `${baseUrl}/`) {
+        return `${baseUrl}/dashboard`;
+      }
+      // Allow callback URLs on the same origin
+      if (url.startsWith(baseUrl)) {
+        return url;
+      }
+      return baseUrl;
+    },
     async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;

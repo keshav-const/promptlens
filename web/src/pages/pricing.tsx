@@ -2,17 +2,58 @@ import { GetServerSideProps } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { createSubscription, verifySubscription, handleApiError } from '@/services/api';
 import { loadRazorpayScript, openRazorpayCheckout, getRazorpayKeyId } from '@/lib/razorpay';
 
 export default function Pricing() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [isScriptLoading, setIsScriptLoading] = useState(false);
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
+  const [currentPlan, setCurrentPlan] = useState<string>('free');
+  const [planLoading, setPlanLoading] = useState(true);
+
+  // Fetch current user plan from backend
+  useEffect(() => {
+    const fetchPlan = async () => {
+      if (!session) {
+        setPlanLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/token');
+        if (response.ok) {
+          const tokenData = await response.json();
+          // The backend creates a user and returns their plan in the usage data
+          // We need to fetch usage to get the plan
+          const usageResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:5000/api'}/usage`, {
+            headers: {
+              'Authorization': `Bearer ${tokenData.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (usageResponse.ok) {
+            const usageData = await usageResponse.json();
+            setCurrentPlan(usageData.data?.plan || 'free');
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch plan:', err);
+        // Keep default 'free' on error
+      } finally {
+        setPlanLoading(false);
+      }
+    };
+
+    fetchPlan();
+  }, [session]);
 
   useEffect(() => {
     setIsScriptLoading(true);
@@ -93,8 +134,8 @@ export default function Pricing() {
             <button
               onClick={() => setBillingCycle('monthly')}
               className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${billingCycle === 'monthly'
-                  ? 'bg-primary-600 text-white'
-                  : 'text-gray-700 hover:text-gray-900'
+                ? 'bg-primary-600 text-white'
+                : 'text-gray-700 hover:text-gray-900'
                 }`}
             >
               Monthly
@@ -102,8 +143,8 @@ export default function Pricing() {
             <button
               onClick={() => setBillingCycle('yearly')}
               className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${billingCycle === 'yearly'
-                  ? 'bg-primary-600 text-white'
-                  : 'text-gray-700 hover:text-gray-900'
+                ? 'bg-primary-600 text-white'
+                : 'text-gray-700 hover:text-gray-900'
                 }`}
             >
               Yearly
@@ -209,10 +250,13 @@ export default function Pricing() {
           </ul>
 
           <button
-            disabled
-            className="w-full rounded-md border border-gray-300 bg-gray-50 px-6 py-3 text-base font-medium text-gray-400"
+            disabled={currentPlan === 'free'}
+            className={`w-full rounded-md px-6 py-3 text-base font-medium ${currentPlan === 'free'
+              ? 'border border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed'
+              : 'border border-primary-600 text-primary-600 hover:bg-primary-50'
+              }`}
           >
-            Current Plan
+            {currentPlan === 'free' ? 'Current Plan' : 'Free Plan'}
           </button>
         </div>
 
@@ -348,14 +392,25 @@ export default function Pricing() {
 
           <button
             onClick={() => handleUpgrade(billingCycle)}
-            disabled={isLoading || isScriptLoading || processingPlan !== null}
-            className="w-full rounded-md bg-primary-600 px-6 py-3 text-base font-medium text-white hover:bg-primary-700 disabled:opacity-50"
+            disabled={
+              isLoading ||
+              isScriptLoading ||
+              processingPlan !== null ||
+              currentPlan === 'pro_monthly' ||
+              currentPlan === 'pro_yearly'
+            }
+            className={`w-full rounded-md px-6 py-3 text-base font-medium ${currentPlan === 'pro_monthly' || currentPlan === 'pro_yearly'
+              ? 'border border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed'
+              : 'bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50'
+              }`}
           >
-            {isScriptLoading
-              ? 'Loading Payment...'
-              : processingPlan === billingCycle
-                ? 'Processing...'
-                : `Upgrade to Pro (${billingCycle})`}
+            {currentPlan === 'pro_monthly' || currentPlan === 'pro_yearly'
+              ? 'Current Plan'
+              : isScriptLoading
+                ? 'Loading Payment...'
+                : processingPlan === billingCycle
+                  ? 'Processing...'
+                  : `Upgrade to Pro (${billingCycle})`}
           </button>
         </div>
       </div>
