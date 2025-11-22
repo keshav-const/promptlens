@@ -17,258 +17,261 @@ interface ListModelsResponse {
 }
 
 const MAX_RETRIES = 3;
-const INITIAL_RETRY_DELAY = 
-1000;
+const INITIAL_RETRY_DELAY =
+  1000;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export class GeminiService {
-private apiKey: string;
-private baseUrl: string | null = null;
-private availableModels: GeminiModel[] = [];
-private initialized = false;
+  private apiKey: string;
+  private baseUrl: string | null = null;
+  private availableModels: GeminiModel[] = [];
+  private initialized = false;
 
-constructor() {
-this.apiKey = config.GEMINI_API_KEY || 'test-key';
-}
+  constructor() {
+    this.apiKey = config.GEMINI_API_KEY || 'test-key';
+  }
 
-/**
-
-Discover available models from the Gemini API
-*/
-private async discoverModels(): Promise<void> {
-if (this.initialized) {
-return;
-}
-if (config.NODE_ENV === 'test' && this.apiKey === 'test-key') {
-  // Skip model discovery in test environment
-  this.initialized = true;
-  return;
-}
-
-try {
-  console.log('🔍 Discovering available Gemini models...');
+  /**
   
-  const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${this.apiKey}`;
-  
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  Discover available models from the Gemini API
+  */
+  private async discoverModels(): Promise<void> {
+    if (this.initialized) {
+      return;
+    }
+    if (config.NODE_ENV === 'test' && this.apiKey === 'test-key') {
+      // Skip model discovery in test environment
+      this.initialized = true;
+      return;
+    }
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to list models: ${response.status} - ${errorText}`);
-  }
+    try {
+      console.log('🔍 Discovering available Gemini models...');
 
-  const data = (await response.json()) as ListModelsResponse;
-  
-  if (!data.models || data.models.length === 0) {
-    throw new Error('No models available from Gemini API');
-  }
+      const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${this.apiKey}`;
 
-  // Filter models that support generateContent
-  this.availableModels = data.models.filter((model) =>
-    model.supportedGenerationMethods.includes('generateContent')
-  );
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-  if (this.availableModels.length === 0) {
-    throw new Error('No models found that support generateContent');
-  }
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to list models: ${response.status} - ${errorText}`);
+      }
 
-  // Prefer free-tier Flash models first
-  let selectedModel = this.availableModels.find(
-    (m) => m.name.includes('gemini-2.0-flash') && !m.name.includes('lite') && !m.name.includes('exp')
-  );
+      const data = (await response.json()) as ListModelsResponse;
 
-  if (!selectedModel) {
-    selectedModel = this.availableModels.find(
-      (m) => m.name.includes('gemini-flash') && !m.name.includes('lite') && !m.name.includes('pro')
-    );
-  }
+      if (!data.models || data.models.length === 0) {
+        throw new Error('No models available from Gemini API');
+      }
 
-  if (!selectedModel) {
-    selectedModel = this.availableModels.find(
-      (m) => m.name.includes('flash-lite')
-    );
-  }
+      // Filter models that support generateContent
+      this.availableModels = data.models.filter((model) =>
+        model.supportedGenerationMethods.includes('generateContent')
+      );
 
-  if (!selectedModel) {
-    selectedModel = this.availableModels[0];
-  }
+      if (this.availableModels.length === 0) {
+        throw new Error('No models found that support generateContent');
+      }
 
-  // Build the base URL using the discovered model name
-  // Model name comes in format "models/gemini-1.5-pro", we need to use it directly
-  this.baseUrl = `https://generativelanguage.googleapis.com/v1beta/${selectedModel.name}:generateContent`;
+      // Prefer free-tier Flash models first
+      let selectedModel = this.availableModels.find(
+        (m) => m.name.includes('gemini-2.0-flash') && !m.name.includes('lite') && !m.name.includes('exp')
+      );
 
-  console.log(`✅ Selected model: ${selectedModel.displayName} (${selectedModel.name})`);
-  console.log(`📊 Available models: ${this.availableModels.map(m => m.displayName).join(', ')}`);
+      if (!selectedModel) {
+        selectedModel = this.availableModels.find(
+          (m) => m.name.includes('gemini-flash') && !m.name.includes('lite') && !m.name.includes('pro')
+        );
+      }
 
-  this.initialized = true;
-} catch (error) {
-  console.error('❌ Failed to discover Gemini models:', error);
-  throw new AppError(
-    `Failed to initialize Gemini API: ${(error as Error).message}`,
-    503,
-    'GEMINI_INIT_ERROR'
-  );
-}
-}
+      if (!selectedModel) {
+        selectedModel = this.availableModels.find(
+          (m) => m.name.includes('flash-lite')
+        );
+      }
 
-/**
+      if (!selectedModel) {
+        selectedModel = this.availableModels[0];
+      }
 
-Get available models (for debugging)
-*/
-getAvailableModels(): GeminiModel[] {
-return this.availableModels;
-}
-async optimizePrompt(prompt: string): Promise<OptimizeResult> {
+      // Build the base URL using the discovered model name
+      // Model name comes in format "models/gemini-1.5-pro", we need to use it directly
+      this.baseUrl = `https://generativelanguage.googleapis.com/v1beta/${selectedModel.name}:generateContent`;
 
-// Ensure models are discovered before making API calls
-await this.discoverModels();
+      console.log(`✅ Selected model: ${selectedModel.displayName} (${selectedModel.name})`);
+      console.log(`📊 Available models: ${this.availableModels.map(m => m.displayName).join(', ')}`);
 
-let lastError: Error | null = null;
-
-for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-  try {
-    const response = await this.callGeminiAPI(prompt);
-    return response;
-  } catch (error) {
-    lastError = error as Error;
-    console.error(`Gemini API attempt ${attempt + 1} failed:`, error);
-
-    // Log available models on error to help with debugging
-    if (this.availableModels.length > 0) {
-      console.error(
-        `Available models: ${this.availableModels.map((m) => `${m.displayName} (${m.name})`).join(', ')}`
+      this.initialized = true;
+    } catch (error) {
+      console.error('❌ Failed to discover Gemini models:', error);
+      throw new AppError(
+        `Failed to initialize Gemini API: ${(error as Error).message}`,
+        503,
+        'GEMINI_INIT_ERROR'
       );
     }
-
-    if (attempt < MAX_RETRIES - 1) {
-      const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt);
-      await sleep(delay);
-    }
   }
-}
 
-const errorMessage = this.availableModels.length > 0
-  ? `Failed to optimize prompt after ${MAX_RETRIES} attempts: ${lastError?.message}. Available models: ${this.availableModels.map((m) => m.displayName).join(', ')}`
-  : `Failed to optimize prompt after ${MAX_RETRIES} attempts: ${lastError?.message}`;
+  /**
+  
+  Get available models (for debugging)
+  */
+  getAvailableModels(): GeminiModel[] {
+    return this.availableModels;
+  }
+  async optimizePrompt(prompt: string): Promise<OptimizeResult> {
 
-throw new AppError(
-  errorMessage,
-  503,
-  'GEMINI_API_ERROR'
-);
-}
+    // Ensure models are discovered before making API calls
+    await this.discoverModels();
 
-private async callGeminiAPI(prompt: string): Promise<OptimizeResult> {
-if (config.NODE_ENV === 'test' && this.apiKey === 'test-key') {
-throw new Error('Gemini API called in test environment without mock');
-}
+    let lastError: Error | null = null;
 
-if (!this.baseUrl) {
-  throw new Error('Gemini API not initialized - no model URL available');
-}
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      try {
+        const response = await this.callGeminiAPI(prompt);
+        return response;
+      } catch (error) {
+        lastError = error as Error;
+        console.error(`Gemini API attempt ${attempt + 1} failed:`, error);
 
-const systemPrompt = `You are a prompt optimization expert. Your task is to analyze the given prompt and provide:
-An optimized version that is clearer, more specific, and more effective
-A brief explanation of the improvements made
-Format your response as JSON with the following structure:
-{
-"optimized": "The improved prompt text",
-"explanation": "Brief explanation of improvements"
-}`;
+        // Log available models on error to help with debugging
+        if (this.availableModels.length > 0) {
+          console.error(
+            `Available models: ${this.availableModels.map((m) => `${m.displayName} (${m.name})`).join(', ')}`
+          );
+        }
 
-const requestBody = {
-  contents: [
-    {
-      parts: [
-        {
-          text: `${systemPrompt}\n\nOriginal prompt to optimize:\n${prompt}`,
-        },
-      ],
-    },
-  ],
-  generationConfig: {
-    temperature: 0.7,
-    topK: 40,
-    topP: 0.95,
-    maxOutputTokens: 1024,
-  },
-};
+        if (attempt < MAX_RETRIES - 1) {
+          const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt);
+          await sleep(delay);
+        }
+      }
+    }
 
-const url = `${this.baseUrl}?key=${this.apiKey}`;
+    const errorMessage = this.availableModels.length > 0
+      ? `Failed to optimize prompt after ${MAX_RETRIES} attempts: ${lastError?.message}. Available models: ${this.availableModels.map((m) => m.displayName).join(', ')}`
+      : `Failed to optimize prompt after ${MAX_RETRIES} attempts: ${lastError?.message}`;
 
-const response = await fetch(url, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(requestBody),
-});
-
-if (!response.ok) {
-  const errorText = await response.text();
-
-  // Enhanced error message for 404s
-  if (response.status === 404) {
-    const availableModelsMsg = this.availableModels.length > 0
-      ? `\nAvailable models: ${this.availableModels.map((m) => `${m.displayName} (${m.name})`).join(', ')}`
-      : '';
-    throw new Error(
-      `Gemini API model not found (404) - Model URL: ${this.baseUrl}${availableModelsMsg}\nError: ${errorText}`
+    throw new AppError(
+      errorMessage,
+      503,
+      'GEMINI_API_ERROR'
     );
   }
 
-  throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
-}
+  private async callGeminiAPI(prompt: string): Promise<OptimizeResult> {
+    if (config.NODE_ENV === 'test' && this.apiKey === 'test-key') {
+      throw new Error('Gemini API called in test environment without mock');
+    }
 
-const data = (await response.json()) as {
-  candidates?: Array<{
-    content?: {
-      parts?: Array<{
-        text?: string;
+    if (!this.baseUrl) {
+      throw new Error('Gemini API not initialized - no model URL available');
+    }
+
+    const systemPrompt = `You are a prompt optimization expert. Your task is to analyze the given prompt and provide:
+1. An optimized version that is MORE CONCISE while being clearer, more specific, and more effective
+2. IMPORTANT: The optimized prompt should use FEWER tokens than the original while maintaining or improving quality
+3. Remove redundant words, use shorter phrasing, and eliminate unnecessary details
+4. A brief explanation of the improvements made
+
+Format your response as JSON with the following structure:
+{
+  "optimized": "The improved prompt text (should be shorter than original)",
+  "explanation": "Brief explanation of improvements and token savings"
+}`;
+
+    const requestBody = {
+      contents: [
+        {
+          parts: [
+            {
+              text: `${systemPrompt}\n\nOriginal prompt to optimize:\n${prompt}`,
+            },
+          ],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 1024,
+      },
+    };
+
+    const url = `${this.baseUrl}?key=${this.apiKey}`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+
+      // Enhanced error message for 404s
+      if (response.status === 404) {
+        const availableModelsMsg = this.availableModels.length > 0
+          ? `\nAvailable models: ${this.availableModels.map((m) => `${m.displayName} (${m.name})`).join(', ')}`
+          : '';
+        throw new Error(
+          `Gemini API model not found (404) - Model URL: ${this.baseUrl}${availableModelsMsg}\nError: ${errorText}`
+        );
+      }
+
+      throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = (await response.json()) as {
+      candidates?: Array<{
+        content?: {
+          parts?: Array<{
+            text?: string;
+          }>;
+        };
       }>;
     };
-  }>;
-};
 
-if (
-  !data.candidates ||
-  !data.candidates[0] ||
-  !data.candidates[0].content ||
-  !data.candidates[0].content.parts ||
-  !data.candidates[0].content.parts[0]
-) {
-  throw new Error('Invalid response format from Gemini API');
-}
+    if (
+      !data.candidates ||
+      !data.candidates[0] ||
+      !data.candidates[0].content ||
+      !data.candidates[0].content.parts ||
+      !data.candidates[0].content.parts[0]
+    ) {
+      throw new Error('Invalid response format from Gemini API');
+    }
 
-const responseText = data.candidates[0].content.parts[0].text || '';
+    const responseText = data.candidates[0].content.parts[0].text || '';
 
-try {
-  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    throw new Error('No JSON found in response');
+    try {
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No JSON found in response');
+      }
+
+      const parsed = JSON.parse(jsonMatch[0]);
+
+      if (!parsed.optimized || !parsed.explanation) {
+        throw new Error('Missing required fields in response');
+      }
+
+      return {
+        optimizedPrompt: parsed.optimized,
+        explanation: parsed.explanation,
+      };
+    } catch (parseError) {
+      console.error('Failed to parse Gemini response:', responseText);
+      throw new Error(`Failed to parse Gemini response: ${(parseError as Error).message}`);
+    }
   }
-
-  const parsed = JSON.parse(jsonMatch[0]);
-
-  if (!parsed.optimized || !parsed.explanation) {
-    throw new Error('Missing required fields in response');
-  }
-
-  return {
-    optimizedPrompt: parsed.optimized,
-    explanation: parsed.explanation,
-  };
-} catch (parseError) {
-  console.error('Failed to parse Gemini response:', responseText);
-  throw new Error(`Failed to parse Gemini response: ${(parseError as Error).message}`);
-}
-}
 }
 
 export const geminiService = new GeminiService();

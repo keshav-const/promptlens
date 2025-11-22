@@ -158,14 +158,27 @@ class PromptLensUI {
       if (response.success && response.data) {
         const data = response.data as {
           success: boolean;
-          data?: { optimizedPrompt: string; explanation?: string };
+          data?: {
+            optimizedPrompt: string;
+            explanation?: string;
+            tokenAnalysis?: {
+              original: number;
+              optimized: number;
+              saved: number;
+              percentageSaved: number;
+              originalCost: string;
+              optimizedCost: string;
+              costSavings: string;
+            };
+          };
         };
 
         if (data.success && data.data) {
           this.optimizationResult = {
             originalPrompt: prompt,
             optimizedPrompt: data.data.optimizedPrompt,
-            explanation: data.data.explanation
+            explanation: data.data.explanation,
+            tokenAnalysis: data.data.tokenAnalysis
           };
           this.error = null;
           console.log('Optimization successful:', this.optimizationResult);
