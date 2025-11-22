@@ -173,29 +173,36 @@ export class GeminiService {
       throw new Error('Gemini API not initialized - no model URL available');
     }
 
-    const enhancedSystemPrompt = `You are a prompt optimization expert. Your task is to analyze the given prompt and provide:
-1. An ENHANCED version that is more detailed, comprehensive, and effective
-2. Add clarity, context, and specific instructions to improve results
-3. Include relevant examples or constraints that would help the AI understand better
-4. The enhanced prompt may be longer than the original to ensure better quality
-5. A brief explanation of the improvements made
+    const enhancedSystemPrompt = `You are a prompt optimization expert. Your task is to ENHANCE and EXPAND the given prompt:
 
-Format your response as JSON with the following structure:
+CRITICAL REQUIREMENTS for Enhanced Mode:
+1. Make the prompt MORE DETAILED and COMPREHENSIVE than the original
+2. ADD specific examples, constraints, and context that improve AI understanding
+3. EXPAND on vague instructions with concrete details
+4. Include formatting requirements, tone specifications, and output structure
+5. The enhanced prompt SHOULD BE LONGER than the original (this is expected and desired)
+6. Focus on QUALITY and CLARITY over brevity
+
+Format your response as JSON:
 {
-  "optimized": "The enhanced, detailed prompt text",
-  "explanation": "Brief explanation of enhancements and quality improvements"
+  "optimized": "The enhanced, detailed, comprehensive prompt (should be LONGER than original)",
+  "explanation": "Brief explanation of enhancements and quality improvements added"
 }`;
 
-    const conciseSystemPrompt = `You are a prompt optimization expert. Your task is to analyze the given prompt and provide:
-1. An optimized version that is MORE CONCISE while being clearer, more specific, and more effective
-2. IMPORTANT: The optimized prompt should use FEWER tokens than the original while maintaining or improving quality
-3. Remove redundant words, use shorter phrasing, and eliminate unnecessary details
-4. A brief explanation of the improvements made
+    const conciseSystemPrompt = `You are a prompt optimization expert. Your task is to make the prompt SHORTER and MORE EFFICIENT:
 
-Format your response as JSON with the following structure:
+CRITICAL REQUIREMENTS for Concise Mode:
+1. The optimized prompt MUST use FEWER tokens than the original
+2. Remove ALL redundant words and unnecessary details
+3. Use shorter phrasing while maintaining clarity
+4. Eliminate verbose explanations
+5. Keep only essential information
+6. The result should be SIGNIFICANTLY SHORTER than the original
+
+Format your response as JSON:
 {
-  "optimized": "The improved prompt text (should be shorter than original)",
-  "explanation": "Brief explanation of improvements and token savings"
+  "optimized": "The concise, efficient prompt (should be SHORTER than original)",
+  "explanation": "Brief explanation of token savings and improvements"
 }`;
 
     const systemPrompt = mode === 'enhanced' ? enhancedSystemPrompt : conciseSystemPrompt;
