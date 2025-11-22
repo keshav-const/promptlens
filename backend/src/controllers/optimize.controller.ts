@@ -6,6 +6,7 @@ import { geminiService } from '../services/gemini.service.js';
 import { userService } from '../services/user.service.js';
 import { promptService } from '../services/prompt.service.js';
 import { AppError } from '../middlewares/errorHandler.js';
+import { calculateTokenSavings, estimateCost, formatCost } from '../utils/tokenCounter.js';
 
 export const optimizePrompt = async (
   req: AuthRequest,
@@ -21,6 +22,17 @@ export const optimizePrompt = async (
 
     const result = await geminiService.optimizePrompt(validatedData.prompt);
 
+    // Calculate token savings
+    const tokenAnalysis = calculateTokenSavings(
+      validatedData.prompt,
+      result.optimizedPrompt
+    );
+
+    // Calculate cost savings (using GPT-4 pricing as reference)
+    const originalCost = estimateCost(tokenAnalysis.originalTokens);
+    const optimizedCost = estimateCost(tokenAnalysis.optimizedTokens);
+    const costSavings = originalCost - optimizedCost;
+
     await userService.incrementUsage(req.userId);
 
     if (validatedData.save) {
@@ -29,6 +41,9 @@ export const optimizePrompt = async (
         original: validatedData.prompt,
         optimizedPrompt: result.optimizedPrompt,
         explanation: result.explanation,
+        originalTokens: tokenAnalysis.originalTokens,
+        optimizedTokens: tokenAnalysis.optimizedTokens,
+        tokensSaved: tokenAnalysis.tokensSaved,
         metadata: validatedData.metadata,
       });
     }
@@ -41,6 +56,15 @@ export const optimizePrompt = async (
       originalPrompt: validatedData.prompt,
       optimizedPrompt: result.optimizedPrompt,
       explanation: result.explanation,
+      tokenAnalysis: {
+        original: tokenAnalysis.originalTokens,
+        optimized: tokenAnalysis.optimizedTokens,
+        saved: tokenAnalysis.tokensSaved,
+        percentageSaved: tokenAnalysis.percentageSaved,
+        originalCost: formatCost(originalCost),
+        optimizedCost: formatCost(optimizedCost),
+        costSavings: formatCost(costSavings),
+      },
       usage: {
         count: user?.usageCount || 0,
         limit,

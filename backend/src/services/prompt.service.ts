@@ -6,7 +6,13 @@ export interface CreatePromptData {
   original: string;
   optimizedPrompt: string;
   explanation: string;
-  metadata?: IPromptMetadata;
+  originalTokens?: number;
+  optimizedTokens?: number;
+  tokensSaved?: number;
+  metadata?: {
+    tags?: string[];
+    source?: string;
+  };
 }
 
 export interface HistoryFilters {

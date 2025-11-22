@@ -62,6 +62,12 @@ export default function Navbar({ onUpgradeClick }: NavbarProps) {
                   A/B Testing
                 </Link>
                 <Link
+                  href="/analytics"
+                  className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                >
+                  Analytics
+                </Link>
+                <Link
                   href="/pricing"
                   className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                 >

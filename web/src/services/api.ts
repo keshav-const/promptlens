@@ -9,6 +9,8 @@ import type {
   Template,
   ABTest,
   Variant,
+  AnalyticsData,
+  UsageStats,
 } from '@/types/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:5000/api';
@@ -357,4 +359,42 @@ export async function getABTestStats(): Promise<{
   completed: number;
 }> {
   return fetchWithAuth('/ab-tests/stats');
+}
+
+// Analytics API functions
+export async function fetchAnalytics(
+  range: 'week' | 'month' | 'year' = 'month'
+): Promise<AnalyticsData> {
+  return fetchWithAuth(`/analytics?range=${range}`);
+}
+
+export async function fetchUsageStats(): Promise<UsageStats> {
+  return fetchWithAuth('/analytics/stats');
+}
+
+export async function exportAnalyticsCSV(range: 'week' | 'month' | 'year' = 'month'): Promise<void> {
+  const token = TokenStorage.getToken();
+  if (!token) {
+    throw new ApiError('No authentication token found', 'UNAUTHORIZED');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/analytics/export?range=${range}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new ApiError('Failed to export analytics', 'EXPORT_FAILED');
+  }
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `analytics-${range}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
 }

@@ -85,6 +85,35 @@ export interface ABTest {
   completedAt?: string;
 }
 
+export interface DailyStat {
+  date: string;
+  count: number;
+}
+
+export interface ModelBreakdown {
+  model: string;
+  count: number;
+  percentage: number;
+}
+
+export interface AnalyticsData {
+  totalPrompts: number;
+  dateRange: {
+    start: string;
+    end: string;
+  };
+  dailyStats: DailyStat[];
+  modelBreakdown: ModelBreakdown[];
+  favoriteCount: number;
+}
+
+export interface UsageStats {
+  today: number;
+  thisWeek: number;
+  thisMonth: number;
+  allTime: number;
+}
+
 export interface PlanFeatures {
   name: string;
   price: string;

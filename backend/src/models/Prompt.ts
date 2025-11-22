@@ -12,6 +12,9 @@ export interface IPrompt extends Document {
   optimizedPrompt: string;
   explanation: string;
   isFavorite: boolean;
+  originalTokens: number;
+  optimizedTokens: number;
+  tokensSaved: number;
   metadata?: IPromptMetadata;
   createdAt: Date;
   updatedAt: Date;
@@ -41,6 +44,18 @@ const promptSchema = new Schema<IPrompt>(
       type: Boolean,
       default: false,
       index: true,
+    },
+    originalTokens: {
+      type: Number,
+      default: 0,
+    },
+    optimizedTokens: {
+      type: Number,
+      default: 0,
+    },
+    tokensSaved: {
+      type: Number,
+      default: 0,
     },
     metadata: {
       tags: [String],
