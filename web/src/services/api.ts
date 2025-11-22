@@ -6,6 +6,7 @@ import type {
   RazorpayVerificationData,
   ApiResponse,
   PromptHistoryResponse,
+  Template,
 } from '@/types/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:5000/api';
@@ -208,4 +209,72 @@ export function handleApiError(error: unknown): string {
   }
 
   return 'An unexpected error occurred. Please try again.';
+}
+
+// Template API functions
+export async function fetchTemplates(filters?: {
+  category?: string;
+  search?: string;
+  tags?: string[];
+  myTemplates?: boolean;
+}): Promise<{ templates: Template[]; count: number }> {
+  const params = new URLSearchParams();
+  if (filters?.category) params.append('category', filters.category);
+  if (filters?.search) params.append('search', filters.search);
+  if (filters?.tags) filters.tags.forEach((tag) => params.append('tags', tag));
+  if (filters?.myTemplates) params.append('myTemplates', 'true');
+
+  const query = params.toString();
+  return fetchWithAuth(`/templates${query ? `?${query}` : ''}`);
+}
+
+export async function fetchTemplateById(id: string): Promise<Template> {
+  return fetchWithAuth(`/templates/${id}`);
+}
+
+export async function createTemplate(data: {
+  name: string;
+  description: string;
+  content: string;
+  category: string;
+  tags?: string[];
+  isPublic?: boolean;
+}): Promise<Template> {
+  return fetchWithAuth('/templates', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateTemplate(
+  id: string,
+  data: Partial<{
+    name: string;
+    description: string;
+    content: string;
+    category: string;
+    tags: string[];
+    isPublic: boolean;
+  }>
+): Promise<Template> {
+  return fetchWithAuth(`/templates/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteTemplate(id: string): Promise<{ message: string }> {
+  return fetchWithAuth(`/templates/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function useTemplate(id: string): Promise<Template> {
+  return fetchWithAuth(`/templates/${id}/use`, {
+    method: 'POST',
+  });
+}
+
+export async function fetchCategories(): Promise<{ categories: string[] }> {
+  return fetchWithAuth('/templates/categories');
 }

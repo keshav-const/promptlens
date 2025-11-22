@@ -6,19 +6,28 @@ import historyRoutes from './history.routes.js';
 import usageRoutes from './usage.routes.js';
 import billingRoutes from './billing.routes.js';
 import authRoutes from './auth.routes.js';
+import templateRoutes from './template.routes.js';
 import { requireAuth } from '../middlewares/auth.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { getToken } from '../controllers/auth.controller.js';
 
 const router = Router();
 
-router.use('/health', healthRoutes);
-router.use('/example', exampleRoutes);
-router.use('/optimize', optimizeRoutes);
-router.use('/history', historyRoutes);
-router.use('/usage', usageRoutes);
-router.use('/billing', billingRoutes);
+// Public routes
 router.use('/auth', authRoutes);
+router.use('/example', exampleRoutes);
+
+// Protected routes
+router.use('/optimize', optimizeRoutes);
+router.use('/usage', usageRoutes);
+router.use('/history', historyRoutes);
+router.use('/billing', billingRoutes);
+router.use('/templates', templateRoutes);
+
+// Health check endpoint
+router.get('/health', (_req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
 // Direct token endpoint for extension compatibility
 router.get('/token', requireAuth, asyncHandler(getToken));

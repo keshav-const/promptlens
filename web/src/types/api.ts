@@ -43,6 +43,25 @@ export interface PromptHistoryResponse {
   stats: PromptStats;
 }
 
+export interface Template {
+  _id: string;
+  name: string;
+  description: string;
+  content: string;
+  category: string;
+  tags: string[];
+  isPublic: boolean;
+  createdBy: {
+    _id: string;
+    displayName: string;
+    email: string;
+  };
+  usageCount: number;
+  rating: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface PlanFeatures {
   name: string;
   price: string;

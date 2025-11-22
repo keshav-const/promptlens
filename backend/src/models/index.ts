@@ -6,3 +6,6 @@ export type { IPrompt, IPromptMetadata } from './Prompt.js';
 
 export { WebhookEvent } from './WebhookEvent.js';
 export type { IWebhookEvent } from './WebhookEvent.js';
+
+export { Template } from './template.model.js';
+export type { ITemplate } from './template.model.js';

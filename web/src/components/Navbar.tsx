@@ -42,12 +42,18 @@ export default function Navbar({ onUpgradeClick }: NavbarProps) {
               PromptOptimizer
             </Link>
             {session && (
-              <div className="ml-10 flex items-baseline space-x-4">
+              <div className="ml-10 flex items-baseline gap-1">
                 <Link
                   href="/dashboard"
                   className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                 >
                   Dashboard
+                </Link>
+                <Link
+                  href="/templates"
+                  className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                >
+                  Templates
                 </Link>
                 <Link
                   href="/pricing"
