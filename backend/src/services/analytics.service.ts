@@ -148,31 +148,71 @@ export class AnalyticsService {
         }
     }
 
-    private aggregateDailyStats(
+    private aggregateDailyTokenStats(
         prompts: any[],
         startDate: Date,
         endDate: Date
-    ): Array<{ date: string; count: number }> {
-        const dailyMap = new Map<string, number>();
+    ): DailyTokenStats[] {
+        const dailyMap = new Map<string, DailyTokenStats>();
 
         // Initialize all dates with 0
         const currentDate = new Date(startDate);
         while (currentDate <= endDate) {
             const dateStr = currentDate.toISOString().split('T')[0];
-            dailyMap.set(dateStr, 0);
+            dailyMap.set(dateStr, {
+                date: dateStr,
+                count: 0,
+                originalTokens: 0,
+                optimizedTokens: 0,
+                tokensSaved: 0,
+            });
             currentDate.setDate(currentDate.getDate() + 1);
         }
 
-        // Count prompts per day
+        // Aggregate prompts per day with token data
         prompts.forEach((prompt) => {
             const dateStr = new Date(prompt.createdAt).toISOString().split('T')[0];
-            dailyMap.set(dateStr, (dailyMap.get(dateStr) || 0) + 1);
+            const existing = dailyMap.get(dateStr);
+            if (existing) {
+                existing.count += 1;
+                existing.originalTokens += prompt.originalTokens || 0;
+                existing.optimizedTokens += prompt.optimizedTokens || 0;
+                existing.tokensSaved += prompt.tokensSaved || 0;
+            }
         });
 
         // Convert to array
-        return Array.from(dailyMap.entries())
-            .map(([date, count]) => ({ date, count }))
-            .sort((a, b) => a.date.localeCompare(b.date));
+        return Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date));
+    }
+
+    private calculateTokenStats(prompts: any[]): TokenStats {
+        const totalOriginalTokens = prompts.reduce((sum, p) => sum + (p.originalTokens || 0), 0);
+        const totalOptimizedTokens = prompts.reduce((sum, p) => sum + (p.optimizedTokens || 0), 0);
+        const totalTokensSaved = prompts.reduce((sum, p) => sum + (p.tokensSaved || 0), 0);
+
+        const averageSavingsPercentage =
+            totalOriginalTokens > 0
+                ? Math.round((totalTokensSaved / totalOriginalTokens) * 100)
+                : 0;
+
+        // Estimate cost savings using GPT-4 pricing ($0.03 per 1K input tokens)
+        const costPerToken = 0.03 / 1000;
+        const totalCostSavings = totalTokensSaved * costPerToken;
+
+        const averageOriginalTokens =
+            prompts.length > 0 ? Math.round(totalOriginalTokens / prompts.length) : 0;
+        const averageOptimizedTokens =
+            prompts.length > 0 ? Math.round(totalOptimizedTokens / prompts.length) : 0;
+
+        return {
+            totalOriginalTokens,
+            totalOptimizedTokens,
+            totalTokensSaved,
+            averageSavingsPercentage,
+            totalCostSavings,
+            averageOriginalTokens,
+            averageOptimizedTokens,
+        };
     }
 
     private aggregateModelBreakdown(
