@@ -91,12 +91,25 @@ export interface ABTest {
 export interface DailyStat {
   date: string;
   count: number;
+  originalTokens: number;
+  optimizedTokens: number;
+  tokensSaved: number;
 }
 
 export interface ModelBreakdown {
   model: string;
   count: number;
   percentage: number;
+}
+
+export interface TokenStats {
+  totalOriginalTokens: number;
+  totalOptimizedTokens: number;
+  totalTokensSaved: number;
+  averageSavingsPercentage: number;
+  totalCostSavings: number;
+  averageOriginalTokens: number;
+  averageOptimizedTokens: number;
 }
 
 export interface AnalyticsData {
@@ -108,6 +121,7 @@ export interface AnalyticsData {
   dailyStats: DailyStat[];
   modelBreakdown: ModelBreakdown[];
   favoriteCount: number;
+  tokenStats: TokenStats;
 }
 
 export interface UsageStats {
@@ -115,6 +129,12 @@ export interface UsageStats {
   thisWeek: number;
   thisMonth: number;
   allTime: number;
+  tokenStats: {
+    today: number;
+    thisWeek: number;
+    thisMonth: number;
+    allTime: number;
+  };
 }
 
 export interface PlanFeatures {

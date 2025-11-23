@@ -108,8 +108,97 @@ export default function Analytics() {
                 <StatsCard title="All Time" value={stats.allTime} color="purple" />
             </div>
 
+            {/* Token Stats Cards */}
+            <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <TokenStatsCard
+                    title="Tokens Saved Today"
+                    value={stats.tokenStats.today}
+                    color="emerald"
+                />
+                <TokenStatsCard
+                    title="Tokens Saved This Week"
+                    value={stats.tokenStats.thisWeek}
+                    color="teal"
+                />
+                <TokenStatsCard
+                    title="Tokens Saved This Month"
+                    value={stats.tokenStats.thisMonth}
+                    color="cyan"
+                />
+                <TokenStatsCard
+                    title="Total Tokens Saved"
+                    value={stats.tokenStats.allTime}
+                    color="indigo"
+                />
+            </div>
+
+            {/* Token Efficiency Metrics */}
+            <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <MetricCard
+                    title="Total Original Tokens"
+                    value={analytics.tokenStats.totalOriginalTokens.toLocaleString()}
+                    color="gray"
+                />
+                <MetricCard
+                    title="Total Optimized Tokens"
+                    value={analytics.tokenStats.totalOptimizedTokens.toLocaleString()}
+                    color="gray"
+                />
+                <MetricCard
+                    title="Average Savings"
+                    value={`${analytics.tokenStats.averageSavingsPercentage}%`}
+                    color="green"
+                />
+                <MetricCard
+                    title="Cost Savings"
+                    value={`$${analytics.tokenStats.totalCostSavings.toFixed(4)}`}
+                    color="green"
+                />
+            </div>
+
             {/* Charts */}
             <div className="grid gap-6 lg:grid-cols-2">
+                {/* Token Consumption Over Time */}
+                <div className="rounded-lg border border-gray-200 bg-white p-6">
+                    <h3 className="mb-4 text-lg font-semibold text-gray-900">Token Consumption Over Time</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={analytics.dailyStats}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis
+                                dataKey="date"
+                                tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            />
+                            <YAxis />
+                            <Tooltip
+                                labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                            />
+                            <Legend />
+                            <Line type="monotone" dataKey="originalTokens" stroke="#EF4444" strokeWidth={2} name="Original Tokens" />
+                            <Line type="monotone" dataKey="optimizedTokens" stroke="#10B981" strokeWidth={2} name="Optimized Tokens" />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
+
+                {/* Token Savings Visualization */}
+                <div className="rounded-lg border border-gray-200 bg-white p-6">
+                    <h3 className="mb-4 text-lg font-semibold text-gray-900">Token Savings</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={analytics.dailyStats}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis
+                                dataKey="date"
+                                tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            />
+                            <YAxis />
+                            <Tooltip
+                                labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                            />
+                            <Legend />
+                            <Bar dataKey="tokensSaved" fill="#10B981" name="Tokens Saved" />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+
                 {/* Usage Over Time */}
                 <div className="rounded-lg border border-gray-200 bg-white p-6">
                     <h3 className="mb-4 text-lg font-semibold text-gray-900">Usage Over Time</h3>
@@ -231,6 +320,54 @@ function StatsCard({
         <div className={`rounded-lg border border-gray-200 p-6 ${colorClasses[color]}`}>
             <div className="text-sm font-medium opacity-75">{title}</div>
             <div className="mt-2 text-3xl font-bold">{value}</div>
+        </div>
+    );
+}
+
+// Token Stats Card Component
+function TokenStatsCard({
+    title,
+    value,
+    color,
+}: {
+    title: string;
+    value: number;
+    color: 'emerald' | 'teal' | 'cyan' | 'indigo';
+}) {
+    const colorClasses = {
+        emerald: 'bg-emerald-50 text-emerald-600',
+        teal: 'bg-teal-50 text-teal-600',
+        cyan: 'bg-cyan-50 text-cyan-600',
+        indigo: 'bg-indigo-50 text-indigo-600',
+    };
+
+    return (
+        <div className={`rounded-lg border border-gray-200 p-6 ${colorClasses[color]}`}>
+            <div className="text-sm font-medium opacity-75">{title}</div>
+            <div className="mt-2 text-3xl font-bold">{value.toLocaleString()}</div>
+        </div>
+    );
+}
+
+// Metric Card Component
+function MetricCard({
+    title,
+    value,
+    color,
+}: {
+    title: string;
+    value: string;
+    color: 'gray' | 'green';
+}) {
+    const colorClasses = {
+        gray: 'bg-gray-50 text-gray-900',
+        green: 'bg-green-50 text-green-600',
+    };
+
+    return (
+        <div className={`rounded-lg border border-gray-200 p-6 ${colorClasses[color]}`}>
+            <div className="text-sm font-medium opacity-75">{title}</div>
+            <div className="mt-2 text-2xl font-bold">{value}</div>
         </div>
     );
 }

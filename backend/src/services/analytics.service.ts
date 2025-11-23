@@ -243,11 +243,11 @@ export class AnalyticsService {
         const analytics = await this.getAnalytics(userId, range);
 
         // CSV header
-        let csv = 'Date,Prompt Count\n';
+        let csv = 'Date,Prompt Count,Original Tokens,Optimized Tokens,Tokens Saved\n';
 
         // CSV data
         analytics.dailyStats.forEach((stat) => {
-            csv += `${stat.date},${stat.count}\n`;
+            csv += `${stat.date},${stat.count},${stat.originalTokens},${stat.optimizedTokens},${stat.tokensSaved}\n`;
         });
 
         return csv;
