@@ -66,14 +66,14 @@ export default function PromptCard({ prompt, onFavoriteToggle, onDelete }: Promp
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm transition-shadow hover:shadow-md">
       <div className="mb-3 flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold text-gray-900">Optimized Prompt</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Optimized Prompt</h3>
             {prompt.isFavorite && <span className="text-yellow-500">★</span>}
           </div>
-          <p className="text-xs text-gray-500">{new Date(prompt.createdAt).toLocaleString()}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(prompt.createdAt).toLocaleString()}</p>
         </div>
 
         <div className="flex gap-2">
@@ -105,7 +105,7 @@ export default function PromptCard({ prompt, onFavoriteToggle, onDelete }: Promp
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className="text-gray-400 hover:text-red-500 disabled:opacity-50"
+              className="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 disabled:opacity-50"
               title="Delete prompt"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -122,9 +122,9 @@ export default function PromptCard({ prompt, onFavoriteToggle, onDelete }: Promp
       </div>
 
       <div className="mb-4">
-        <div className="mb-2 rounded-md bg-gray-50 p-3">
+        <div className="mb-2 rounded-md bg-gray-50 dark:bg-gray-700 p-3">
           <p
-            className={`text-sm text-gray-700 ${!isExpanded ? 'line-clamp-3' : ''}`}
+            className={`text-sm text-gray-700 dark:text-gray-300 ${!isExpanded ? 'line-clamp-3' : ''}`}
             style={!isExpanded ? {
               display: '-webkit-box',
               WebkitLineClamp: 3,
@@ -137,7 +137,7 @@ export default function PromptCard({ prompt, onFavoriteToggle, onDelete }: Promp
           {prompt.optimizedText.length > 150 && (
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="mt-2 text-xs text-primary-600 hover:text-primary-700 font-medium"
+              className="mt-2 text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium"
             >
               {isExpanded ? '← Show less' : 'Read more →'}
             </button>
@@ -146,18 +146,18 @@ export default function PromptCard({ prompt, onFavoriteToggle, onDelete }: Promp
 
         {/* Token Savings Display */}
         {prompt.tokensSaved !== undefined && prompt.tokensSaved !== 0 && (
-          <div className="mb-2 rounded-md bg-green-50 border border-green-200 p-3">
+          <div className="mb-2 rounded-md bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-3">
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
                 <svg className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
-                <span className="font-medium text-green-800">
+                <span className="font-medium text-green-800 dark:text-green-300">
                   {prompt.tokensSaved > 0 ? 'Tokens Saved' : 'Tokens Added'}
                 </span>
               </div>
               <div className="text-right">
-                <div className="font-semibold text-green-900">
+                <div className="font-semibold text-green-900 dark:text-green-200">
                   {Math.abs(prompt.tokensSaved)} tokens
                   {prompt.originalTokens && prompt.originalTokens > 0 && (
                     <span className="ml-1 text-xs">
@@ -165,7 +165,7 @@ export default function PromptCard({ prompt, onFavoriteToggle, onDelete }: Promp
                     </span>
                   )}
                 </div>
-                <div className="text-xs text-green-700">
+                <div className="text-xs text-green-700 dark:text-green-400">
                   {prompt.originalTokens || 0} → {prompt.optimizedTokens || 0}
                 </div>
               </div>
@@ -175,11 +175,11 @@ export default function PromptCard({ prompt, onFavoriteToggle, onDelete }: Promp
 
         {prompt.originalText && (
           <details className="mt-2">
-            <summary className="cursor-pointer text-xs text-gray-500 hover:text-gray-700">
+            <summary className="cursor-pointer text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
               Show original prompt
             </summary>
-            <div className="mt-2 rounded-md bg-gray-50 p-3">
-              <p className="text-sm text-gray-600">{prompt.originalText}</p>
+            <div className="mt-2 rounded-md bg-gray-50 dark:bg-gray-700 p-3">
+              <p className="text-sm text-gray-600 dark:text-gray-400">{prompt.originalText}</p>
             </div>
           </details>
         )}
@@ -201,7 +201,7 @@ export default function PromptCard({ prompt, onFavoriteToggle, onDelete }: Promp
       <div className="flex gap-2">
         <button
           onClick={handleCopy}
-          className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
         >
           {copied ? (
             <>
@@ -223,7 +223,7 @@ export default function PromptCard({ prompt, onFavoriteToggle, onDelete }: Promp
 
         <button
           onClick={handleShare}
-          className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
         >
           Share
         </button>

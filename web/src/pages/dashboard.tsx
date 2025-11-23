@@ -182,8 +182,8 @@ export default function Dashboard() {
       )}
 
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-2 text-gray-600">Welcome back, {session?.user?.name}!</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
+        <p className="mt-2 text-gray-600 dark:text-gray-400">Welcome back, {session?.user?.name}!</p>
       </div>
 
       {error && (
@@ -194,22 +194,22 @@ export default function Dashboard() {
 
       <div className="mb-8 grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">Prompt History</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Prompt History</h2>
               <div className="flex gap-2">
                 <input
                   type="text"
                   placeholder="Search prompts..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                  className="rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 />
                 <button
                   onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
                   className={`rounded-md border px-3 py-2 text-sm font-medium ${showFavoritesOnly
-                    ? 'border-primary-600 bg-primary-50 text-primary-700'
-                    : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                    ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
+                    : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
                     }`}
                 >
                   <svg
@@ -244,8 +244,8 @@ export default function Dashboard() {
                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                   />
                 </svg>
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No prompts yet</h3>
-                <p className="mt-1 text-sm text-gray-500">
+                <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No prompts yet</h3>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                   {showFavoritesOnly
                     ? 'No favorite prompts found. Star some prompts to see them here.'
                     : searchTerm
@@ -288,25 +288,25 @@ export default function Dashboard() {
             </div>
           )}
 
-          <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">Quick Stats</h3>
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Stats</h3>
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Total prompts:</span>
-                <span className="font-medium text-gray-900">
+                <span className="text-gray-600 dark:text-gray-400">Total prompts:</span>
+                <span className="font-medium text-gray-900 dark:text-gray-100">
                   {promptStats?.totalPrompts ?? prompts.length}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Favorites:</span>
-                <span className="font-medium text-gray-900">
+                <span className="text-gray-600 dark:text-gray-400">Favorites:</span>
+                <span className="font-medium text-gray-900 dark:text-gray-100">
                   {promptStats?.favoriteCount ?? prompts.filter((p) => p.isFavorite).length}
                 </span>
               </div>
               {usage && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Plan:</span>
-                  <span className="font-medium text-gray-900">
+                  <span className="text-gray-600 dark:text-gray-400">Plan:</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
                     {usage.plan === 'pro_monthly'
                       ? 'Pro (Monthly)'
                       : usage.plan === 'pro_yearly'

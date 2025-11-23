@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import Layout from '@/components/Layout';
 import '@/styles/globals.css';
 import { TokenStorage } from '@/lib/token';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
 function AuthSync() {
   const { data: session, status } = useSession();
@@ -23,10 +24,12 @@ function AuthSync() {
 export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
     <SessionProvider session={session}>
-      <AuthSync />
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <ThemeProvider>
+        <AuthSync />
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </ThemeProvider>
     </SessionProvider>
   );
 }
