@@ -1,22 +1,38 @@
 import { Prompt } from '../models/index.js';
 import mongoose from 'mongoose';
 
+export interface DailyTokenStats {
+    date: string;
+    count: number;
+    originalTokens: number;
+    optimizedTokens: number;
+    tokensSaved: number;
+}
+
+export interface TokenStats {
+    totalOriginalTokens: number;
+    totalOptimizedTokens: number;
+    totalTokensSaved: number;
+    averageSavingsPercentage: number;
+    totalCostSavings: number;
+    averageOriginalTokens: number;
+    averageOptimizedTokens: number;
+}
+
 export interface AnalyticsData {
     totalPrompts: number;
     dateRange: {
         start: Date;
         end: Date;
     };
-    dailyStats: Array<{
-        date: string;
-        count: number;
-    }>;
+    dailyStats: Array<DailyTokenStats>;
     modelBreakdown: Array<{
         model: string;
         count: number;
         percentage: number;
     }>;
     favoriteCount: number;
+    tokenStats: TokenStats;
 }
 
 export interface UsageStats {
@@ -24,6 +40,12 @@ export interface UsageStats {
     thisWeek: number;
     thisMonth: number;
     allTime: number;
+    tokenStats: {
+        today: number;
+        thisWeek: number;
+        thisMonth: number;
+        allTime: number;
+    };
 }
 
 export class AnalyticsService {
@@ -39,14 +61,17 @@ export class AnalyticsService {
             createdAt: { $gte: startDate, $lte: now },
         }).sort({ createdAt: 1 });
 
-        // Daily stats
-        const dailyStats = this.aggregateDailyStats(prompts, startDate, now);
+        // Daily stats with token data
+        const dailyStats = this.aggregateDailyTokenStats(prompts, startDate, now);
 
         // Model breakdown
         const modelBreakdown = this.aggregateModelBreakdown(prompts);
 
         // Favorite count
         const favoriteCount = prompts.filter((p) => p.isFavorite).length;
+
+        // Token statistics
+        const tokenStats = this.calculateTokenStats(prompts);
 
         return {
             totalPrompts: prompts.length,
@@ -57,6 +82,7 @@ export class AnalyticsService {
             dailyStats,
             modelBreakdown,
             favoriteCount,
+            tokenStats,
         };
     }
 
@@ -73,7 +99,30 @@ export class AnalyticsService {
             Prompt.countDocuments({ userId }),
         ]);
 
-        return { today, thisWeek, thisMonth, allTime };
+        // Get token stats for different time periods
+        const [todayPrompts, weekPrompts, monthPrompts, allPrompts] = await Promise.all([
+            Prompt.find({ userId, createdAt: { $gte: todayStart } }),
+            Prompt.find({ userId, createdAt: { $gte: weekStart } }),
+            Prompt.find({ userId, createdAt: { $gte: monthStart } }),
+            Prompt.find({ userId }),
+        ]);
+
+        const calculateTotalTokens = (prompts: any[]) => {
+            return prompts.reduce((sum, p) => sum + (p.tokensSaved || 0), 0);
+        };
+
+        return {
+            today,
+            thisWeek,
+            thisMonth,
+            allTime,
+            tokenStats: {
+                today: calculateTotalTokens(todayPrompts),
+                thisWeek: calculateTotalTokens(weekPrompts),
+                thisMonth: calculateTotalTokens(monthPrompts),
+                allTime: calculateTotalTokens(allPrompts),
+            },
+        };
     }
 
     async getTopPrompts(

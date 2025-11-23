@@ -150,12 +150,13 @@ async function handleApiRequest(payload: unknown): Promise<unknown> {
 
 interface OptimizePromptPayload {
   prompt: string;
+  mode?: 'enhanced' | 'concise';
 }
 
 export async function handleOptimizePrompt(payload: unknown): Promise<unknown> {
   const config = await getConfig();
   const token = await getAuthToken();
-  const { prompt } = payload as OptimizePromptPayload;
+  const { prompt, mode = 'concise' } = payload as OptimizePromptPayload;
 
   if (!token) {
     const dashboardUrl = config.apiBaseUrl.replace('/api', '').replace(':5000', ':3000');
@@ -174,7 +175,7 @@ export async function handleOptimizePrompt(payload: unknown): Promise<unknown> {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify({ prompt })
+    body: JSON.stringify({ prompt, mode })
   });
 
   if (response.status === 401) {

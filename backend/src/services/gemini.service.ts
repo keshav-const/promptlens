@@ -228,7 +228,8 @@ Format your response as JSON:
         temperature: 0.7,
         topK: 40,
         topP: 0.95,
-        maxOutputTokens: 1024,
+        // Enhanced mode needs more tokens to generate detailed prompts
+        maxOutputTokens: mode === 'enhanced' ? 2048 : 1024,
       },
     };
 
