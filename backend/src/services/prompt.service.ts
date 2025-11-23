@@ -69,7 +69,7 @@ export class PromptService {
       userId: string | mongoose.Types.ObjectId;
       tags?: { $in: string[] };
       $or?: Array<{ original: { $regex: string; $options: string } } | { optimizedPrompt: { $regex: string; $options: string } }>;
-      favorite?: boolean;
+      isFavorite?: boolean;
       createdAt?: { $gte?: Date; $lte?: Date };
     } = {
       userId: filters.userId,
@@ -97,7 +97,7 @@ export class PromptService {
     }
 
     if (filters.favorites === true) {
-      query.favorite = true;
+      query.isFavorite = true;
     }
 
     const [data, total, totalPrompts, favoriteCount] = await Promise.all([

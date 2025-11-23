@@ -11,6 +11,7 @@ export default function PromptCard({ prompt, onFavoriteToggle, onDelete }: Promp
   const [copied, setCopied] = useState(false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleCopy = async () => {
     try {
@@ -79,7 +80,10 @@ export default function PromptCard({ prompt, onFavoriteToggle, onDelete }: Promp
           <button
             onClick={handleFavoriteToggle}
             disabled={isTogglingFavorite}
-            className="text-gray-400 hover:text-yellow-500 disabled:opacity-50"
+            className={`transition-colors disabled:opacity-50 ${prompt.isFavorite
+              ? 'text-yellow-500 hover:text-yellow-600'
+              : 'text-gray-400 hover:text-yellow-500'
+              }`}
             title={prompt.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           >
             <svg
@@ -119,7 +123,25 @@ export default function PromptCard({ prompt, onFavoriteToggle, onDelete }: Promp
 
       <div className="mb-4">
         <div className="mb-2 rounded-md bg-gray-50 p-3">
-          <p className="text-sm text-gray-700">{prompt.optimizedText}</p>
+          <p
+            className={`text-sm text-gray-700 ${!isExpanded ? 'line-clamp-3' : ''}`}
+            style={!isExpanded ? {
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden'
+            } : {}}
+          >
+            {prompt.optimizedText}
+          </p>
+          {prompt.optimizedText.length > 150 && (
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="mt-2 text-xs text-primary-600 hover:text-primary-700 font-medium"
+            >
+              {isExpanded ? '← Show less' : 'Read more →'}
+            </button>
+          )}
         </div>
 
         {/* Token Savings Display */}
