@@ -274,9 +274,9 @@ export default function Dashboard() {
           )}
 
           {usage?.plan === 'free' && (
-            <div className="rounded-lg border border-primary-200 bg-primary-50 p-6">
-              <h3 className="mb-2 text-lg font-semibold text-primary-900">Upgrade to Pro</h3>
-              <p className="mb-4 text-sm text-primary-800">
+            <div className="rounded-lg border border-primary-200 dark:border-primary-800 bg-primary-50 dark:bg-primary-900/20 p-6">
+              <h3 className="mb-2 text-lg font-semibold text-primary-900 dark:text-primary-300">Upgrade to Pro</h3>
+              <p className="mb-4 text-sm text-primary-800 dark:text-primary-400">
                 Get more prompts, advanced optimization, and priority support.
               </p>
               <button

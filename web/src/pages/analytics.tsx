@@ -77,14 +77,14 @@ export default function Analytics() {
             {/* Header */}
             <div className="mb-8 flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
-                    <p className="mt-2 text-gray-600">Track your prompt usage and performance</p>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Analytics Dashboard</h1>
+                    <p className="mt-2 text-gray-600 dark:text-gray-400">Track your prompt usage and performance</p>
                 </div>
                 <div className="flex gap-3">
                     <select
                         value={range}
                         onChange={(e) => setRange(e.target.value as 'week' | 'month' | 'year')}
-                        className="rounded-md border border-gray-300 px-4 py-2 text-sm"
+                        className="rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 px-4 py-2 text-sm"
                     >
                         <option value="week">Last 7 Days</option>
                         <option value="month">This Month</option>
@@ -159,8 +159,8 @@ export default function Analytics() {
             {/* Charts */}
             <div className="grid gap-6 lg:grid-cols-2">
                 {/* Token Consumption Over Time */}
-                <div className="rounded-lg border border-gray-200 bg-white p-6">
-                    <h3 className="mb-4 text-lg font-semibold text-gray-900">Token Consumption Over Time</h3>
+                <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+                    <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Token Consumption Over Time</h3>
                     <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={analytics.dailyStats}>
                             <CartesianGrid strokeDasharray="3 3" />
@@ -180,8 +180,8 @@ export default function Analytics() {
                 </div>
 
                 {/* Token Savings Visualization */}
-                <div className="rounded-lg border border-gray-200 bg-white p-6">
-                    <h3 className="mb-4 text-lg font-semibold text-gray-900">Token Savings</h3>
+                <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+                    <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Token Savings</h3>
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={analytics.dailyStats}>
                             <CartesianGrid strokeDasharray="3 3" />
@@ -200,8 +200,8 @@ export default function Analytics() {
                 </div>
 
                 {/* Usage Over Time */}
-                <div className="rounded-lg border border-gray-200 bg-white p-6">
-                    <h3 className="mb-4 text-lg font-semibold text-gray-900">Usage Over Time</h3>
+                <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+                    <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Usage Over Time</h3>
                     <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={analytics.dailyStats}>
                             <CartesianGrid strokeDasharray="3 3" />
@@ -220,8 +220,8 @@ export default function Analytics() {
                 </div>
 
                 {/* Model Breakdown */}
-                <div className="rounded-lg border border-gray-200 bg-white p-6">
-                    <h3 className="mb-4 text-lg font-semibold text-gray-900">Model Usage</h3>
+                <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+                    <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Model Usage</h3>
                     {analytics.modelBreakdown.length > 0 ? (
                         <ResponsiveContainer width="100%" height={300}>
                             <PieChart>
@@ -250,8 +250,8 @@ export default function Analytics() {
                 </div>
 
                 {/* Daily Breakdown Bar Chart */}
-                <div className="rounded-lg border border-gray-200 bg-white p-6 lg:col-span-2">
-                    <h3 className="mb-4 text-lg font-semibold text-gray-900">Daily Breakdown</h3>
+                <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 lg:col-span-2">
+                    <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Daily Breakdown</h3>
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={analytics.dailyStats}>
                             <CartesianGrid strokeDasharray="3 3" />
@@ -271,24 +271,24 @@ export default function Analytics() {
             </div>
 
             {/* Summary Stats */}
-            <div className="mt-8 rounded-lg border border-gray-200 bg-white p-6">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">Summary</h3>
+            <div className="mt-8 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+                <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Summary</h3>
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div>
-                        <div className="text-sm text-gray-600">Total Prompts</div>
-                        <div className="mt-1 text-2xl font-semibold text-gray-900">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">Total Prompts</div>
+                        <div className="mt-1 text-2xl font-semibold text-gray-900 dark:text-gray-100">
                             {analytics.totalPrompts}
                         </div>
                     </div>
                     <div>
-                        <div className="text-sm text-gray-600">Favorites</div>
-                        <div className="mt-1 text-2xl font-semibold text-yellow-600">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">Favorites</div>
+                        <div className="mt-1 text-2xl font-semibold text-yellow-600 dark:text-yellow-400">
                             {analytics.favoriteCount}
                         </div>
                     </div>
                     <div>
-                        <div className="text-sm text-gray-600">Date Range</div>
-                        <div className="mt-1 text-sm text-gray-900">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">Date Range</div>
+                        <div className="mt-1 text-sm text-gray-900 dark:text-gray-100">
                             {new Date(analytics.dateRange.start).toLocaleDateString()} -{' '}
                             {new Date(analytics.dateRange.end).toLocaleDateString()}
                         </div>
@@ -310,14 +310,14 @@ function StatsCard({
     color: 'blue' | 'green' | 'yellow' | 'purple';
 }) {
     const colorClasses = {
-        blue: 'bg-blue-50 text-blue-600',
-        green: 'bg-green-50 text-green-600',
-        yellow: 'bg-yellow-50 text-yellow-600',
-        purple: 'bg-purple-50 text-purple-600',
+        blue: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400',
+        green: 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400',
+        yellow: 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400',
+        purple: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400',
     };
 
     return (
-        <div className={`rounded-lg border border-gray-200 p-6 ${colorClasses[color]}`}>
+        <div className={`rounded-lg border border-gray-200 dark:border-gray-700 p-6 ${colorClasses[color]}`}>
             <div className="text-sm font-medium opacity-75">{title}</div>
             <div className="mt-2 text-3xl font-bold">{value}</div>
         </div>
@@ -335,14 +335,14 @@ function TokenStatsCard({
     color: 'emerald' | 'teal' | 'cyan' | 'indigo';
 }) {
     const colorClasses = {
-        emerald: 'bg-emerald-50 text-emerald-600',
-        teal: 'bg-teal-50 text-teal-600',
-        cyan: 'bg-cyan-50 text-cyan-600',
-        indigo: 'bg-indigo-50 text-indigo-600',
+        emerald: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400',
+        teal: 'bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400',
+        cyan: 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400',
+        indigo: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400',
     };
 
     return (
-        <div className={`rounded-lg border border-gray-200 p-6 ${colorClasses[color]}`}>
+        <div className={`rounded-lg border border-gray-200 dark:border-gray-700 p-6 ${colorClasses[color]}`}>
             <div className="text-sm font-medium opacity-75">{title}</div>
             <div className="mt-2 text-3xl font-bold">{value.toLocaleString()}</div>
         </div>
@@ -360,12 +360,12 @@ function MetricCard({
     color: 'gray' | 'green';
 }) {
     const colorClasses = {
-        gray: 'bg-gray-50 text-gray-900',
-        green: 'bg-green-50 text-green-600',
+        gray: 'bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100',
+        green: 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400',
     };
 
     return (
-        <div className={`rounded-lg border border-gray-200 p-6 ${colorClasses[color]}`}>
+        <div className={`rounded-lg border border-gray-200 dark:border-gray-700 p-6 ${colorClasses[color]}`}>
             <div className="text-sm font-medium opacity-75">{title}</div>
             <div className="mt-2 text-2xl font-bold">{value}</div>
         </div>

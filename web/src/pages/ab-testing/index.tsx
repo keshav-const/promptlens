@@ -81,8 +81,8 @@ export default function ABTesting() {
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
             <div className="mb-8 flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">A/B Testing</h1>
-                    <p className="mt-2 text-gray-600">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">A/B Testing</h1>
+                    <p className="mt-2 text-gray-600 dark:text-gray-400">
                         Compare prompt variations and find what works best
                     </p>
                 </div>
@@ -96,21 +96,21 @@ export default function ABTesting() {
 
             {/* Stats */}
             <div className="mb-6 grid gap-4 sm:grid-cols-4">
-                <div className="rounded-lg border border-gray-200 bg-white p-4">
-                    <div className="text-sm text-gray-600">Total Tests</div>
-                    <div className="mt-1 text-2xl font-semibold text-gray-900">{stats.total}</div>
+                <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Total Tests</div>
+                    <div className="mt-1 text-2xl font-semibold text-gray-900 dark:text-gray-100">{stats.total}</div>
                 </div>
-                <div className="rounded-lg border border-gray-200 bg-white p-4">
-                    <div className="text-sm text-gray-600">Draft</div>
-                    <div className="mt-1 text-2xl font-semibold text-gray-500">{stats.draft}</div>
+                <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Draft</div>
+                    <div className="mt-1 text-2xl font-semibold text-gray-500 dark:text-gray-400">{stats.draft}</div>
                 </div>
-                <div className="rounded-lg border border-gray-200 bg-white p-4">
-                    <div className="text-sm text-gray-600">Active</div>
-                    <div className="mt-1 text-2xl font-semibold text-blue-600">{stats.active}</div>
+                <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Active</div>
+                    <div className="mt-1 text-2xl font-semibold text-blue-600 dark:text-blue-400">{stats.active}</div>
                 </div>
-                <div className="rounded-lg border border-gray-200 bg-white p-4">
-                    <div className="text-sm text-gray-600">Completed</div>
-                    <div className="mt-1 text-2xl font-semibold text-green-600">{stats.completed}</div>
+                <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Completed</div>
+                    <div className="mt-1 text-2xl font-semibold text-green-600 dark:text-green-400">{stats.completed}</div>
                 </div>
             </div>
 
@@ -121,8 +121,8 @@ export default function ABTesting() {
                         key={status}
                         onClick={() => setFilterStatus(status)}
                         className={`rounded-md px-4 py-2 text-sm font-medium capitalize ${filterStatus === status
-                                ? 'bg-primary-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            ? 'bg-primary-600 text-white'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                             }`}
                     >
                         {status}
@@ -148,7 +148,7 @@ export default function ABTesting() {
             {!isLoading && tests.length === 0 && (
                 <div className="flex min-h-[400px] flex-col items-center justify-center">
                     <svg
-                        className="mb-4 h-16 w-16 text-gray-400"
+                        className="mb-4 h-16 w-16 text-gray-400 dark:text-gray-500"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -160,8 +160,8 @@ export default function ABTesting() {
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                         />
                     </svg>
-                    <h3 className="text-lg font-medium text-gray-900">No tests found</h3>
-                    <p className="mt-1 text-sm text-gray-500">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">No tests found</h3>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                         Create your first A/B test to start comparing prompts
                     </p>
                     <button
@@ -178,11 +178,11 @@ export default function ABTesting() {
                     {tests.map((test) => (
                         <div
                             key={test._id}
-                            className="flex flex-col rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+                            className="flex flex-col rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm transition-shadow hover:shadow-md"
                         >
                             <div className="mb-4 flex items-start justify-between">
                                 <div className="flex-1">
-                                    <h3 className="text-lg font-semibold text-gray-900">{test.name}</h3>
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{test.name}</h3>
                                     <span
                                         className={`mt-1 inline-block rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(
                                             test.status
@@ -194,15 +194,15 @@ export default function ABTesting() {
                             </div>
 
                             {test.description && (
-                                <p className="mb-4 text-sm text-gray-600">{test.description}</p>
+                                <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">{test.description}</p>
                             )}
 
-                            <div className="mb-4 text-sm text-gray-500">
+                            <div className="mb-4 text-sm text-gray-500 dark:text-gray-400">
                                 <div>{test.variants.length} variants</div>
-                                {test.winner && <div className="text-green-600">Winner: {test.winner}</div>}
+                                {test.winner && <div className="text-green-600 dark:text-green-400">Winner: {test.winner}</div>}
                             </div>
 
-                            <div className="mt-auto flex gap-2 border-t border-gray-100 pt-4">
+                            <div className="mt-auto flex gap-2 border-t border-gray-100 dark:border-gray-700 pt-4">
                                 <button
                                     onClick={() => router.push(`/ab-testing/${test._id}`)}
                                     className="flex-1 rounded-md bg-primary-600 px-3 py-2 text-sm font-medium text-white hover:bg-primary-700"
@@ -287,42 +287,42 @@ function CreateTestModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-            <div className="w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl">
-                <h2 className="mb-4 text-xl font-semibold text-gray-900">Create A/B Test</h2>
+            <div className="w-full max-w-2xl rounded-lg bg-white dark:bg-gray-800 p-6 shadow-xl">
+                <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">Create A/B Test</h2>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Test Name</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Test Name</label>
                         <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                            className="mt-1 w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                             placeholder="e.g., Email Subject Line Test"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                             Description (Optional)
                         </label>
                         <textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             rows={2}
-                            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                            className="mt-1 w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                             placeholder="What are you testing?"
                         />
                     </div>
 
                     <div>
                         <div className="mb-2 flex items-center justify-between">
-                            <label className="block text-sm font-medium text-gray-700">Variants</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Variants</label>
                             {variants.length < 5 && (
                                 <button
                                     type="button"
                                     onClick={addVariant}
-                                    className="text-sm text-primary-600 hover:text-primary-700"
+                                    className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
                                 >
                                     + Add Variant
                                 </button>
@@ -331,20 +331,20 @@ function CreateTestModal({
 
                         <div className="space-y-3">
                             {variants.map((variant, index) => (
-                                <div key={index} className="rounded-lg border border-gray-200 p-3">
+                                <div key={index} className="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
                                     <div className="mb-2 flex items-center justify-between">
                                         <input
                                             type="text"
                                             value={variant.name}
                                             onChange={(e) => updateVariant(index, 'name', e.target.value)}
-                                            className="rounded-md border border-gray-300 px-2 py-1 text-sm"
+                                            className="rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 px-2 py-1 text-sm"
                                             placeholder="Variant name"
                                         />
                                         {variants.length > 2 && (
                                             <button
                                                 type="button"
                                                 onClick={() => removeVariant(index)}
-                                                className="text-sm text-red-600 hover:text-red-700"
+                                                className="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                                             >
                                                 Remove
                                             </button>
@@ -354,7 +354,7 @@ function CreateTestModal({
                                         value={variant.prompt}
                                         onChange={(e) => updateVariant(index, 'prompt', e.target.value)}
                                         rows={3}
-                                        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                        className="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                                         placeholder="Enter prompt text..."
                                     />
                                 </div>
@@ -366,7 +366,7 @@ function CreateTestModal({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                         >
                             Cancel
                         </button>

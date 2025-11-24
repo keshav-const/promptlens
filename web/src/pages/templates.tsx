@@ -66,8 +66,8 @@ export default function Templates() {
     return (
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">Prompt Templates</h1>
-                <p className="mt-2 text-gray-600">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Prompt Templates</h1>
+                <p className="mt-2 text-gray-600 dark:text-gray-400">
                     Browse and use pre-built prompt templates to get started quickly
                 </p>
             </div>
@@ -78,8 +78,8 @@ export default function Templates() {
                     <button
                         onClick={() => setSelectedCategory('')}
                         className={`rounded-md px-4 py-2 text-sm font-medium ${selectedCategory === ''
-                                ? 'bg-primary-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            ? 'bg-primary-600 text-white'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                             }`}
                     >
                         All
@@ -89,8 +89,8 @@ export default function Templates() {
                             key={category}
                             onClick={() => setSelectedCategory(category)}
                             className={`rounded-md px-4 py-2 text-sm font-medium ${selectedCategory === category
-                                    ? 'bg-primary-600 text-white'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                ? 'bg-primary-600 text-white'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                 }`}
                         >
                             {getCategoryLabel(category)}
@@ -103,7 +103,7 @@ export default function Templates() {
                     placeholder="Search templates..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 sm:w-64"
+                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 sm:w-64"
                 />
             </div>
 
@@ -125,7 +125,7 @@ export default function Templates() {
             {!isLoading && templates.length === 0 && (
                 <div className="flex min-h-[400px] flex-col items-center justify-center">
                     <svg
-                        className="mb-4 h-16 w-16 text-gray-400"
+                        className="mb-4 h-16 w-16 text-gray-400 dark:text-gray-500"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -137,8 +137,8 @@ export default function Templates() {
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                         />
                     </svg>
-                    <h3 className="text-lg font-medium text-gray-900">No templates found</h3>
-                    <p className="mt-1 text-sm text-gray-500">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">No templates found</h3>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                         {searchTerm || selectedCategory
                             ? 'Try adjusting your filters'
                             : 'No templates available yet'}
@@ -151,39 +151,39 @@ export default function Templates() {
                     {templates.map((template) => (
                         <div
                             key={template._id}
-                            className="flex flex-col rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+                            className="flex flex-col rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm transition-shadow hover:shadow-md"
                         >
                             <div className="mb-4 flex items-start justify-between">
                                 <div className="flex-1">
-                                    <h3 className="text-lg font-semibold text-gray-900">{template.name}</h3>
-                                    <span className="mt-1 inline-block rounded-full bg-primary-100 px-2 py-1 text-xs font-medium text-primary-800">
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{template.name}</h3>
+                                    <span className="mt-1 inline-block rounded-full bg-primary-100 dark:bg-primary-900/20 px-2 py-1 text-xs font-medium text-primary-800 dark:text-primary-400">
                                         {getCategoryLabel(template.category)}
                                     </span>
                                 </div>
                             </div>
 
-                            <p className="mb-4 flex-1 text-sm text-gray-600">{template.description}</p>
+                            <p className="mb-4 flex-1 text-sm text-gray-600 dark:text-gray-400">{template.description}</p>
 
                             {template.tags.length > 0 && (
                                 <div className="mb-4 flex flex-wrap gap-1">
                                     {template.tags.slice(0, 3).map((tag) => (
                                         <span
                                             key={tag}
-                                            className="rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-600"
+                                            className="rounded-md bg-gray-100 dark:bg-gray-700 px-2 py-1 text-xs text-gray-600 dark:text-gray-400"
                                         >
                                             {tag}
                                         </span>
                                     ))}
                                     {template.tags.length > 3 && (
-                                        <span className="rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-600">
+                                        <span className="rounded-md bg-gray-100 dark:bg-gray-700 px-2 py-1 text-xs text-gray-600 dark:text-gray-400">
                                             +{template.tags.length - 3}
                                         </span>
                                     )}
                                 </div>
                             )}
 
-                            <div className="flex items-center justify-between border-t border-gray-100 pt-4">
-                                <div className="flex items-center gap-4 text-xs text-gray-500">
+                            <div className="flex items-center justify-between border-t border-gray-100 dark:border-gray-700 pt-4">
+                                <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                                     <span>Used {template.usageCount} times</span>
                                 </div>
                                 <button

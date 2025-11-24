@@ -123,19 +123,19 @@ export default function Pricing() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900">Pricing Plans</h1>
-        <p className="mt-4 text-lg text-gray-600">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">Pricing Plans</h1>
+        <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
           Choose the plan that's right for you. Upgrade or downgrade anytime.
         </p>
 
         {/* Billing Cycle Toggle */}
         <div className="mt-8 flex justify-center">
-          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
+          <div className="inline-flex rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-1">
             <button
               onClick={() => setBillingCycle('monthly')}
               className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${billingCycle === 'monthly'
                 ? 'bg-primary-600 text-white'
-                : 'text-gray-700 hover:text-gray-900'
+                : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
                 }`}
             >
               Monthly
@@ -144,11 +144,11 @@ export default function Pricing() {
               onClick={() => setBillingCycle('yearly')}
               className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${billingCycle === 'yearly'
                 ? 'bg-primary-600 text-white'
-                : 'text-gray-700 hover:text-gray-900'
+                : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
                 }`}
             >
               Yearly
-              <span className="ml-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-800">
+              <span className="ml-1 rounded bg-green-100 dark:bg-green-900/20 px-2 py-0.5 text-xs text-green-800 dark:text-green-400">
                 Save 20%
               </span>
             </button>
@@ -163,14 +163,14 @@ export default function Pricing() {
       )}
 
       <div className="mt-12 grid gap-8 lg:grid-cols-2">
-        <div className="rounded-lg border-2 border-gray-200 bg-white p-8 shadow-sm">
+        <div className="rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 shadow-sm">
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">Free</h2>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Free</h2>
             <div className="mt-4 flex items-baseline">
-              <span className="text-5xl font-bold text-gray-900">$0</span>
-              <span className="ml-2 text-xl text-gray-600">/month</span>
+              <span className="text-5xl font-bold text-gray-900 dark:text-gray-100">$0</span>
+              <span className="ml-2 text-xl text-gray-600 dark:text-gray-400">/month</span>
             </div>
-            <p className="mt-2 text-sm text-gray-600">Perfect for getting started</p>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Perfect for getting started</p>
           </div>
 
           <ul className="mb-8 space-y-4">
@@ -187,8 +187,8 @@ export default function Pricing() {
                 />
               </svg>
               <div>
-                <span className="font-medium text-gray-900">4 prompts per day</span>
-                <p className="text-sm text-gray-600">120 prompts per month</p>
+                <span className="font-medium text-gray-900 dark:text-gray-100">4 prompts per day</span>
+                <p className="text-sm text-gray-600 dark:text-gray-400">120 prompts per month</p>
               </div>
             </li>
             <li className="flex items-start">
@@ -203,7 +203,7 @@ export default function Pricing() {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="text-gray-900">Basic prompt optimization</span>
+              <span className="text-gray-900 dark:text-gray-100">Basic prompt optimization</span>
             </li>
             <li className="flex items-start">
               <svg
@@ -217,7 +217,7 @@ export default function Pricing() {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="text-gray-900">Save prompt history</span>
+              <span className="text-gray-900 dark:text-gray-100">Save prompt history</span>
             </li>
             <li className="flex items-start">
               <svg
@@ -231,7 +231,7 @@ export default function Pricing() {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="text-gray-900">Basic tags and organization</span>
+              <span className="text-gray-900 dark:text-gray-100">Basic tags and organization</span>
             </li>
             <li className="flex items-start">
               <svg
@@ -245,22 +245,22 @@ export default function Pricing() {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="text-gray-900">Community support</span>
+              <span className="text-gray-900 dark:text-gray-100">Community support</span>
             </li>
           </ul>
 
           <button
             disabled={currentPlan === 'free'}
             className={`w-full rounded-md px-6 py-3 text-base font-medium ${currentPlan === 'free'
-              ? 'border border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed'
-              : 'border border-primary-600 text-primary-600 hover:bg-primary-50'
+              ? 'border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+              : 'border border-primary-600 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20'
               }`}
           >
             {currentPlan === 'free' ? 'Current Plan' : 'Free Plan'}
           </button>
         </div>
 
-        <div className="relative rounded-lg border-2 border-primary-600 bg-white p-8 shadow-lg">
+        <div className="relative rounded-lg border-2 border-primary-600 bg-white dark:bg-gray-800 p-8 shadow-lg">
           <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
             <span className="inline-block rounded-full bg-primary-600 px-4 py-1 text-sm font-semibold text-white">
               MOST POPULAR
@@ -268,16 +268,16 @@ export default function Pricing() {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">Pro</h2>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Pro</h2>
             <div className="mt-4 flex items-baseline">
-              <span className="text-5xl font-bold text-gray-900">
+              <span className="text-5xl font-bold text-gray-900 dark:text-gray-100">
                 {billingCycle === 'monthly' ? '$9.99' : '$7.99'}
               </span>
-              <span className="ml-2 text-xl text-gray-600">
+              <span className="ml-2 text-xl text-gray-600 dark:text-gray-400">
                 /{billingCycle === 'monthly' ? 'month' : 'month (billed yearly)'}
               </span>
             </div>
-            <p className="mt-2 text-sm text-gray-600">For power users and professionals</p>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">For power users and professionals</p>
           </div>
 
           <ul className="mb-8 space-y-4">
@@ -294,10 +294,10 @@ export default function Pricing() {
                 />
               </svg>
               <div>
-                <span className="font-medium text-gray-900">
+                <span className="font-medium text-gray-900 dark:text-gray-100">
                   {billingCycle === 'monthly' ? '50 prompts per day' : 'Unlimited prompts'}
                 </span>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   {billingCycle === 'monthly'
                     ? '~1,500 prompts per month'
                     : 'No daily or monthly limits'}
@@ -316,7 +316,7 @@ export default function Pricing() {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="text-gray-900">Advanced AI optimization</span>
+              <span className="text-gray-900 dark:text-gray-100">Advanced AI optimization</span>
             </li>
             <li className="flex items-start">
               <svg
@@ -330,7 +330,7 @@ export default function Pricing() {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="text-gray-900">Priority processing</span>
+              <span className="text-gray-900 dark:text-gray-100">Priority processing</span>
             </li>
             <li className="flex items-start">
               <svg
@@ -344,7 +344,7 @@ export default function Pricing() {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="text-gray-900">Advanced tags, folders, and search</span>
+              <span className="text-gray-900 dark:text-gray-100">Advanced tags, folders, and search</span>
             </li>
             <li className="flex items-start">
               <svg
@@ -358,7 +358,7 @@ export default function Pricing() {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="text-gray-900">Export prompt history</span>
+              <span className="text-gray-900 dark:text-gray-100">Export prompt history</span>
             </li>
             <li className="flex items-start">
               <svg
@@ -372,7 +372,7 @@ export default function Pricing() {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="text-gray-900">API access</span>
+              <span className="text-gray-900 dark:text-gray-100">API access</span>
             </li>
             <li className="flex items-start">
               <svg
@@ -386,7 +386,7 @@ export default function Pricing() {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="text-gray-900">Priority email support</span>
+              <span className="text-gray-900 dark:text-gray-100">Priority email support</span>
             </li>
           </ul>
 
@@ -400,7 +400,7 @@ export default function Pricing() {
               currentPlan === 'pro_yearly'
             }
             className={`w-full rounded-md px-6 py-3 text-base font-medium ${currentPlan === 'pro_monthly' || currentPlan === 'pro_yearly'
-              ? 'border border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed'
+              ? 'border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
               : 'bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50'
               }`}
           >
@@ -416,40 +416,40 @@ export default function Pricing() {
       </div>
 
       <div className="mt-16">
-        <h2 className="mb-8 text-center text-3xl font-bold text-gray-900">
+        <h2 className="mb-8 text-center text-3xl font-bold text-gray-900 dark:text-gray-100">
           Frequently Asked Questions
         </h2>
         <div className="mx-auto max-w-3xl space-y-6">
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h3 className="mb-2 font-semibold text-gray-900">Can I cancel anytime?</h3>
-            <p className="text-sm text-gray-600">
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+            <h3 className="mb-2 font-semibold text-gray-900 dark:text-gray-100">Can I cancel anytime?</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Yes! You can cancel your Pro subscription at any time. You'll continue to have access
               until the end of your billing period, and then you'll be automatically moved to the
               Free plan.
             </p>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h3 className="mb-2 font-semibold text-gray-900">
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+            <h3 className="mb-2 font-semibold text-gray-900 dark:text-gray-100">
               What happens to my saved prompts if I downgrade?
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               All your saved prompts remain accessible even if you downgrade to the Free plan. The
               only difference is the daily usage limit for new optimizations.
             </p>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h3 className="mb-2 font-semibold text-gray-900">Do you offer refunds?</h3>
-            <p className="text-sm text-gray-600">
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+            <h3 className="mb-2 font-semibold text-gray-900 dark:text-gray-100">Do you offer refunds?</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               We offer a 7-day money-back guarantee. If you're not satisfied with Pro within the
               first 7 days, contact us for a full refund.
             </p>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h3 className="mb-2 font-semibold text-gray-900">How do I manage my billing?</h3>
-            <p className="text-sm text-gray-600">
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+            <h3 className="mb-2 font-semibold text-gray-900 dark:text-gray-100">How do I manage my billing?</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               You can manage your subscription, update payment methods, and view billing history
               from your Settings page. We use Razorpay for secure payment processing.
             </p>
@@ -458,11 +458,11 @@ export default function Pricing() {
       </div>
 
       <div className="mt-16 text-center">
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           Have more questions?{' '}
           <a
             href="mailto:support@example.com"
-            className="font-medium text-primary-600 hover:text-primary-700"
+            className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
           >
             Contact support
           </a>
