@@ -35,13 +35,13 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col dark:bg-gray-900">
       <div className="flex flex-1 flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
-          <h1 className="mb-6 text-5xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+          <h1 className="mb-6 text-5xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-6xl">
             Optimize Your Prompts with AI
           </h1>
-          <p className="mb-8 text-xl text-gray-600">
+          <p className="mb-8 text-xl text-gray-600 dark:text-gray-300">
             Transform your prompts into powerful, effective instructions.
             <br />
             Get better results from AI models with our optimization engine.
@@ -72,24 +72,24 @@ export default function Home() {
           </button>
 
           {router.query.success === 'true' && (
-            <div className="mt-4 rounded-md bg-green-50 p-4">
-              <p className="text-sm text-green-800">
+            <div className="mt-4 rounded-md bg-green-50 p-4 dark:bg-green-900/20">
+              <p className="text-sm text-green-800 dark:text-green-200">
                 Payment successful! Redirecting to dashboard...
               </p>
             </div>
           )}
 
           {router.query.canceled === 'true' && (
-            <div className="mt-4 rounded-md bg-yellow-50 p-4">
-              <p className="text-sm text-yellow-800">
+            <div className="mt-4 rounded-md bg-yellow-50 p-4 dark:bg-yellow-900/20">
+              <p className="text-sm text-yellow-800 dark:text-yellow-200">
                 Payment canceled. You can try upgrading again anytime.
               </p>
             </div>
           )}
 
           {router.query.error && (
-            <div className="mt-4 rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-800">
+            <div className="mt-4 rounded-md bg-red-50 p-4 dark:bg-red-900/20">
+              <p className="text-sm text-red-800 dark:text-red-200">
                 {router.query.error === 'auth_required'
                   ? 'Please sign in to access that page'
                   : 'An error occurred during sign in'}
@@ -99,10 +99,10 @@ export default function Home() {
         </div>
 
         <div className="mx-auto mt-16 grid max-w-5xl gap-8 md:grid-cols-3">
-          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
-            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary-100">
+          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30">
               <svg
-                className="h-6 w-6 text-primary-600"
+                className="h-6 w-6 text-primary-600 dark:text-primary-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -115,16 +115,16 @@ export default function Home() {
                 />
               </svg>
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">Instant Optimization</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Instant Optimization</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               Get optimized prompts in seconds using advanced AI technology.
             </p>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
-            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary-100">
+          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30">
               <svg
-                className="h-6 w-6 text-primary-600"
+                className="h-6 w-6 text-primary-600 dark:text-primary-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -137,16 +137,16 @@ export default function Home() {
                 />
               </svg>
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">Save & Organize</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Save & Organize</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               Keep all your optimized prompts organized with tags and favorites.
             </p>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
-            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary-100">
+          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30">
               <svg
-                className="h-6 w-6 text-primary-600"
+                className="h-6 w-6 text-primary-600 dark:text-primary-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -159,26 +159,26 @@ export default function Home() {
                 />
               </svg>
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">Track Usage</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Track Usage</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               Monitor your daily and monthly usage with detailed analytics.
             </p>
           </div>
         </div>
 
         <div className="mx-auto mt-16 max-w-4xl text-center">
-          <h2 className="mb-8 text-3xl font-bold text-gray-900">Simple, Transparent Pricing</h2>
+          <h2 className="mb-8 text-3xl font-bold text-gray-900 dark:text-white">Simple, Transparent Pricing</h2>
           <div className="grid gap-8 md:grid-cols-2">
-            <div className="rounded-lg border-2 border-gray-200 bg-white p-8">
-              <h3 className="mb-2 text-2xl font-bold text-gray-900">Free</h3>
+            <div className="rounded-lg border-2 border-gray-200 bg-white p-8 dark:border-gray-700 dark:bg-gray-800">
+              <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">Free</h3>
               <div className="mb-4">
-                <span className="text-4xl font-bold text-gray-900">$0</span>
-                <span className="text-gray-600">/month</span>
+                <span className="text-4xl font-bold text-gray-900 dark:text-white">$0</span>
+                <span className="text-gray-600 dark:text-gray-400">/month</span>
               </div>
               <ul className="mb-6 space-y-3 text-left">
                 <li className="flex items-start">
                   <svg
-                    className="mr-2 mt-1 h-5 w-5 flex-shrink-0 text-primary-600"
+                    className="mr-2 mt-1 h-5 w-5 flex-shrink-0 text-primary-600 dark:text-primary-400"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -188,11 +188,11 @@ export default function Home() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-sm text-gray-700">10 prompts per day</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">10 prompts per day</span>
                 </li>
                 <li className="flex items-start">
                   <svg
-                    className="mr-2 mt-1 h-5 w-5 flex-shrink-0 text-primary-600"
+                    className="mr-2 mt-1 h-5 w-5 flex-shrink-0 text-primary-600 dark:text-primary-400"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -202,11 +202,11 @@ export default function Home() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-sm text-gray-700">Basic optimization</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Basic optimization</span>
                 </li>
                 <li className="flex items-start">
                   <svg
-                    className="mr-2 mt-1 h-5 w-5 flex-shrink-0 text-primary-600"
+                    className="mr-2 mt-1 h-5 w-5 flex-shrink-0 text-primary-600 dark:text-primary-400"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -216,24 +216,24 @@ export default function Home() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-sm text-gray-700">Save prompt history</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Save prompt history</span>
                 </li>
               </ul>
             </div>
 
-            <div className="rounded-lg border-2 border-primary-600 bg-white p-8 shadow-lg">
-              <div className="mb-2 inline-block rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold text-primary-600">
+            <div className="rounded-lg border-2 border-primary-600 bg-white p-8 shadow-lg dark:bg-gray-800">
+              <div className="mb-2 inline-block rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
                 POPULAR
               </div>
-              <h3 className="mb-2 text-2xl font-bold text-gray-900">Pro</h3>
+              <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">Pro</h3>
               <div className="mb-4">
-                <span className="text-4xl font-bold text-gray-900">$9.99</span>
-                <span className="text-gray-600">/month</span>
+                <span className="text-4xl font-bold text-gray-900 dark:text-white">$9.99</span>
+                <span className="text-gray-600 dark:text-gray-400">/month</span>
               </div>
               <ul className="mb-6 space-y-3 text-left">
                 <li className="flex items-start">
                   <svg
-                    className="mr-2 mt-1 h-5 w-5 flex-shrink-0 text-primary-600"
+                    className="mr-2 mt-1 h-5 w-5 flex-shrink-0 text-primary-600 dark:text-primary-400"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -243,11 +243,11 @@ export default function Home() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-sm text-gray-700">Unlimited prompts</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Unlimited prompts</span>
                 </li>
                 <li className="flex items-start">
                   <svg
-                    className="mr-2 mt-1 h-5 w-5 flex-shrink-0 text-primary-600"
+                    className="mr-2 mt-1 h-5 w-5 flex-shrink-0 text-primary-600 dark:text-primary-400"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -257,11 +257,11 @@ export default function Home() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-sm text-gray-700">Advanced optimization</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Advanced optimization</span>
                 </li>
                 <li className="flex items-start">
                   <svg
-                    className="mr-2 mt-1 h-5 w-5 flex-shrink-0 text-primary-600"
+                    className="mr-2 mt-1 h-5 w-5 flex-shrink-0 text-primary-600 dark:text-primary-400"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -271,11 +271,11 @@ export default function Home() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-sm text-gray-700">Priority support</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Priority support</span>
                 </li>
                 <li className="flex items-start">
                   <svg
-                    className="mr-2 mt-1 h-5 w-5 flex-shrink-0 text-primary-600"
+                    className="mr-2 mt-1 h-5 w-5 flex-shrink-0 text-primary-600 dark:text-primary-400"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -285,14 +285,14 @@ export default function Home() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-sm text-gray-700">Export & API access</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Export & API access</span>
                 </li>
               </ul>
             </div>
           </div>
-          <p className="mt-8 text-sm text-gray-600">
+          <p className="mt-8 text-sm text-gray-600 dark:text-gray-400">
             View detailed pricing comparison on our{' '}
-            <Link href="/pricing" className="font-medium text-primary-600 hover:text-primary-700">
+            <Link href="/pricing" className="font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
               pricing page
             </Link>
           </p>
