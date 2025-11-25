@@ -268,43 +268,45 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 sticky top-20 self-start transition-all duration-300">
           {usage && (
-            <UsageTracker usage={usage} onRefresh={handleRefresh} isRefreshing={isRefreshing} />
+            <div className="transition-all duration-300 hover:scale-[1.02]">
+              <UsageTracker usage={usage} onRefresh={handleRefresh} isRefreshing={isRefreshing} />
+            </div>
           )}
 
           {usage?.plan === 'free' && (
-            <div className="rounded-lg border border-primary-200 dark:border-primary-800 bg-primary-50 dark:bg-primary-900/20 p-6">
+            <div className="rounded-lg border border-primary-200 dark:border-primary-800 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
               <h3 className="mb-2 text-lg font-semibold text-primary-900 dark:text-primary-300">Upgrade to Pro</h3>
               <p className="mb-4 text-sm text-primary-800 dark:text-primary-400">
                 Get more prompts, advanced optimization, and priority support.
               </p>
               <button
                 onClick={() => setIsUpgradeModalOpen(true)}
-                className="w-full rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
+                className="w-full rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 Upgrade Now
               </button>
             </div>
           )}
 
-          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
             <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Stats</h3>
             <div className="space-y-3">
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-sm transition-all duration-200 hover:translate-x-1">
                 <span className="text-gray-600 dark:text-gray-400">Total prompts:</span>
                 <span className="font-medium text-gray-900 dark:text-gray-100">
                   {promptStats?.totalPrompts ?? prompts.length}
                 </span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-sm transition-all duration-200 hover:translate-x-1">
                 <span className="text-gray-600 dark:text-gray-400">Favorites:</span>
                 <span className="font-medium text-gray-900 dark:text-gray-100">
                   {promptStats?.favoriteCount ?? prompts.filter((p) => p.isFavorite).length}
                 </span>
               </div>
               {usage && (
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-sm transition-all duration-200 hover:translate-x-1">
                   <span className="text-gray-600 dark:text-gray-400">Plan:</span>
                   <span className="font-medium text-gray-900 dark:text-gray-100">
                     {usage.plan === 'pro_monthly'
