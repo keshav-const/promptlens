@@ -119,7 +119,7 @@ export default function Navbar({ onUpgradeClick }: NavbarProps) {
                 </div>
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}
-                  className="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
+                  className="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 whitespace-nowrap"
                 >
                   Sign Out
                 </button>
