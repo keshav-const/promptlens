@@ -50,9 +50,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     const toggleTheme = () => {
         setThemeState((prev) => {
-            // For now, just toggle between light and dark
-            // Later we can add uiux to the rotation
-            return prev === 'light' ? 'dark' : 'light';
+            // Cycle through all three modes: light → dark → uiux → light
+            if (prev === 'light') return 'dark';
+            if (prev === 'dark') return 'uiux';
+            return 'light';
         });
     };
 
