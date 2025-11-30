@@ -39,16 +39,108 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen flex-col dark:bg-gray-900 uiux:bg-transparent relative overflow-hidden">
-      {/* UI/UX Mode: Floating 3D Elements */}
-      <div className="hidden uiux:block absolute inset-0 pointer-events-none">
-        <FloatingElement speed="slow" className="absolute top-20 left-10 opacity-30">
-          <div className="w-32 h-32 rounded-2xl glass-card rotate-12" />
-        </FloatingElement>
-        <FloatingElement speed="normal" className="absolute top-40 right-20 opacity-20">
-          <div className="w-24 h-24 rounded-full glass-card" />
-        </FloatingElement>
-        <FloatingElement speed="fast" className="absolute bottom-32 left-1/4 opacity-25">
-          <div className="w-20 h-20 rounded-lg glass-card -rotate-6" />
+      {/* UI/UX Mode: Google Play Store Style 3D Glass Logo */}
+      <div className="hidden uiux:block absolute inset-0 pointer-events-none z-0">
+        <FloatingElement speed="slow" className="absolute top-24 left-16">
+          <div className="relative w-64 h-64" style={{ perspective: '1500px', transformStyle: 'preserve-3d' }}>
+            {/* Main Glass Container - Exact Play Store Replica */}
+            <div
+              className="absolute inset-0 rounded-[3rem]"
+              style={{
+                transform: 'rotateX(-5deg) rotateY(15deg) rotateZ(-8deg) translateZ(40px)',
+                transformStyle: 'preserve-3d',
+                background: `
+                  linear-gradient(135deg, 
+                    rgba(255,255,255,0.08) 0%, 
+                    rgba(255,255,255,0.02) 50%,
+                    rgba(255,255,255,0.05) 100%
+                  )
+                `,
+                backdropFilter: 'blur(40px) saturate(200%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+                border: '4px solid transparent',
+                backgroundImage: `
+                  linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
+                  linear-gradient(
+                    135deg,
+                    rgba(255,80,180,0.6) 0%,
+                    rgba(80,180,255,0.6) 20%,
+                    rgba(80,255,180,0.6) 40%,
+                    rgba(255,255,80,0.6) 60%,
+                    rgba(255,80,180,0.6) 80%,
+                    rgba(180,80,255,0.6) 100%
+                  )
+                `,
+                backgroundOrigin: 'border-box',
+                backgroundClip: 'padding-box, border-box',
+                boxShadow: `
+                  0 15px 50px 0 rgba(0, 212, 255, 0.3),
+                  0 30px 90px 0 rgba(0, 212, 255, 0.25),
+                  0 50px 130px 0 rgba(16, 185, 129, 0.2),
+                  inset 0 3px 0 0 rgba(255,255,255,0.5),
+                  inset 0 -3px 0 0 rgba(0,0,0,0.2),
+                  inset 3px 0 0 0 rgba(255,255,255,0.3),
+                  inset -3px 0 0 0 rgba(0,0,0,0.15)
+                `
+              }}
+            >
+              {/* Dark frosted inner background */}
+              <div
+                className="absolute inset-4 rounded-[2.5rem] overflow-hidden"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(15,25,35,0.7) 0%, rgba(25,35,45,0.5) 100%)',
+                  backdropFilter: 'blur(15px)'
+                }}
+              >
+                {/* Logo Image */}
+                <div className="absolute inset-0 flex items-center justify-center p-8">
+                  <img
+                    src="/logo-3d.png"
+                    alt="PromptOptimizer Logo"
+                    className="w-full h-full object-contain"
+                    style={{
+                      filter: 'drop-shadow(0 4px 12px rgba(0, 212, 255, 0.4))'
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Top glass shine/reflection */}
+              <div className="absolute inset-0 rounded-[3rem] overflow-hidden pointer-events-none">
+                <div
+                  className="absolute top-0 left-0 right-0 h-2/5"
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%)'
+                  }}
+                />
+                {/* Left side highlight */}
+                <div
+                  className="absolute top-0 bottom-0 left-0 w-1/3"
+                  style={{
+                    background: 'linear-gradient(90deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%)'
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Multiple shadow layers for depth */}
+            <div
+              className="absolute inset-0 rounded-[3rem] -z-10"
+              style={{
+                transform: 'rotateX(-5deg) rotateY(15deg) rotateZ(-8deg) translateY(6px) translateZ(35px)',
+                background: 'rgba(0, 0, 0, 0.3)',
+                filter: 'blur(30px)'
+              }}
+            />
+            <div
+              className="absolute inset-0 rounded-[3rem] -z-20"
+              style={{
+                transform: 'rotateX(-5deg) rotateY(15deg) rotateZ(-8deg) translateY(12px) translateZ(30px)',
+                background: 'rgba(0, 0, 0, 0.2)',
+                filter: 'blur(50px)'
+              }}
+            />
+          </div>
         </FloatingElement>
       </div>
 
@@ -150,8 +242,8 @@ export default function Home() {
         </div>
 
         <div className="mx-auto mt-16 grid max-w-5xl gap-8 md:grid-cols-3">
-          {/* Light/Dark Mode Cards */}
-          <div className="uiux:hidden rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          {/* Feature Card 1 - Hidden in UI/UX mode */}
+          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800 uiux:hidden">
             <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30">
               <svg
                 className="h-6 w-6 text-primary-600 dark:text-primary-400"
@@ -173,7 +265,8 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          {/* Feature Card 2 - Hidden in UI/UX mode */}
+          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800 uiux:hidden">
             <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30">
               <svg
                 className="h-6 w-6 text-primary-600 dark:text-primary-400"
@@ -195,7 +288,8 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          {/* Feature Card 3 - Hidden in UI/UX mode */}
+          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800 uiux:hidden">
             <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30">
               <svg
                 className="h-6 w-6 text-primary-600 dark:text-primary-400"
@@ -286,13 +380,13 @@ export default function Home() {
         </div>
 
         <div className="mx-auto mt-16 max-w-4xl text-center">
-          <h2 className="mb-8 text-3xl font-bold text-gray-900 dark:text-white">Simple, Transparent Pricing</h2>
+          <h2 className="mb-8 text-3xl font-bold text-gray-900 dark:text-white uiux:text-white">Simple, Transparent Pricing</h2>
           <div className="grid gap-8 md:grid-cols-2">
-            <div className="rounded-lg border-2 border-gray-200 bg-white p-8 dark:border-gray-700 dark:bg-gray-800">
-              <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">Free</h3>
+            <div className="rounded-lg border-2 border-gray-200 bg-white p-8 dark:border-gray-700 dark:bg-gray-800 uiux:bg-white/5 uiux:backdrop-blur-xl uiux:border-white/10">
+              <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white uiux:text-white">Free</h3>
               <div className="mb-4">
-                <span className="text-4xl font-bold text-gray-900 dark:text-white">$0</span>
-                <span className="text-gray-600 dark:text-gray-400">/month</span>
+                <span className="text-4xl font-bold text-gray-900 dark:text-white uiux:text-white">$0</span>
+                <span className="text-gray-600 dark:text-gray-400 uiux:text-gray-200">/month</span>
               </div>
               <ul className="mb-6 space-y-3 text-left">
                 <li className="flex items-start">
@@ -307,7 +401,7 @@ export default function Home() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-sm text-gray-700 dark:text-gray-300">10 prompts per day</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-300 uiux:text-gray-200">10 prompts per day</span>
                 </li>
                 <li className="flex items-start">
                   <svg
@@ -340,14 +434,14 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="rounded-lg border-2 border-primary-600 bg-white p-8 shadow-lg dark:bg-gray-800">
-              <div className="mb-2 inline-block rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
+            <div className="rounded-lg border-2 border-primary-600 bg-white p-8 shadow-lg dark:bg-gray-800 uiux:bg-white/8 uiux:backdrop-blur-xl uiux:border-cyan-500/50 uiux:shadow-glow-cyan">
+              <div className="mb-2 inline-block rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold text-primary-600 dark:bg-primary-900/30 dark:text-primary-400 uiux:bg-cyan-500/20 uiux:text-cyan-400">
                 POPULAR
               </div>
-              <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">Pro</h3>
+              <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white uiux:text-white">Pro</h3>
               <div className="mb-4">
-                <span className="text-4xl font-bold text-gray-900 dark:text-white">$9.99</span>
-                <span className="text-gray-600 dark:text-gray-400">/month</span>
+                <span className="text-4xl font-bold text-gray-900 dark:text-white uiux:text-white">$9.99</span>
+                <span className="text-gray-600 dark:text-gray-400 uiux:text-gray-300">/month</span>
               </div>
               <ul className="mb-6 space-y-3 text-left">
                 <li className="flex items-start">

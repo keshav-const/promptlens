@@ -54,7 +54,7 @@ export default function ThemeSelector() {
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-40 rounded-lg bg-white dark:bg-gray-800 uiux:bg-gray-900/95 uiux:backdrop-blur-md shadow-lg border border-gray-200 dark:border-gray-700 uiux:border-white/10 py-1 z-50">
+                <div className="absolute right-0 mt-2 w-40 rounded-lg bg-white dark:bg-gray-800 uiux:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 uiux:border-cyan-500/50 py-1 z-[9999]">
                     {themes.map((t) => (
                         <button
                             key={t.value}
@@ -63,7 +63,7 @@ export default function ThemeSelector() {
                                 w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors
                                 ${theme === t.value
                                     ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400 uiux:bg-cyan-500/20 uiux:text-cyan-400'
-                                    : 'text-gray-700 dark:text-gray-300 uiux:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 uiux:hover:bg-white/10'
+                                    : 'text-gray-700 dark:text-gray-200 uiux:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 uiux:hover:bg-cyan-500/10'
                                 }
                             `}
                         >
