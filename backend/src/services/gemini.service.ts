@@ -287,7 +287,36 @@ Format your response as JSON:
         throw new Error('No JSON found in response');
       }
 
-      const parsed = JSON.parse(jsonMatch[0]);
+      // Sanitize the JSON string to handle control characters
+      // The Gemini API sometimes returns JSON with unescaped newlines, tabs, etc. in string values
+      let jsonString = jsonMatch[0];
+
+      // First, try to parse as-is
+      let parsed;
+      try {
+        parsed = JSON.parse(jsonString);
+      } catch (firstError) {
+        // If parsing fails, try to fix common control character issues
+        // We need to be careful to only escape control characters within string values
+        console.log('First parse attempt failed, attempting to sanitize JSON...');
+
+        // Replace literal control characters with their escaped equivalents
+        // This regex-based approach handles most common cases
+        jsonString = jsonString
+          .replace(/\n/g, '\\n')
+          .replace(/\r/g, '\\r')
+          .replace(/\t/g, '\\t')
+          .replace(/\f/g, '\\f')
+          .replace(/\b/g, '\\b');
+
+        try {
+          parsed = JSON.parse(jsonString);
+        } catch (secondError) {
+          // If it still fails, log the problematic JSON for debugging
+          console.error('Failed to parse even after sanitization. JSON string:', jsonString.substring(0, 500));
+          throw new Error(`Failed to parse Gemini response after sanitization: ${(secondError as Error).message}`);
+        }
+      }
 
       if (!parsed.optimized || !parsed.explanation) {
         throw new Error('Missing required fields in response');
@@ -298,7 +327,7 @@ Format your response as JSON:
         explanation: parsed.explanation,
       };
     } catch (parseError) {
-      console.error('Failed to parse Gemini response:', responseText);
+      console.error('Failed to parse Gemini response:', responseText.substring(0, 500));
       throw new Error(`Failed to parse Gemini response: ${(parseError as Error).message}`);
     }
   }
