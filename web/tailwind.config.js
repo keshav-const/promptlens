@@ -24,10 +24,5 @@ module.exports = {
       },
     },
   },
-  plugins: [
-    // Add custom variant for uiux mode
-    function ({ addVariant }) {
-      addVariant('uiux', '.uiux &');
-    },
-  ],
+  plugins: [],
 };

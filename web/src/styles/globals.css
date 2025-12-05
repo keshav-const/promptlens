@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Design Tokens and Animations */
-@import './design-tokens.css';
-@import './animations.css';
-
 :root {
   /* Light theme primary colors - Blue spectrum */
   --color-primary-50: #eff6ff;
@@ -25,7 +21,7 @@
 }
 
 .dark {
-  /* Dark theme primary colors */
+  /* Dark theme primary colors - Placeholder for Phase 2 */
   --color-primary-50: #1e3a8a;
   --color-primary-100: #1e40af;
   --color-primary-200: #1d4ed8;
@@ -42,106 +38,10 @@
   --background-end-rgb: 0, 0, 0;
 }
 
-/* UI/UX Premium Mode */
-.uiux {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 10, 10, 15;
-  --background-end-rgb: 26, 26, 46;
-}
-
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
-}
-
-/* UI/UX Mode Specific Styles */
-.uiux body {
-  background: linear-gradient(135deg,
-      var(--uiux-bg-dark-900) 0%,
-      var(--uiux-bg-dark-800) 50%,
-      var(--uiux-bg-dark-700) 100%);
-  position: relative;
-  overflow-x: hidden;
-}
-
-/* Animated gradient background for UI/UX mode */
-.uiux body::before {
-  content: '';
-  position: fixed;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at 20% 50%,
-      rgba(0, 212, 255, 0.1) 0%,
-      transparent 50%),
-    radial-gradient(circle at 80% 80%,
-      rgba(16, 185, 129, 0.08) 0%,
-      transparent 50%),
-    radial-gradient(circle at 40% 20%,
-      rgba(37, 99, 235, 0.06) 0%,
-      transparent 50%);
-  animation: gradientShift 20s ease infinite;
-  pointer-events: none;
-  z-index: -1;
-}
-
-@keyframes gradientShift {
-
-  0%,
-  100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-
-  33% {
-    transform: translate(5%, 5%) rotate(120deg);
-  }
-
-  66% {
-    transform: translate(-5%, 5%) rotate(240deg);
-  }
-}
-
-/* Smooth scrolling for all modes */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Custom Scrollbar for UI/UX Mode */
-.uiux ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-.uiux ::-webkit-scrollbar-track {
-  background: var(--uiux-bg-dark-800);
-  border-radius: var(--radius-md);
-}
-
-.uiux ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg,
-      var(--uiux-cyan-500),
-      var(--uiux-ocean-600));
-  border-radius: var(--radius-md);
-  border: 2px solid var(--uiux-bg-dark-800);
-}
-
-.uiux ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg,
-      var(--uiux-cyan-400),
-      var(--uiux-ocean-500));
-}
-
-/* Reduced Motion Support */
-@media (prefers-reduced-motion: reduce) {
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb)))
+    rgb(var(--background-start-rgb));
 }
 
 @layer utilities {
