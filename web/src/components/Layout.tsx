@@ -1,7 +1,6 @@
 import { ReactNode, useState } from 'react';
 import Navbar from './Navbar';
 import UpgradeModal from './UpgradeModal';
-import ThemeDebug from './ThemeDebug';
 
 interface LayoutProps {
   children: ReactNode;
@@ -15,7 +14,7 @@ export default function Layout({ children }: LayoutProps) {
       <Navbar onUpgradeClick={() => setIsUpgradeModalOpen(true)} />
       <main>{children}</main>
       <UpgradeModal isOpen={isUpgradeModalOpen} onClose={() => setIsUpgradeModalOpen(false)} />
-      <ThemeDebug />
     </div>
   );
 }
+
