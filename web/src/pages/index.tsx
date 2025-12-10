@@ -5,6 +5,12 @@ import Link from 'next/link';
 import AnimatedButton from '@/components/AnimatedButton';
 import FloatingElement from '@/components/FloatingElement';
 import GlassCard from '@/components/GlassCard';
+import FloatingParticles from '@/components/FloatingParticles';
+import StatsSection from '@/components/StatsSection';
+import InteractiveDemo from '@/components/InteractiveDemo';
+import HowItWorks from '@/components/HowItWorks';
+import UseCases from '@/components/UseCases';
+import FAQ from '@/components/FAQ';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -39,6 +45,11 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen flex-col dark:bg-gray-900 uiux:bg-transparent relative overflow-hidden">
+      {/* UI/UX Mode: Floating Particles Background */}
+      <div className="hidden uiux:block">
+        <FloatingParticles />
+      </div>
+
       {/* UI/UX Mode: Glassmorphic Hero Logo */}
       <div className="hidden uiux:block absolute inset-0 pointer-events-none z-0">
         <FloatingElement speed="slow" className="absolute top-20 left-8 md:left-16 lg:left-24">
@@ -325,6 +336,21 @@ export default function Home() {
             </p>
           </GlassCard>
         </div>
+
+        {/* Stats Section */}
+        <StatsSection />
+
+        {/* Interactive Demo */}
+        <InteractiveDemo />
+
+        {/* How It Works */}
+        <HowItWorks />
+
+        {/* Use Cases */}
+        <UseCases />
+
+        {/* FAQ */}
+        <FAQ />
 
         <div className="mx-auto mt-16 max-w-4xl text-center">
           <h2 className="mb-8 text-3xl font-bold text-gray-900 dark:text-white uiux:text-white">Simple, Transparent Pricing</h2>
