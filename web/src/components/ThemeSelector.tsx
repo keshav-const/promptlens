@@ -54,7 +54,7 @@ export default function ThemeSelector() {
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-40 rounded-lg bg-white dark:bg-gray-800 uiux:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 uiux:border-cyan-500/50 py-1 z-[9999]">
+                <div className="absolute right-0 mt-2 w-40 rounded-lg bg-white dark:bg-gray-800 uiux:bg-gray-900/95 uiux:backdrop-blur-xl shadow-xl border border-gray-200 dark:border-gray-700 uiux:border-cyan-500/30 py-1 z-[9999]">
                     {themes.map((t) => (
                         <button
                             key={t.value}

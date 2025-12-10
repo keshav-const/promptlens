@@ -35,7 +35,7 @@ export default function Navbar({ onUpgradeClick }: NavbarProps) {
   }, [session]);
 
   return (
-    <nav className="border-b bg-white dark:bg-gray-800 dark:border-gray-700 uiux:bg-transparent uiux:backdrop-blur-md uiux:border-white/10 shadow-sm transition-colors duration-200">
+    <nav className="sticky top-0 z-50 border-b bg-white dark:bg-gray-800 dark:border-gray-700 uiux:bg-gray-900/80 uiux:backdrop-blur-xl uiux:border-white/10 shadow-sm transition-colors duration-200">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 uiux:glass-card uiux:border-0">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
