@@ -26,10 +26,38 @@ export class GeminiService {
   private apiKey: string;
   private baseUrl: string | null = null;
   private availableModels: GeminiModel[] = [];
+  private prioritizedModels: GeminiModel[] = [];
+  private currentModelIndex = 0;
   private initialized = false;
 
   constructor() {
     this.apiKey = config.GEMINI_API_KEY || 'test-key';
+  }
+
+  /**
+   * Switch to the next available model (used when current model is rate-limited)
+   */
+  private switchToNextModel(): boolean {
+    if (this.currentModelIndex < this.prioritizedModels.length - 1) {
+      this.currentModelIndex++;
+      const newModel = this.prioritizedModels[this.currentModelIndex];
+      this.baseUrl = `https://generativelanguage.googleapis.com/v1beta/${newModel.name}:generateContent`;
+      console.log(`🔄 Switching to fallback model: ${newModel.displayName} (${newModel.name})`);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Reset to the preferred model (call periodically or on new day)
+   */
+  resetToPreferredModel(): void {
+    if (this.prioritizedModels.length > 0) {
+      this.currentModelIndex = 0;
+      const preferredModel = this.prioritizedModels[0];
+      this.baseUrl = `https://generativelanguage.googleapis.com/v1beta/${preferredModel.name}:generateContent`;
+      console.log(`🔄 Reset to preferred model: ${preferredModel.displayName}`);
+    }
   }
 
   /**
@@ -78,33 +106,55 @@ export class GeminiService {
         throw new Error('No models found that support generateContent');
       }
 
-      // Prefer free-tier Flash models first
-      let selectedModel = this.availableModels.find(
-        (m) => m.name.includes('gemini-2.0-flash') && !m.name.includes('lite') && !m.name.includes('exp')
+      // Build a prioritized list of models for fallback
+      // Priority: gemini-2.0-flash > gemini-2.0-flash-lite > gemini-2.5-flash > gemini-2.5-flash-lite > others
+      this.prioritizedModels = [];
+
+      // Priority 1: gemini-2.0-flash (main free tier model)
+      const flash20 = this.availableModels.find(
+        (m) => m.name === 'models/gemini-2.0-flash' ||
+          (m.name.includes('gemini-2.0-flash') && !m.name.includes('lite') && !m.name.includes('exp') && !m.name.includes('image'))
       );
+      if (flash20) this.prioritizedModels.push(flash20);
 
-      if (!selectedModel) {
-        selectedModel = this.availableModels.find(
-          (m) => m.name.includes('gemini-flash') && !m.name.includes('lite') && !m.name.includes('pro')
-        );
+      // Priority 2: gemini-2.0-flash-lite (cheap alternative)
+      const flashLite20 = this.availableModels.find(
+        (m) => m.name === 'models/gemini-2.0-flash-lite' || m.name.includes('gemini-2.0-flash-lite')
+      );
+      if (flashLite20 && !this.prioritizedModels.includes(flashLite20)) this.prioritizedModels.push(flashLite20);
+
+      // Priority 3: gemini-2.5-flash
+      const flash25 = this.availableModels.find(
+        (m) => m.name === 'models/gemini-2.5-flash' ||
+          (m.name.includes('gemini-2.5-flash') && !m.name.includes('lite') && !m.name.includes('preview'))
+      );
+      if (flash25 && !this.prioritizedModels.includes(flash25)) this.prioritizedModels.push(flash25);
+
+      // Priority 4: gemini-2.5-flash-lite
+      const flashLite25 = this.availableModels.find(
+        (m) => m.name === 'models/gemini-2.5-flash-lite' || m.name.includes('gemini-2.5-flash-lite')
+      );
+      if (flashLite25 && !this.prioritizedModels.includes(flashLite25)) this.prioritizedModels.push(flashLite25);
+
+      // Priority 5: Any other flash models not already added
+      const otherFlash = this.availableModels.filter(
+        (m) => m.name.includes('flash') && !this.prioritizedModels.includes(m) && !m.name.includes('image') && !m.name.includes('tts')
+      );
+      this.prioritizedModels.push(...otherFlash);
+
+      // Fallback: first available model if no flash models found
+      if (this.prioritizedModels.length === 0) {
+        this.prioritizedModels.push(this.availableModels[0]);
       }
 
-      if (!selectedModel) {
-        selectedModel = this.availableModels.find(
-          (m) => m.name.includes('flash-lite')
-        );
-      }
-
-      if (!selectedModel) {
-        selectedModel = this.availableModels[0];
-      }
-
-      // Build the base URL using the discovered model name
-      // Model name comes in format "models/gemini-1.5-pro", we need to use it directly
+      // Set the initial model
+      this.currentModelIndex = 0;
+      const selectedModel = this.prioritizedModels[0];
       this.baseUrl = `https://generativelanguage.googleapis.com/v1beta/${selectedModel.name}:generateContent`;
 
       console.log(`✅ Selected model: ${selectedModel.displayName} (${selectedModel.name})`);
-      console.log(`📊 Available models: ${this.availableModels.map(m => m.displayName).join(', ')}`);
+      console.log(`📊 Fallback models: ${this.prioritizedModels.map(m => m.displayName).join(' → ')}`);
+      console.log(`📊 Total available models: ${this.availableModels.length}`);
 
       this.initialized = true;
     } catch (error) {
@@ -130,32 +180,54 @@ export class GeminiService {
     await this.discoverModels();
 
     let lastError: Error | null = null;
+    let totalAttempts = 0;
+    const maxTotalAttempts = MAX_RETRIES * this.prioritizedModels.length;
 
-    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-      try {
-        const response = await this.callGeminiAPI(prompt, mode);
-        return response;
-      } catch (error) {
-        lastError = error as Error;
-        console.error(`Gemini API attempt ${attempt + 1} failed:`, error);
+    // Try each model in the priority list
+    for (let modelIndex = 0; modelIndex < this.prioritizedModels.length; modelIndex++) {
+      // Set current model for this attempt
+      if (modelIndex > 0) {
+        this.switchToNextModel();
+      }
 
-        // Log available models on error to help with debugging
-        if (this.availableModels.length > 0) {
-          console.error(
-            `Available models: ${this.availableModels.map((m) => `${m.displayName} (${m.name})`).join(', ')}`
-          );
-        }
+      const currentModel = this.prioritizedModels[this.currentModelIndex];
 
-        if (attempt < MAX_RETRIES - 1) {
-          const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt);
-          await sleep(delay);
+      // Try this model with retries
+      for (let attempt = 0; attempt < MAX_RETRIES && totalAttempts < maxTotalAttempts; attempt++) {
+        totalAttempts++;
+        try {
+          const response = await this.callGeminiAPI(prompt, mode);
+          return response;
+        } catch (error) {
+          lastError = error as Error;
+          const errorMessage = (error as Error).message;
+
+          console.error(`Gemini API attempt ${totalAttempts} with ${currentModel.displayName} failed:`, errorMessage);
+
+          // Check if this is a 429 quota error
+          const isQuotaError = errorMessage.includes('429') ||
+            errorMessage.includes('RESOURCE_EXHAUSTED') ||
+            errorMessage.includes('quota');
+
+          if (isQuotaError) {
+            console.log(`⚠️ Rate limit hit on ${currentModel.displayName}, trying next model...`);
+            // Break inner retry loop to try next model immediately
+            break;
+          }
+
+          // For non-quota errors, apply exponential backoff and retry same model
+          if (attempt < MAX_RETRIES - 1) {
+            const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt);
+            console.log(`⏳ Waiting ${delay}ms before retry...`);
+            await sleep(delay);
+          }
         }
       }
     }
 
-    const errorMessage = this.availableModels.length > 0
-      ? `Failed to optimize prompt after ${MAX_RETRIES} attempts: ${lastError?.message}. Available models: ${this.availableModels.map((m) => m.displayName).join(', ')}`
-      : `Failed to optimize prompt after ${MAX_RETRIES} attempts: ${lastError?.message}`;
+    const errorMessage = this.prioritizedModels.length > 0
+      ? `Failed to optimize prompt after trying ${this.prioritizedModels.length} models (${totalAttempts} total attempts): ${lastError?.message}. Tried models: ${this.prioritizedModels.map((m) => m.displayName).join(', ')}`
+      : `Failed to optimize prompt after ${totalAttempts} attempts: ${lastError?.message}`;
 
     throw new AppError(
       errorMessage,
